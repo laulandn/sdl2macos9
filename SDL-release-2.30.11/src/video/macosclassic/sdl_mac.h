@@ -44,6 +44,7 @@
 
 
 /* Globals are evil...these belong in driver data slash impl vars/params! */
+extern int macmoddown;
 extern WindowPtr macwindow;
 extern CGrafPtr macport;
 /**/

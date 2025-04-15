@@ -233,6 +233,11 @@ static int createWindow(_THIS, SDL_Window *window)
     /*if (screen_create_window_buffers(impl->window, numbufs) < 0) {
         goto fail;
     }*/
+    
+    sdlw=window;
+#ifdef MAC_DEBUG
+    fprintf(stderr,"macosclassic sdlw at %08lx\n",sdlw); fflush(stderr);
+#endif
 
     window->driverdata = impl;
     return 0;
@@ -339,6 +344,8 @@ static int createWindowFramebuffer(_THIS, SDL_Window * window, Uint32 * format,
     *pitch=macWidth*(macDepth/8);
     *format = SDL_PIXELFORMAT_RGB888;
     
+    /*sdlw=window;*/
+    
     return 0;
 }
 
@@ -433,6 +440,14 @@ static void pumpEvents(_THIS)
         BeginUpdate((WindowPtr)event.message);
         EndUpdate((WindowPtr)event.message);
         DrawGrowIcon((WindowPtr)event.message);
+        break;
+      case mouseDown:
+        fprintf(stderr,"macosclassic mouseDown!\n",etype); fflush(stderr);
+        SDL_SendMouseButton(sdlw,1,1,SDL_BUTTON_LEFT);
+        break;
+      case mouseUp:
+        fprintf(stderr,"macosclassic mouseUp!\n",etype); fflush(stderr);
+        SDL_SendMouseButton(sdlw,1,0,SDL_BUTTON_LEFT);
         break;
       case autoKey:
         /*fprintf(stderr,"macosclassic autoKey!\n",etype); fflush(stderr);*/
