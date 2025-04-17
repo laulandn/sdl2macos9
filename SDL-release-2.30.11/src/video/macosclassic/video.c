@@ -29,6 +29,7 @@
 #define QUICKDRAW_BLIT 1
  
 
+/* This should really be in main */
 #define STDOUT_FILE	"stdout.txt"
 #define STDERR_FILE	"stderr.txt"
 
@@ -310,12 +311,13 @@ static int createWindowFramebuffer(_THIS, SDL_Window * window, Uint32 * format,
     thePM->pmVersion=0;
     thePM->pixelType=RGBDirect;
     thePM->packType=0;  thePM->packSize=0;    
-    #if TARGET_API_CARBON
+#if TARGET_API_MAC_CARBON
+    thePM->pmTable=NULL;  /* TODO what goes here? */
 #else
     thePM->planeBytes=0; /* Offset in bytes to next plane */
     thePM->pmReserved=0;
-#endif
     thePM->pmTable=(*macport->portPixMap)->pmTable;
+#endif
 #ifdef MAC_DEBUG
     fprintf(stderr,"macosclassic thePM at %lx\n",(long)thePM); fflush(stderr);
 #endif
@@ -395,7 +397,11 @@ static int updateWindowFramebuffer(_THIS, SDL_Window *window, const SDL_Rect *re
   mdr.top=0; mdr.left=0; 
   mdr.bottom=macHeight;  mdr.right=macWidth;
   srcBits=(BitMap *)thePM;
+#if TARGET_API_MAC_CARBON
+  dstBits=GetPortBitMapForCopyBits(macwindow);
+#else
   dstBits=(BitMap *)&((GrafPtr)macwindow)->portBits;
+#endif
   CopyBits(srcBits,dstBits,&msr,&mdr,srcCopy,NULL);
 #else
   src=macpixels;
@@ -577,6 +583,7 @@ static SDL_VideoDevice *createDevice(int devindex)
     fprintf(stderr,"macosclassic createDevice...\n"); fflush(stderr);
 #endif
 
+    /* This should really be in main */
     freopen (STDOUT_FILE, "w", stdout);
     freopen (STDERR_FILE, "w", stderr);
 

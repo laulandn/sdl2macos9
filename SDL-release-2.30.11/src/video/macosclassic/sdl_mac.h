@@ -29,9 +29,14 @@
 
 /*#include <screen/screen.h>
 #include <EGL/egl.h>*/
+
+#ifdef BUILDING_FOR_CARBON
+#include <Carbon.h>
+#else
 #include <Quickdraw.h>
 #include <QDOffscreen.h>
 #include <MacWindows.h>
+#endif
 
 
 #define MAC_DEBUG 1

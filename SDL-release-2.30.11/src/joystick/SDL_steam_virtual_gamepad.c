@@ -28,7 +28,10 @@
 #ifdef __WIN32__
 #include "../core/windows/SDL_windows.h"
 #else
+#ifdef __MWERKS__
+#else
 #include <sys/types.h>
+#endif
 #include <sys/stat.h>
 #endif
 

@@ -24,22 +24,22 @@
 #pragma once
 #endif
 
-//-----------------------------------------------------------------------------
-// Purpose: Steam Controller models 
-// WARNING: DO NOT RENUMBER EXISTING VALUES - STORED IN A DATABASE
-//-----------------------------------------------------------------------------
+/*-----------------------------------------------------------------------------
+/ Purpose: Steam Controller models 
+/ WARNING: DO NOT RENUMBER EXISTING VALUES - STORED IN A DATABASE
+/-----------------------------------------------------------------------------*/
 typedef enum
 {
 	k_eControllerType_None = -1,
 	k_eControllerType_Unknown = 0,
 
-	// Steam Controllers
+	/* Steam Controllers */
 	k_eControllerType_UnknownSteamController = 1,
 	k_eControllerType_SteamController = 2,
 	k_eControllerType_SteamControllerV2 = 3,
 	k_eControllerType_SteamDeck = 4,
 
-	// Other Controllers
+	/* Other Controllers*/
 	k_eControllerType_UnknownNonSteamController = 30,
 	k_eControllerType_XBox360Controller = 31,
 	k_eControllerType_XBoxOneController = 32,
@@ -54,12 +54,12 @@ typedef enum
 	k_eControllerType_SwitchJoyConPair = 41,
 	k_eControllerType_SwitchInputOnlyController = 42,
 	k_eControllerType_MobileTouch = 43,
-	k_eControllerType_XInputSwitchController = 44,  // Client-side only, used to mark Nintendo Switch style controllers as using XInput instead of the Nintendo Switch protocol
+	k_eControllerType_XInputSwitchController = 44,  /* Client-side only, used to mark Nintendo Switch style controllers as using XInput instead of the Nintendo Switch protocol*/
 	k_eControllerType_PS5Controller = 45,
-	k_eControllerType_XInputPS4Controller = 46,     // Client-side only, used to mark DualShock 4 style controllers using XInput instead of the DualShock 4 controller protocol
-	k_eControllerType_LastController,			// Don't add game controllers below this enumeration - this enumeration can change value
+	k_eControllerType_XInputPS4Controller = 46,     /* Client-side only, used to mark DualShock 4 style controllers using XInput instead of the DualShock 4 controller protocol*/
+	k_eControllerType_LastController,			/* Don't add game controllers below this enumeration - this enumeration can change value*/
 
-	// Keyboards and Mice
+	/* Keyboards and Mice*/
 	k_eControllertype_GenericKeyboard = 400,
 	k_eControllertype_GenericMouse = 800,
 } EControllerType;
@@ -75,6 +75,6 @@ typedef struct
 extern EControllerType GuessControllerType( int nVID, int nPID );
 extern const char *GuessControllerName( int nVID, int nPID );
 
-#endif // CONTROLLER_TYPE_H
+#endif /* CONTROLLER_TYPE_H */
 
 /* vi: set ts=4 sw=4 noexpandtab: */

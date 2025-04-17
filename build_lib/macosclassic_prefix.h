@@ -1,0 +1,1 @@
+#define BUILDING_FOR_CARBON 1/* m68k is never carbon, obviously... */#if !powerc#ifdef BUILDING_FOR_CARBON#undef BUILDING_FOR_CARBON#endif#endif
