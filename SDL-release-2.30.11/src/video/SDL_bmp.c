@@ -239,6 +239,7 @@ SDL_Surface *SDL_LoadBMP_RW(SDL_RWops *src, int freesrc)
     surface = NULL;
     was_error = SDL_FALSE;
     if (!src) {
+	    fprintf(stderr,"NULL src!\n");
         SDL_InvalidParamError("src");
         was_error = SDL_TRUE;
         goto done;

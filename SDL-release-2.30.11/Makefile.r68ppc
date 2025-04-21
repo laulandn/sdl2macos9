@@ -1,0 +1,133 @@
+# Makefile to build the AmigaOS4 SDL library
+
+AR = powerpc-apple-macos-ar
+RANLIB = powerpc-apple-macos-ranlib
+CC = powerpc-apple-macos-gcc
+CXX = powerpc-apple-macos-g++
+STRIP = powerpc-apple-macos-strip
+#CRT ?= newlib
+INSTALL_PATH ?=
+CATCOMP = catcomp # TODO: is there a cross-compiler version?
+
+#AMIGADATE = $(shell date +"%-d.%m.%Y")
+
+#CFLAGS  = -mcrt=$(CRT) -gstabs -O3 -Wall -Werror -Wshadow -fPIC -fcommon -I./include -D__AMIGADATE__=\"$(AMIGADATE)\"
+CFLAGS  = -Wall -Wshadow -I./include -D__MACOSCLASSIC__
+
+TARGET_STATIC  = libSDL2.a
+#TARGET_SHARED  = libSDL2-2.31.so
+TESTLIB_STATIC = libSDL2_test.a
+#PREFS_PROGRAM = SDL2
+
+SOURCES = \
+	./src/*.c \
+	./src/atomic/*.c \
+	./src/audio/*.c \
+	./src/audio/dummy/*.c \
+	./src/cpuinfo/*.c \
+	./src/events/*.c \
+	./src/file/*.c \
+	./src/filesystem/macosclassic/*.c \
+	./src/haptic/*.c \
+	./src/haptic/dummy/*.c \
+	./src/joystick/*.c \
+	./src/joystick/dummy/*.c \
+	./src/joystick/virtual/*.c \
+	./src/libm/*.c \
+	./src/locale/*.c \
+	./src/misc/*.c \
+	./src/power/*.c \
+	./src/render/*.c \
+	./src/render/opengl/*.c \
+	./src/render/opengles2/*.c \
+	./src/render/software/*.c \
+	./src/sensor/*.c \
+	./src/sensor/dummy/*.c \
+	./src/stdlib/*.c \
+	./src/thread/*.c \
+	./src/thread/generic/*.c \
+	./src/timer/*.c \
+	./src/timer/dummy/*.c \
+	./src/video/*.c \
+	./src/video/macosclassic/*.c \
+	./src/video/dummy/*.c \
+	./src/video/yuv2rgb/*.c \
+
+TESTLIB_SOURCES =./src/test/*.c
+
+OBJECTS = $(shell echo $(SOURCES) | sed -e 's,\.c,\.o,g')
+TESTLIB_OBJECTS = $(shell echo $(TESTLIB_SOURCES) | sed -e 's,\.c,\.o,g')
+VERSION_OBJECT = src/main/apple-macos4/SDL_os4version.o
+#PREFS_OBJECT = amiga-extra/prefs.o
+#DEBUG_OBJECT = src/main/apple-macos4/SDL_os4debug.o
+ALL_OBJECTS = $(OBJECTS) $(TESTLIB_OBJECTS) $(VERSION_OBJECT) $(PREFS_OBJECT)
+DEPS = $(ALL_OBJECTS:.o=.d)
+
+LOCALE_DESCRIPTOR = amiga-extra/sdl2.cd
+LOCALE_TEMPLATE = amiga-extra/sdl2.ct
+LOCALE_GENERATED = amiga-extra/locale_generated.h
+
+all: info $(TARGET_STATIC) $(TARGET_SHARED) $(TESTLIB_STATIC) $(PREFS_PROGRAM)
+	@echo All done
+
+info:
+	@echo Compiler flags: $(CFLAGS)
+
+debug: CFLAGS += -DDEBUG
+
+debug: all
+
+$(TESTLIB_STATIC): $(TESTLIB_OBJECTS)
+	@echo Creating $@
+	@$(AR) crv $@ $^
+	@$(RANLIB) $@
+
+$(TARGET_STATIC): $(OBJECTS)
+	@echo Creating $@
+	@$(AR) crv $@ $^
+	@$(RANLIB) $@
+
+$(TARGET_SHARED): $(OBJECTS) $(VERSION_OBJECT)
+	@echo Linking $@
+	@$(CC) -mcrt=$(CRT) -shared -Wl,-soname,$(TARGET_SHARED) -o $(TARGET_SHARED) $(OBJECTS) $(VERSION_OBJECT)
+
+#$(PREFS_PROGRAM): $(PREFS_OBJECT) $(DEBUG_OBJECT)
+#	$(CC) -o $@ $^
+
+#$(PREFS_OBJECT): amiga-extra/prefs.c $(LOCALE_GENERATED)
+
+#$(DEBUG_OBJECT): src/main/apple-macos4/SDL_os4debug.c
+
+locale: locale_generated locale_template
+
+locale_generated:
+	$(CATCOMP) $(LOCALE_DESCRIPTOR) CFILE $(LOCALE_GENERATED)
+
+locale_template:
+	$(CATCOMP) $(LOCALE_DESCRIPTOR) CTFILE $(LOCALE_TEMPLATE)
+
+clean:
+	@echo Cleaning
+	@rm -f $(TARGET_STATIC) $(TARGET_SHARED) $(TESTLIB_STATIC) $(ALL_OBJECTS) $(PREFS_PROGRAM) $(DEPS)
+
+install:
+	mkdir -p $(INSTALL_PATH)/SDK/local/$(CRT)/lib
+	mkdir -p $(INSTALL_PATH)/SDK/local/$(CRT)/include/SDL2
+	cp -f $(TARGET_STATIC) $(INSTALL_PATH)/SDK/local/$(CRT)/lib
+	cp -f $(TARGET_SHARED) $(INSTALL_PATH)/SDK/local/$(CRT)/lib
+	cp -f $(TESTLIB_STATIC) $(INSTALL_PATH)/SDK/local/$(CRT)/lib
+	cp -f include/*.h $(INSTALL_PATH)/SDK/local/$(CRT)/include/SDL2/
+	cp -f $(PREFS_PROGRAM) /SYS/Prefs/
+
+%.o : %.c
+	@echo Compiling $<
+	@$(CC) -o $@ -c $< $(CFLAGS)
+
+%.d : %.c
+	@echo Making dependencies for $<
+	@$(CC) -MM -MP -MT $(@:.d=.o) -o $@ $< $(CFLAGS)
+
+# Load .d files
+ifneq ($(MAKECMDGOALS),clean)
+-include $(DEPS)
+endif

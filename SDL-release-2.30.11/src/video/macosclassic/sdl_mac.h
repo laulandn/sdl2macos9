@@ -36,6 +36,7 @@
 #include <Quickdraw.h>
 #include <QDOffscreen.h>
 #include <MacWindows.h>
+#include <Dialogs.h>
 #endif
 
 
@@ -80,6 +81,7 @@ typedef struct
 
 extern void handleKeyboardEvent(EventRecord *event,int what);
 
+extern int chooseFormat(/*EGLConfig egl_conf*/);
 extern int glGetConfig(void /*EGLConfig*/ *pconf, int *pformat);
 extern int glLoadLibrary(_THIS, const char *name);
 void *glGetProcAddress(_THIS, const char *proc);

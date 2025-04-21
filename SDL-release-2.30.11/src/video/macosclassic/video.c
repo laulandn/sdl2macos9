@@ -134,7 +134,7 @@ static int videoInit(_THIS)
     
     sdlvdisp=&sdlvdev->displays[0];
 #ifdef MAC_DEBUG
-    fprintf(stderr,"macosclassic sdlvdisp is %0x8\n",sdlvdisp); fflush(stderr);
+    fprintf(stderr,"macosclassic sdlvdisp is %0lx8\n",(long)sdlvdisp); fflush(stderr);
 #endif
 
 /*offPixMapHandle=NULL;*/
@@ -237,7 +237,7 @@ static int createWindow(_THIS, SDL_Window *window)
     
     sdlw=window;
 #ifdef MAC_DEBUG
-    fprintf(stderr,"macosclassic sdlw at %08lx\n",sdlw); fflush(stderr);
+    fprintf(stderr,"macosclassic sdlw at %08lx\n",(long)sdlw); fflush(stderr);
 #endif
 
     window->driverdata = impl;
@@ -448,23 +448,23 @@ static void pumpEvents(_THIS)
         DrawGrowIcon((WindowPtr)event.message);
         break;
       case mouseDown:
-        fprintf(stderr,"macosclassic mouseDown!\n",etype); fflush(stderr);
+        fprintf(stderr,"macosclassic mouseDown!\n"); fflush(stderr);
         SDL_SendMouseButton(sdlw,1,1,SDL_BUTTON_LEFT);
         break;
       case mouseUp:
-        fprintf(stderr,"macosclassic mouseUp!\n",etype); fflush(stderr);
+        fprintf(stderr,"macosclassic mouseUp!\n"); fflush(stderr);
         SDL_SendMouseButton(sdlw,1,0,SDL_BUTTON_LEFT);
         break;
       case autoKey:
-        /*fprintf(stderr,"macosclassic autoKey!\n",etype); fflush(stderr);*/
+        /*fprintf(stderr,"macosclassic autoKey!\n"); fflush(stderr);*/
         handleKeyboardEvent(&event,etype);
         break;
 	  case keyDown:
-        /*fprintf(stderr,"macosclassic keyDown!\n",etype); fflush(stderr);*/
+        /*fprintf(stderr,"macosclassic keyDown!\n"); fflush(stderr);*/
         handleKeyboardEvent(&event,etype);
         break;
 	  case keyUp:
-        /*fprintf(stderr,"macosclassic keyUp!\n",etype); fflush(stderr);*/
+        /*fprintf(stderr,"macosclassic keyUp!\n"); fflush(stderr);*/
         handleKeyboardEvent(&event,etype);
 	    break;
 	  default:

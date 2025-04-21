@@ -540,7 +540,10 @@ static SDL_bool IsRegularFileOrPipe(FILE *f)
     #else
     struct stat st;
     if (fstat(fileno(f), &st) < 0 || !(S_ISREG(st.st_mode) || S_ISFIFO(st.st_mode))) {
+#ifdef __MACOSCLASSIC__
+#else
         return SDL_FALSE;
+#endif
     }
     #endif
     return SDL_TRUE;
@@ -630,7 +633,7 @@ SDL_RWops *SDL_RWFromFile(const char *file, const char *mode)
         FILE *fp = SDL_OpenFPFromBundleOrFallback(file, mode);
 #elif defined(__WINRT__)
         FILE *fp = NULL;
-        fopen_s(&fp, file, mode);
+	fopen_s(&fp, file, mode);
 #elif defined(__3DS__)
         FILE *fp = N3DS_FileOpen(file, mode);
 #else
@@ -657,7 +660,6 @@ SDL_RWops *SDL_RWFromFile(const char *file, const char *mode)
 SDL_RWops *SDL_RWFromFP(FILE * fp, SDL_bool autoclose)
 {
     SDL_RWops *rwops = NULL;
-
     rwops = SDL_AllocRW();
     if (rwops) {
         rwops->size = stdio_size;

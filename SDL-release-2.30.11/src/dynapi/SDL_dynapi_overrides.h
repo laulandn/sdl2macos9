@@ -27,6 +27,8 @@
 #error You should not be here.
 #endif
 
+#ifdef __MACOSCLASSIC__
+#else
 #define SDL_SetError SDL_SetError_REAL
 #define SDL_Log SDL_Log_REAL
 #define SDL_LogVerbose SDL_LogVerbose_REAL
@@ -898,3 +900,5 @@
 #define SDL_DestroyWindowSurface SDL_DestroyWindowSurface_REAL
 #define SDL_GDKGetDefaultUser SDL_GDKGetDefaultUser_REAL
 #define SDL_GameControllerGetSteamHandle SDL_GameControllerGetSteamHandle_REAL
+#endif
+

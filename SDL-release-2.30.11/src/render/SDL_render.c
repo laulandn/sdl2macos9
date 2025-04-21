@@ -961,7 +961,7 @@ SDL_Renderer *SDL_CreateRenderer(SDL_Window *window, int index, Uint32 flags)
     SDL_bool batching = SDL_TRUE;
     const char *hint;
 
-#ifdef __MWERKS__
+#ifdef __MACOSCLASSIC__
   /* Sorry...we sneakily change accelerated to software if you asked for it */
   if(flags&SDL_RENDERER_ACCELERATED) { flags-=SDL_RENDERER_ACCELERATED; flags&=SDL_RENDERER_SOFTWARE; }
 #endif

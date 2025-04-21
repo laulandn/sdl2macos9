@@ -33,7 +33,7 @@
  * @param   egl_conf    EGL configuration to use
  * @return  A SCREEN_FORMAT* constant for the pixel format to use
  */
-static int chooseFormat(/*EGLConfig egl_conf*/)
+/*static*/ int chooseFormat(/*EGLConfig egl_conf*/)
 {
 #ifdef MAC_DEBUG
   fprintf(stderr,"macosclassic chooseFormat....\n"); fflush(stderr);

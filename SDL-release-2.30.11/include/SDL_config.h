@@ -1,3 +1,5 @@
+#define __MACOSCLASSIC__ 1
+
 /*
   Simple DirectMedia Layer
   Copyright (C) 1997-2025 Sam Lantinga <slouken@libsdl.org>
@@ -49,7 +51,7 @@
 #include "SDL_config_emscripten.h"
 #elif defined(__NGAGE__)
 #include "SDL_config_ngage.h"
-#elif defined(__MWERKS__)
+#elif defined(__MACOSCLASSIC__)
 #include "SDL_config_macosclassic.h"
 #else
 /* This is a minimal configuration just to get SDL running on new platforms. */
