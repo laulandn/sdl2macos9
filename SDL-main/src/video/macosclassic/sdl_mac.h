@@ -79,6 +79,13 @@ typedef struct
 } window_impl_t;
 
 
+/* Not even sure yet if this is needed... */
+typedef struct
+{
+  void *foo;  /* nothing real yet */
+} mac_gl_context;
+
+
 extern void handleKeyboardEvent(EventRecord *event,int what);
 
 extern int chooseFormat(/*EGLConfig egl_conf*/);

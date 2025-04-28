@@ -75,8 +75,20 @@
 int glGetConfig(void /*EGLConfig*/ *pconf, int *pformat)
 {
 #ifdef MAC_DEBUG
-  fprintf(stderr,"macosclassic glGetConfig....\n"); fflush(stderr);
+    fprintf(stderr,"macosclassic glGetConfig....\n"); fflush(stderr);
 #endif
+    if(pconf) {
+      fprintf(stderr,"macosclassic glGetConfig passed pconf\n"); fflush(stderr);
+    }
+    else {
+      fprintf(stderr,"macosclassic glGetConfig NULL pconf\n"); fflush(stderr);
+    }
+    if(pformat) {
+      fprintf(stderr,"macosclassic glGetConfig passed pformat\n"); fflush(stderr);
+    }
+    else {
+      fprintf(stderr,"macosclassic glGetConfig NULL pformat\n"); fflush(stderr);
+    }
 /*
     EGLConfig egl_conf = (EGLConfig)0;
     EGLConfig *egl_configs;
@@ -148,6 +160,12 @@ int glLoadLibrary(_THIS, const char *name)
 #ifdef MAC_DEBUG
   fprintf(stderr,"macosclassic glLoadLibrary....\n"); fflush(stderr);
 #endif
+    if(name) {
+      fprintf(stderr,"macosclassic glLoadLibrary passed name\n"); fflush(stderr);
+    }
+    else {
+      fprintf(stderr,"macosclassic glLoadLibrary NULL name\n"); fflush(stderr);
+    }
 /*
     EGLNativeDisplayType    disp_id = EGL_DEFAULT_DISPLAY;
 
@@ -160,6 +178,8 @@ int glLoadLibrary(_THIS, const char *name)
         return -1;
     }
 */
+
+    /* NOTE: We should return -1 for fail, but lie and say it's ok */
     return 0;
 }
 
@@ -173,6 +193,12 @@ void *glGetProcAddress(_THIS, const char *proc)
 #ifdef MAC_DEBUG
   fprintf(stderr,"macosclassic glGetProcAddress....\n"); fflush(stderr);
 #endif
+    if(proc) {
+      fprintf(stderr,"macosclassic glGetProcAddress passed proc\n"); fflush(stderr);
+    }
+    else {
+      fprintf(stderr,"macosclassic glGetProcAddress NULL proc\n"); fflush(stderr);
+    }
     /*return eglGetProcAddress(proc);*/
     return NULL;
 }
@@ -189,6 +215,12 @@ SDL_GLContext glCreateContext(_THIS, SDL_Window *window)
 #ifdef MAC_DEBUG
   fprintf(stderr,"macosclassic glCreateContext....\n"); fflush(stderr);
 #endif
+    if(window) {
+      fprintf(stderr,"macosclassic glCreateContext passed window\n"); fflush(stderr);
+    }
+    else {
+      fprintf(stderr,"macosclassic glCreateContext NULL window\n"); fflush(stderr);
+    }
 /*
     window_impl_t   *impl = (window_impl_t *)window->driverdata;
     EGLContext      context;
@@ -260,6 +292,12 @@ int glSwapWindow(_THIS, SDL_Window *window)
 #ifdef MAC_DEBUG
   fprintf(stderr,"macosclassic glSwapWindow....\n"); fflush(stderr);
 #endif
+    if(window) {
+      fprintf(stderr,"macosclassic glSwapWindow passed window\n"); fflush(stderr);
+    }
+    else {
+      fprintf(stderr,"macosclassic glSwapWindow NULL window\n"); fflush(stderr);
+    }
     /* !!! FIXME: should we migrate this all over to use SDL_egl.c? */
     /*
     window_impl_t   *impl = (window_impl_t *)window->driverdata;
@@ -280,6 +318,12 @@ int glMakeCurrent(_THIS, SDL_Window *window, SDL_GLContext context)
 #ifdef MAC_DEBUG
   fprintf(stderr,"macosclassic glMakeCurrent....\n"); fflush(stderr);
 #endif
+    if(window) {
+      fprintf(stderr,"macosclassic glMakeCurrent passed window\n"); fflush(stderr);
+    }
+    else {
+      fprintf(stderr,"macosclassic glMakeCurrent NULL window\n"); fflush(stderr);
+    }
 /*
     window_impl_t   *impl;
     EGLSurface      surface = NULL;

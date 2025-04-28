@@ -68,7 +68,9 @@ int LoadSprite(const char *file)
 {
     int i;
 
+    fprintf(stderr,"Going to LoadSprite '%s'...\n",file);
     for (i = 0; i < state->num_windows; ++i) {
+        fprintf(stderr,"Going to LoadTexture '%s'...\n",file);
         /* This does the SDL_LoadBMP step repeatedly, but that's OK for test code. */
         sprites[i] = LoadTexture(state->renderers[i], file, SDL_TRUE, &sprite_w, &sprite_h);
         if (!sprites[i]) {
@@ -450,9 +452,10 @@ int main(int argc, char *argv[])
 
     /* Initialize parameters */
     num_sprites = NUM_SPRITES;
-
+fprintf(stderr,"Going to SDLTest_CommonCreateState\n");
     /* Initialize test framework */
     state = SDLTest_CommonCreateState(argv, SDL_INIT_VIDEO);
+    fprintf(stderr,"Past to SDLTest_CommonCreateState\n");
     if (!state) {
         printf("!state\n");
         return 1;
@@ -516,6 +519,7 @@ int main(int argc, char *argv[])
                 consumed = 1;
             } else if (argv[i][0] != '-') {
                 icon = argv[i];
+		fprintf(stderr,"icon set to '%s' by command line\n",icon);
                 consumed = 1;
             }
         }
@@ -537,9 +541,12 @@ int main(int argc, char *argv[])
     }
     state->verbose=VERBOSE_VIDEO | VERBOSE_MODES | VERBOSE_RENDER |
                  VERBOSE_EVENT;
+		 fprintf(stderr,"Going to SDLTest_CommonInit\n");
     if (!SDLTest_CommonInit(state)) {
+    fprintf(stderr,"SDLTest_CommonInit failed!\n");
         quit(2);
     }
+    fprintf(stderr,"Past SDLTest_CommonInit\n");
 
     /* Create the windows, initialize the renderers, and load the textures */
     sprites =

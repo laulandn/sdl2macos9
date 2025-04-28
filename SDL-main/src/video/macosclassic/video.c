@@ -27,11 +27,11 @@
 
 
 #define QUICKDRAW_BLIT 1
- 
 
-/* This should really be in main */
+#ifndef SDL_MAIN_NEEDED
 #define STDOUT_FILE	"stdout.txt"
 #define STDERR_FILE	"stderr.txt"
+#endif
 
 
 /* Globals are evil...these belong in driver data slash impl vars/params! */
@@ -70,6 +70,7 @@ static int videoInit(_THIS)
 
 /*printf("This should show up on the SIOUX console...\n");*/
 
+#ifndef SDL_MAIN_NEEDED
 #if !TARGET_API_MAC_CARBON
 	InitGraf    (&qd.thePort);
 	InitFonts   ();
@@ -86,7 +87,7 @@ static int videoInit(_THIS)
 #endif
 	MoreMasters ();
 	MoreMasters ();
-
+#endif
 
 #ifdef MAC_DEBUG
   fprintf(stderr,"macosclassic videoInit...\n"); fflush(stderr);
@@ -579,14 +580,14 @@ static SDL_VideoDevice *createDevice(int devindex)
 {
     SDL_VideoDevice *device;
 
+#ifndef SDL_MAIN_NEEDED
+    freopen (STDOUT_FILE, "w", stdout);
+    freopen (STDERR_FILE, "w", stderr);
+#endif
+
 #ifdef MAC_DEBUG
     fprintf(stderr,"macosclassic createDevice...\n"); fflush(stderr);
 #endif
-
-    /* This should really be in main */
-    freopen (STDOUT_FILE, "w", stdout);
-    freopen (STDERR_FILE, "w", stderr);
-
 
     device = (SDL_VideoDevice *)SDL_calloc(1, sizeof(SDL_VideoDevice));
     if (!device) {
@@ -602,26 +603,47 @@ static SDL_VideoDevice *createDevice(int devindex)
     
     device->VideoInit = videoInit;
     device->VideoQuit = videoQuit;
+    /**/
     device->CreateSDLWindow = createWindow;
-    device->CreateWindowFramebuffer = createWindowFramebuffer;
-    device->UpdateWindowFramebuffer = updateWindowFramebuffer;
+    /**/
     device->SetWindowSize = setWindowSize;
+    /**/
     device->ShowWindow = showWindow;
     device->HideWindow = hideWindow;
-    device->PumpEvents = pumpEvents;
+    /**/
     device->DestroyWindow = destroyWindow;
+    device->CreateWindowFramebuffer = createWindowFramebuffer;
+    device->UpdateWindowFramebuffer = updateWindowFramebuffer;
+
+    device->PumpEvents = pumpEvents;
 
     device->GL_LoadLibrary = glLoadLibrary;
     device->GL_GetProcAddress = glGetProcAddress;
-    device->GL_CreateContext = glCreateContext;
-    device->GL_SetSwapInterval = glSetSwapInterval;
-    device->GL_SwapWindow = glSwapWindow;
-    device->GL_MakeCurrent = glMakeCurrent;
-    device->GL_DeleteContext = glDeleteContext;
     device->GL_UnloadLibrary = glUnloadLibrary;
+    device->GL_CreateContext = glCreateContext;
+    device->GL_MakeCurrent = glMakeCurrent;
+    /**/
+    device->GL_SetSwapInterval = glSetSwapInterval;
+    /**/
+    device->GL_SwapWindow = glSwapWindow;
+    device->GL_DeleteContext = glDeleteContext;
+    /**/
 
     device->free = deleteDevice;
     return device;
+}
+
+#if !TARGET_API_MAC_CARBON
+/* Since we don't initialize QuickDraw, we need to get a pointer to qd */
+struct QDGlobals *theQD = NULL;
+#endif
+
+/* Exported to the macmain code */
+void SDL_InitQuickDraw(struct QDGlobals *the_qd)
+{
+#if !TARGET_API_MAC_CARBON
+        theQD = the_qd;
+#endif
 }
 
 VideoBootStrap Mac_bootstrap = {

@@ -1153,6 +1153,7 @@ SDL_bool SDLTest_CommonInit(SDLTest_CommonState *state)
                 SDL_Log("%s\n", text);
             }
         }
+	fprintf(stderr,"Going to SDL_VideoInit '%s'\n",state->videodriver);
         if (SDL_VideoInit(state->videodriver) < 0) {
             SDL_Log("Couldn't initialize video driver: %s\n",
                     SDL_GetError());

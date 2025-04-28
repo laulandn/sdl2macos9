@@ -1,17 +1,15 @@
-PATH_TO_RETRO68=$(HOME)/Retro68-buld/toolchain/powerpc-apple-macos
+PATH_TO_RETRO68=$(HOME)/Retro68-build/toolchain/powerpc-apple-macos
 
 .SUFFIXES:	.xcoff
 
 CC=powerpc-apple-macos-gcc
+CXX=powerpc-apple-macos-g++
 
 INCPATH+= -I"../include"
 
 LIBPATH = -L..
-LIBS    = -lSDL2_test -lSDL2 -lm
-
-RINC=$(PATH_TO_RETRO68)/RIncludes
-#RES=$(RINC)/Retro68APPL.r
-RES=$(RINC)/RetroPPCAPPL.r
+LIBS    = -lSDL2_test -lSDL2 -lm -lRetroConsole
+#LIBS    = -lSDL2_test -lSDL2 -lm
 
 #CFLAGS+= -DHAVE_SDL_TTF
 #TTFLIBS = SDL2ttf.lib
@@ -33,7 +31,7 @@ TARGETS = testatomic.xcoff testdisplayinfo.xcoff testbounds.xcoff testdraw2.xcof
           controllermap.xcoff testhaptic.xcoff testqsort.xcoff testresample.xcoff \
           testaudioinfo.xcoff testaudiocapture.xcoff loopwave.xcoff loopwavequeue.xcoff \
           testsurround.xcoff testyuv.xcoff testgl2.xcoff testvulkan.xcoff testnative.xcoff \
-          testautomation.xcoff testaudiohotplug.xcoff testcustomcursor.xcoff testmultiaudio.xcoff \
+          testaudiohotplug.xcoff testcustomcursor.xcoff testmultiaudio.xcoff \
           testoffscreen.xcoff testurl.xcoff
 
 noninteractive = \
@@ -84,10 +82,10 @@ all: testutils.lib $(TARGETS)
 
 
 .o.xcoff:
-	$(CC) -o $@ $< testutils.o $(LIBPATH) $(LIBS)
-	MakePEF -o $*.pef $@
-	Rez -I$(RINC) $(RES) --data $*.pef -t "APPL" -c "????" -o $*.bin --cc $*.APPL --cc $*.dsk
-
+	$(CXX) -o $@ $< testutils.o testyuv_cvt.o ../src/main/macosclassic/SDL_main.o $(LIBPATH) $(LIBS)
+	mv $@ $*
+	../../xcoff2app.sh $*
+	rm $*
 
 %.o : %.c
 	@echo Compiling $<
@@ -95,32 +93,15 @@ all: testutils.lib $(TARGETS)
 
 
 # specials
-testvulkan.o: testvulkan.c
-  # new vulkan headers result in lots of W202 warnings
-	 $(CFLAGS) -wcd=202 -fo=$^@ $<
 
-testautomation_stdlib.o: testautomation_stdlib.c
-	 $(CFLAGS) -wcd=201 -fo=$^@ $<
+#testautomation_stdlib.o: testautomation_stdlib.c
+#	 $(CFLAGS) -wcd=201 -fo=$^@ $<
 
-testautomation.xcoff: $(TAOBJS)
-	 $(CC) $(LIBPATH) lib {$(LIBS)} op q op el file {$<} name $@
+#testautomation.xcoff: $(TAOBJS)
+#	 $(CC) $(LIBPATH) lib {$(LIBS)} op q op el file {$<} name $@
 
-testnative.xcoff: $(TNOBJS)
-	 $(CC) $(LIBPATH) lib {$(LIBS)} op q op el file {$<} name $@
 
-testoverlay2.xcoff: testoverlay2.o testyuv_cvt.o
-	 $(CC) $(LIBPATH) lib {$(LIBS)} op q op el file {$<} name $@
-
-testyuv.xcoff: testyuv.o testyuv_cvt.o
-	 $(CC) $(LIBPATH) lib {$(LIBS)} op q op el file {$<} name $@
-
-testshader.xcoff: testshader.o
-	 $(CC) $(LIBPATH) lib {$(LIBS) $(GLLIBS)} op q op el file {$<} name $@
-
-testime.xcoff: testime.o
-	 $(CC) $(LIBPATH) lib {$(LIBS) $(TTFLIBS)} op q op el file {$<} name $@
-
-testutils.lib: testutils.o
+testutils.lib: testutils.o testyuv_cvt.o
 #  wlib -q -b -n -c -pa -s -t -zld -ii -io $@ $<
 
 check: .SYMBOLIC $(TESTS)

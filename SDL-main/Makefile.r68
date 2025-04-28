@@ -23,7 +23,9 @@ SOURCES = \
 	./src/*.c \
 	./src/atomic/*.c \
 	./src/audio/*.c \
+	./src/audio/macosclassic/*.c \
 	./src/audio/dummy/*.c \
+	./src/audio/disk/*.c \
 	./src/cpuinfo/*.c \
 	./src/events/*.c \
 	./src/file/*.c \
@@ -34,8 +36,12 @@ SOURCES = \
 	./src/joystick/dummy/*.c \
 	./src/joystick/virtual/*.c \
 	./src/libm/*.c \
+	./src/loadso/dummy/*.c \
 	./src/locale/*.c \
+	./src/locale/dummy/*.c \
+	./src/main/macosclassic/*.c \
 	./src/misc/*.c \
+	./src/misc/dummy/*.c \
 	./src/power/*.c \
 	./src/render/*.c \
 	./src/render/opengl/*.c \
@@ -49,18 +55,18 @@ SOURCES = \
 	./src/timer/*.c \
 	./src/timer/dummy/*.c \
 	./src/video/*.c \
+	./src/video/offscreen/*.c \
 	./src/video/macosclassic/*.c \
-	./src/video/dummy/*.c \
 	./src/video/yuv2rgb/*.c \
 
 TESTLIB_SOURCES =./src/test/*.c
 
 OBJECTS = $(shell echo $(SOURCES) | sed -e 's,\.c,\.o,g')
 TESTLIB_OBJECTS = $(shell echo $(TESTLIB_SOURCES) | sed -e 's,\.c,\.o,g')
-VERSION_OBJECT = src/main/apple-macos4/SDL_os4version.o
+MAIN_OBJECT = src/main/macosclassic/SDL_main.o
 #PREFS_OBJECT = amiga-extra/prefs.o
 #DEBUG_OBJECT = src/main/apple-macos4/SDL_os4debug.o
-ALL_OBJECTS = $(OBJECTS) $(TESTLIB_OBJECTS) $(VERSION_OBJECT) $(PREFS_OBJECT)
+ALL_OBJECTS = $(OBJECTS) $(TESTLIB_OBJECTS) $(MAIN_OBJECT) $(PREFS_OBJECT)
 DEPS = $(ALL_OBJECTS:.o=.d)
 
 LOCALE_DESCRIPTOR = amiga-extra/sdl2.cd
@@ -69,6 +75,8 @@ LOCALE_GENERATED = amiga-extra/locale_generated.h
 
 all: info $(TARGET_STATIC) $(TARGET_SHARED) $(TESTLIB_STATIC) $(PREFS_PROGRAM)
 	@echo All done
+	cp libSDL2.a src/main/macosclassic/SDL_main.o ..
+	cp include/*.h ../SDL2
 
 info:
 	@echo Compiler flags: $(CFLAGS)
@@ -87,9 +95,9 @@ $(TARGET_STATIC): $(OBJECTS)
 	@$(AR) crv $@ $^
 	@$(RANLIB) $@
 
-$(TARGET_SHARED): $(OBJECTS) $(VERSION_OBJECT)
+$(TARGET_SHARED): $(OBJECTS) $(MAIN_OBJECT)
 	@echo Linking $@
-	@$(CC) -mcrt=$(CRT) -shared -Wl,-soname,$(TARGET_SHARED) -o $(TARGET_SHARED) $(OBJECTS) $(VERSION_OBJECT)
+	@$(CC) -mcrt=$(CRT) -shared -Wl,-soname,$(TARGET_SHARED) -o $(TARGET_SHARED) $(OBJECTS) $(MAIN_OBJECT)
 
 #$(PREFS_PROGRAM): $(PREFS_OBJECT) $(DEBUG_OBJECT)
 #	$(CC) -o $@ $^

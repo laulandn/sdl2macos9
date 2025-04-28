@@ -163,9 +163,9 @@ SDL_bool SDL_AtomicTryLock(SDL_SpinLock *lock)
         EIntr();
     }
     return res;
-#elif defined(__MWERKS__)
-    extern int _SDL_xchg_mwerks(SDL_SpinLock *lock,int v);
-    return _SDL_xchg_mwerks(lock, 1) == 0;
+#elif defined(__MACOSCLASSIC__)
+    extern int _SDL_xchg_macosclassic(SDL_SpinLock *lock,int v);
+    return _SDL_xchg_macosclassic(lock, 1) == 0;
 #else
 #error Please implement for your platform.
     return SDL_FALSE;

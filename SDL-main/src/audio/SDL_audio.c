@@ -129,6 +129,9 @@ static const AudioBootStrap *const bootstrap[] = {
 #ifdef SDL_AUDIO_DRIVER_OS2
     &OS2AUDIO_bootstrap,
 #endif
+#ifdef SDL_AUDIO_DRIVER_MACOSCLASSIC
+    &MACOSAUDIO_bootstrap,
+#endif
 #ifdef SDL_AUDIO_DRIVER_DISK
     &DISKAUDIO_bootstrap,
 #endif
