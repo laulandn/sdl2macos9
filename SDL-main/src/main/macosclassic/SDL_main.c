@@ -970,7 +970,7 @@ int main(int argc, char *argv[])
 	}
 	ParseCommandLine (commandLine, args);
     /* TODO: Forcing no args as something is broken somewhere... */
-    args=1;
+    nargs=1;
 #ifdef DEBUG_ARGS
     for(i=0;i<nargs;i++) fprintf(stderr,"%d : '%s'\n",i,args[i]);
 #endif

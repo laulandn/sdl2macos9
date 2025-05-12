@@ -645,6 +645,12 @@ const char *SDL_GetPlatform(void)
     return "Nokia N-Gage";
 #elif defined(__3DS__)
     return "Nintendo 3DS";
+#elif defined(__AMIGAOS4__)
+    return "AmigaOS 4";
+#elif defined(__AMIGAOS3__)
+    return "AmigaOS 3";
+#elif defined(__MACOSCLASSIC__)
+    return "MacOS 7/8/9";
 #else
     return "Unknown (see SDL_platform.h)";
 #endif

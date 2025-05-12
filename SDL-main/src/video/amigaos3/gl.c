@@ -24,9 +24,9 @@
 */
 
 #include "../../SDL_internal.h"
-#include "sdl_mac.h"
+#include "sdl_amiga.h"
 
-#ifdef SDL_VIDEO_DRIVER_MACOSCLASSIC
+#ifdef SDL_VIDEO_DRIVER_AMIGAOS3
 
 /*static EGLDisplay   egl_disp;*/
 
@@ -38,8 +38,8 @@
  */
 /*static*/ int chooseFormat(/*EGLConfig egl_conf*/)
 {
-#ifdef MAC_DEBUG
-  fprintf(stderr,"macosclassic chooseFormat....\n"); fflush(stderr);
+#ifdef AMIGA_DEBUG
+  fprintf(stderr,"amigaos3 chooseFormat....\n"); fflush(stderr);
 #endif
 /*
     EGLint buffer_bit_depth;
@@ -77,20 +77,20 @@
  */
 int glGetConfig(void /*EGLConfig*/ *pconf, int *pformat)
 {
-#ifdef MAC_DEBUG
-    fprintf(stderr,"macosclassic glGetConfig....\n"); fflush(stderr);
+#ifdef AMIGA_DEBUG
+    fprintf(stderr,"amigaos3 glGetConfig....\n"); fflush(stderr);
 #endif
     if(pconf) {
-      fprintf(stderr,"macosclassic glGetConfig passed pconf\n"); fflush(stderr);
+      fprintf(stderr,"amigaos3 glGetConfig passed pconf\n"); fflush(stderr);
     }
     else {
-      fprintf(stderr,"macosclassic glGetConfig NULL pconf\n"); fflush(stderr);
+      fprintf(stderr,"amigaos3 glGetConfig NULL pconf\n"); fflush(stderr);
     }
     if(pformat) {
-      fprintf(stderr,"macosclassic glGetConfig passed pformat\n"); fflush(stderr);
+      fprintf(stderr,"amigaos3 glGetConfig passed pformat\n"); fflush(stderr);
     }
     else {
-      fprintf(stderr,"macosclassic glGetConfig NULL pformat\n"); fflush(stderr);
+      fprintf(stderr,"amigaos3 glGetConfig NULL pformat\n"); fflush(stderr);
     }
 /*
     EGLConfig egl_conf = (EGLConfig)0;
@@ -160,14 +160,14 @@ int glGetConfig(void /*EGLConfig*/ *pconf, int *pformat)
  */
 int glLoadLibrary(_THIS, const char *name)
 {
-#ifdef MAC_DEBUG
-  fprintf(stderr,"macosclassic glLoadLibrary....\n"); fflush(stderr);
+#ifdef AMIGA_DEBUG
+  fprintf(stderr,"amigaos3 glLoadLibrary....\n"); fflush(stderr);
 #endif
     if(name) {
-      fprintf(stderr,"macosclassic glLoadLibrary passed name\n"); fflush(stderr);
+      fprintf(stderr,"amigaos3 glLoadLibrary passed name\n"); fflush(stderr);
     }
     else {
-      fprintf(stderr,"macosclassic glLoadLibrary NULL name\n"); fflush(stderr);
+      fprintf(stderr,"amigaos3 glLoadLibrary NULL name\n"); fflush(stderr);
     }
 /*
     EGLNativeDisplayType    disp_id = EGL_DEFAULT_DISPLAY;
@@ -193,14 +193,14 @@ int glLoadLibrary(_THIS, const char *name)
  */
 void *glGetProcAddress(_THIS, const char *proc)
 {
-#ifdef MAC_DEBUG
-  fprintf(stderr,"macosclassic glGetProcAddress....\n"); fflush(stderr);
+#ifdef AMIGA_DEBUG
+  fprintf(stderr,"amigaos3 glGetProcAddress....\n"); fflush(stderr);
 #endif
     if(proc) {
-      fprintf(stderr,"macosclassic glGetProcAddress passed proc\n"); fflush(stderr);
+      fprintf(stderr,"amigaos3 glGetProcAddress passed proc\n"); fflush(stderr);
     }
     else {
-      fprintf(stderr,"macosclassic glGetProcAddress NULL proc\n"); fflush(stderr);
+      fprintf(stderr,"amigaos3 glGetProcAddress NULL proc\n"); fflush(stderr);
     }
     /*return eglGetProcAddress(proc);*/
     return NULL;
@@ -215,14 +215,14 @@ void *glGetProcAddress(_THIS, const char *proc)
  */
 SDL_GLContext glCreateContext(_THIS, SDL_Window *window)
 {
-#ifdef MAC_DEBUG
-  fprintf(stderr,"macosclassic glCreateContext....\n"); fflush(stderr);
+#ifdef AMIGA_DEBUG
+  fprintf(stderr,"amigaos3 glCreateContext....\n"); fflush(stderr);
 #endif
     if(window) {
-      fprintf(stderr,"macosclassic glCreateContext passed window\n"); fflush(stderr);
+      fprintf(stderr,"amigaos3 glCreateContext passed window\n"); fflush(stderr);
     }
     else {
-      fprintf(stderr,"macosclassic glCreateContext NULL window\n"); fflush(stderr);
+      fprintf(stderr,"amigaos3 glCreateContext NULL window\n"); fflush(stderr);
     }
 /*
     window_impl_t   *impl = (window_impl_t *)window->driverdata;
@@ -273,8 +273,8 @@ SDL_GLContext glCreateContext(_THIS, SDL_Window *window)
  */
 int glSetSwapInterval(_THIS, int interval)
 {
-#ifdef MAC_DEBUG
-  fprintf(stderr,"macosclassic glSetSwapInterval....\n"); fflush(stderr);
+#ifdef AMIGA_DEBUG
+  fprintf(stderr,"amigaos3 glSetSwapInterval....\n"); fflush(stderr);
 #endif
 /*
     if (eglSwapInterval(egl_disp, interval) != EGL_TRUE) {
@@ -292,14 +292,14 @@ int glSetSwapInterval(_THIS, int interval)
  */
 int glSwapWindow(_THIS, SDL_Window *window)
 {
-#ifdef MAC_DEBUG
-  fprintf(stderr,"macosclassic glSwapWindow....\n"); fflush(stderr);
+#ifdef AMIGA_DEBUG
+  fprintf(stderr,"amigaos3 glSwapWindow....\n"); fflush(stderr);
 #endif
     if(window) {
-      fprintf(stderr,"macosclassic glSwapWindow passed window\n"); fflush(stderr);
+      fprintf(stderr,"amigaos3 glSwapWindow passed window\n"); fflush(stderr);
     }
     else {
-      fprintf(stderr,"macosclassic glSwapWindow NULL window\n"); fflush(stderr);
+      fprintf(stderr,"amigaos3 glSwapWindow NULL window\n"); fflush(stderr);
     }
     /* !!! FIXME: should we migrate this all over to use SDL_egl.c? */
     /*
@@ -318,14 +318,14 @@ int glSwapWindow(_THIS, SDL_Window *window)
  */
 int glMakeCurrent(_THIS, SDL_Window *window, SDL_GLContext context)
 {
-#ifdef MAC_DEBUG
-  fprintf(stderr,"macosclassic glMakeCurrent....\n"); fflush(stderr);
+#ifdef AMIGA_DEBUG
+  fprintf(stderr,"amigaos3 glMakeCurrent....\n"); fflush(stderr);
 #endif
     if(window) {
-      fprintf(stderr,"macosclassic glMakeCurrent passed window\n"); fflush(stderr);
+      fprintf(stderr,"amigaos3 glMakeCurrent passed window\n"); fflush(stderr);
     }
     else {
-      fprintf(stderr,"macosclassic glMakeCurrent NULL window\n"); fflush(stderr);
+      fprintf(stderr,"amigaos3 glMakeCurrent NULL window\n"); fflush(stderr);
     }
 /*
     window_impl_t   *impl;
@@ -350,8 +350,8 @@ int glMakeCurrent(_THIS, SDL_Window *window, SDL_GLContext context)
  */
 void glDeleteContext(_THIS, SDL_GLContext context)
 {
-#ifdef MAC_DEBUG
-  fprintf(stderr,"macosclassic glDeleteContext....\n"); fflush(stderr);
+#ifdef AMIGA_DEBUG
+  fprintf(stderr,"amigaos3 glDeleteContext....\n"); fflush(stderr);
 #endif
     /*eglDestroyContext(egl_disp, context);*/
 }
@@ -362,8 +362,8 @@ void glDeleteContext(_THIS, SDL_GLContext context)
  */
 void glUnloadLibrary(_THIS)
 {
-#ifdef MAC_DEBUG
-  fprintf(stderr,"macosclassic glUnloadLibrary....\n"); fflush(stderr);
+#ifdef AMIGA_DEBUG
+  fprintf(stderr,"amigaos3 glUnloadLibrary....\n"); fflush(stderr);
 #endif
     /*eglTerminate(egl_disp);*/
 }

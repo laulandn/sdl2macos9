@@ -318,6 +318,13 @@ struct SDL_SysWMinfo
         } android;
 #endif
 
+#if defined(SDL_VIDEO_DRIVER_AMIGAOS4)  
+        struct
+        { 
+            struct Window *window;      /**< The AmigaOS 4 window */
+        } os4;
+#endif  
+
 #if defined(SDL_VIDEO_DRIVER_OS2)
         struct
         {

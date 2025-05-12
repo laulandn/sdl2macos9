@@ -23,28 +23,21 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef __SDL_MAC_H__
-#define __SDL_MAC_H__
+#ifndef __SDL_AMIGA_H__
+#define __SDL_AMIGA_H__
 
 #include "../SDL_sysvideo.h"
 
-#ifdef SDL_VIDEO_DRIVER_MACOSCLASSIC
+#ifdef SDL_VIDEO_DRIVER_AMIGAOS3
 
 
 /*#include <screen/screen.h>
 #include <EGL/egl.h>*/
 
-#ifdef BUILDING_FOR_CARBON
-#include <Carbon.h>
-#else
-#include <Quickdraw.h>
-#include <QDOffscreen.h>
-#include <MacWindows.h>
-#include <Dialogs.h>
-#endif
+#include <intuition/intuition.h>
 
 
-#define MAC_DEBUG 1
+#define AMIGA_DEBUG 1
 
 
 /* Default window size */
@@ -55,14 +48,14 @@
 
 /* Globals are evil...these belong in driver data slash impl vars/params! */
 extern int macmoddown;
-extern WindowPtr macwindow;
-extern CGrafPtr macport;
+extern struct Window *amigawindow;
+extern struct RastPort *amigaport;
 /**/
 extern char *mypixels;
-extern PixMapPtr thePM;
-extern int macWidth;
-extern int macHeight;
-extern int macDepth;
+extern struct BitMap *theBM;
+extern int myWidth;
+extern int myHeight;
+extern int myDepth;
 /*extern PixMapHandle offPixMapHandle;*/
 /*extern GrafPtr origPort;
 extern GDHandle origDevice;*/
@@ -87,12 +80,12 @@ typedef struct
 typedef struct
 {
   void *foo;  /* nothing real yet */
-} mac_gl_context;
+} amiga_gl_context;
 
 
 extern void exitCleanly(int result);
 
-extern void handleKeyboardEvent(EventRecord *event,int what);
+extern void handleKeyboardEvent(/*EventRecord *event,*/int what);
 
 extern int chooseFormat(/*EGLConfig egl_conf*/);
 extern int glGetConfig(void /*EGLConfig*/ *pconf, int *pformat);

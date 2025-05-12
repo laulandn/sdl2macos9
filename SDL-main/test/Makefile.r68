@@ -116,6 +116,9 @@ check-quick: .SYMBOLIC $(TESTS)
 #  @for .xcoff in ($(TESTS)) do .xcoff
 
 clean:
-	rm -f *.o *.err *.xcoff *.pef *.dsk *.bin *.APPL *.gdb
+	rm -rf *.o *.err *.xcoff *.pef *.dsk *.bin *.APPL *.gdb .rsrc .finf
+	rm -f testkeys testoverlay2 testscale testaudioinfo testlocale testvulkan testintersect ions testerror testviewport testcustomcursor testmessage testrendertarget testver test file testsurround testgl2 controllermap testmouse testplatform testhotplug testdisplay info testloadso loopwave testsem checkkeysthreads testresample testgamecontroller chec kkeys testshader testsensor testyuv testsprite2 testime testurl testshape testiconv te stgles teststreaming testtimer testatomic testoffscreen testwm2 testbounds testthread testgles2 testgeometry testspriteminimal testrumble torturethread testdraw2 testaudioh otplug testhittesting testjoystick testrelative testmultiaudio testpower testaudiocapt ure loopwavequeue testdropfile testfilesystem testqsort testdrawchessboard testnative testrendercopyex testlock testgesture testhaptic testgles testintersections testfile testaudiocapture testaudiohotplug checkkeys testdisplayinfo
+
 distclean: clean
 	rm -f *.xcoff *.lib
+

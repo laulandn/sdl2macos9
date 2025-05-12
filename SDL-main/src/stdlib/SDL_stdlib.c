@@ -35,6 +35,9 @@
 #define M_PI 3.1415926535
 #endif
 
+#ifdef __AMIGAOS3__
+#define tanf(a) (double)tan((double)a)
+#endif
 
 double
 SDL_atan(double x)

@@ -27,10 +27,10 @@
 #include "../../events/SDL_keyboard_c.h"
 #include "SDL_scancode.h"
 #include "SDL_events.h"
-#include "sdl_mac.h"
+#include "sdl_amiga.h"
 /*#include <sys/keycodes.h>*/
 
-#ifdef SDL_VIDEO_DRIVER_MACOSCLASSIC
+#ifdef SDL_VIDEO_DRIVER_AMIGAOS3
 
 int macmoddown=0;
 
@@ -105,13 +105,13 @@ static int key_to_sdl[] = {
  * Translates the event such that it can be handled by SDL.
  * @param   event   Screen keyboard event
  */
-void handleKeyboardEvent(EventRecord *event, int what)
+void handleKeyboardEvent(/*EventRecord *event,*/ int what)
 {
     /*int             val;*/
     SDL_Scancode    scancode=0;
     int keyToReturn=0;
 
-    printf("macosclassic handleKeyboardEvent...\n");
+    printf("amigaos3 handleKeyboardEvent...\n");
 
     /* Get the key value.*/
     /*if (screen_get_event_property_iv(event, SCREEN_PROPERTY_SYM, &val) < 0) {
@@ -134,32 +134,33 @@ void handleKeyboardEvent(EventRecord *event, int what)
         return;
     }*/
     
-#ifdef MAC_DEBUG
-    /*fprintf(stderr,"macosclassic key event type %d what %d\n",event->what,what); fflush(stderr);*/
+#ifdef AMIGA_DEBUG
+    /*fprintf(stderr,"amigaos3 key event type %d what %d\n",event->what,what); fflush(stderr);*/
 #endif
-    
+   
+   /* 
 		if(event->modifiers&cmdKey) {
           int mchoice=MenuKey(event->message&0xff);
-#ifdef MAC_DEBUG
-          fprintf(stderr,"macosclassic mac menu '%c' mchoice=%d\n",(char)event->message&0xff,mchoice); fflush(stderr);
+#ifdef AMIGA_DEBUG
+          fprintf(stderr,"amigaos3 mac menu '%c' mchoice=%d\n",(char)event->message&0xff,mchoice); fflush(stderr);
 #endif
-          /* TODO: Possibly handle other command menus here... */
+          * TODO: Possibly handle other command menus here... *
           if((event->message&0xff)=='q') {
-#ifdef MAC_DEBUG
-            fprintf(stderr,"macosclassic Command-Q...quiting...\n"); fflush(stderr);
+#ifdef AMIGA_DEBUG
+            fprintf(stderr,"amigaos3 Command-Q...quiting...\n"); fflush(stderr);
 #endif
             ExitToShell();
           }
         }
         else {
 	      keyToReturn=event->message&0xff;
-#ifdef MAC_DEBUG
-   		  fprintf(stderr,"macosclassic mac keypress '%c' (%d)\n",keyToReturn,keyToReturn); fflush(stderr);
-   		  fprintf(stderr,"macosclassic event->modifiers %d\n",event->modifiers); fflush(stderr);
+#ifdef AMIGA_DEBUG
+   		  fprintf(stderr,"amigaos3 mac keypress '%c' (%d)\n",keyToReturn,keyToReturn); fflush(stderr);
+   		  fprintf(stderr,"amigaos3 event->modifiers %d\n",event->modifiers); fflush(stderr);
 #endif
         }
-        
-        /* This code is just a hack to get bare minimum done for now... */
+
+        * This code is just a hack to get bare minimum done for now... *
         switch(keyToReturn) {
           case 28: scancode=SDL_SCANCODE_LEFT; break;
           case 29: scancode=SDL_SCANCODE_RIGHT; break;
@@ -171,24 +172,26 @@ void handleKeyboardEvent(EventRecord *event, int what)
           case 27: scancode=SDL_SCANCODE_ESCAPE; break;
           default:
             scancode=keyToReturn;
-            if(scancode>92) scancode=scancode-93;  /* alphas...at least... */
+            if(scancode>92) scancode=scancode-93;  * alphas...at least... *
             break;
         }
         
-     	/*scancode=scancode<<16;*/
+     	*scancode=scancode<<16;*
+*/
 
-#ifdef MAC_DEBUG
-     	fprintf(stderr,"macosclassic SDL scancode is 0x%x\n",scancode); fflush(stderr);
+#ifdef AMIGA_DEBUG
+     	fprintf(stderr,"amigaos3 SDL scancode is 0x%x\n",scancode); fflush(stderr);
 #endif
       
     /* Propagate the event to SDL.
     // FIXME:
     // Need to handle more key states (such as key combinations).*/
+    /*
     if (event->what==keyDown) {
         SDL_SendKeyboardKey(SDL_PRESSED, scancode);
     } else {
         SDL_SendKeyboardKey(SDL_RELEASED, scancode);
-    }
+    }*/
 }
 
 #endif

@@ -428,6 +428,9 @@ SDL_COMPILE_TIME_ASSERT(enum, sizeof(SDL_DUMMY_ENUM) == sizeof(int));
 /** \endcond */
 
 #include "begin_code.h"
+#ifdef __AMIGAOS4__
+#include <limits.h> /* TODO: suggested by the cross-compiler. Is this really a correct fix / place? */
+#endif
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus
 extern "C" {

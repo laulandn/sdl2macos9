@@ -1,4 +1,3 @@
-#define __MACOSCLASSIC__ 1
 
 /*
   Simple DirectMedia Layer
@@ -51,6 +50,10 @@
 #include "SDL_config_emscripten.h"
 #elif defined(__NGAGE__)
 #include "SDL_config_ngage.h"
+#elif defined(__AMIGAOS4__)
+#include "SDL_config_amigaos4.h"
+#elif defined(__AMIGAOS3__)
+#include "SDL_config_amigaos3.h"
 #elif defined(__MACOSCLASSIC__)
 #include "SDL_config_macosclassic.h"
 #else

@@ -133,6 +133,9 @@ static VideoBootStrap *bootstrap[] = {
 #ifdef SDL_VIDEO_DRIVER_QNX
     &QNX_bootstrap,
 #endif
+#ifdef SDL_VIDEO_DRIVER_AMIGAOS3
+    &Amiga_bootstrap,
+#endif
 #ifdef SDL_VIDEO_DRIVER_MACOSCLASSIC
     &Mac_bootstrap,
 #endif

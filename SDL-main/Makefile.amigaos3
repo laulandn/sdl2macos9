@@ -1,13 +1,13 @@
-# Makefile to build the classic MacOS SDL library for PPC
+# Makefile to build the classic MacOS SDL library
 # (Based on AmigaOS4 Makefile)
 
-PATH_TO_RETRO68=$(HOME)/Retro68-build/toolchain/powerpc-apple-macos
+#PATH_TO_RETRO68=$(HOME)/Retro68-build/toolchain/m68k-apple-macos
 
-AR = powerpc-apple-macos-ar
-RANLIB = powerpc-apple-macos-ranlib
-CC = powerpc-apple-macos-gcc
-CXX = powerpc-apple-macos-g++
-STRIP = powerpc-apple-macos-strip
+AR = m68k-amigaos-ar
+RANLIB = m68k-amigaos-ranlib
+CC = m68k-amigaos-gcc -mcrt=nix20
+CXX = m68k-amigaos-g++ -mcrt=nix20
+STRIP = m68k-amigaos-strip
 #CRT ?= newlib
 INSTALL_PATH ?=
 CATCOMP = catcomp # TODO: is there a cross-compiler version?
@@ -15,7 +15,7 @@ CATCOMP = catcomp # TODO: is there a cross-compiler version?
 #MACDATE = $(shell date +"%-d.%m.%Y")
 
 #CFLAGS  = -mcrt=$(CRT) -gstabs -O3 -Wall -Werror -Wshadow -fPIC -fcommon -I./include -D__MACDATE__=\"$(MACDATE)\"
-CFLAGS  = -Wall -Wshadow -I./include -D__MACOSCLASSIC__
+CFLAGS  = -Wall -Wshadow -I./include -D__AMIGAOS3__
 
 TARGET_STATIC  = libSDL2.a
 #TARGET_SHARED  = libSDL2-2.31.so
@@ -26,25 +26,22 @@ SOURCES = \
 	./src/*.c \
 	./src/atomic/*.c \
 	./src/audio/*.c \
-	./src/audio/macosclassic/*.c \
 	./src/audio/dummy/*.c \
 	./src/audio/disk/*.c \
 	./src/cpuinfo/*.c \
 	./src/events/*.c \
 	./src/file/*.c \
-	./src/filesystem/macosclassic/*.c \
+	./src/filesystem/amigaos3/*.c \
 	./src/haptic/*.c \
 	./src/haptic/dummy/*.c \
 	./src/joystick/*.c \
 	./src/joystick/dummy/*.c \
 	./src/joystick/virtual/*.c \
-	./src/joystick/macosclassic/*.c \
 	./src/libm/*.c \
 	./src/loadso/dummy/*.c \
-	./src/loadso/macosclassic/*.c \
 	./src/locale/*.c \
 	./src/locale/dummy/*.c \
-	./src/main/macosclassic/*.c \
+	./src/main/dummy/*.c \
 	./src/misc/*.c \
 	./src/misc/dummy/*.c \
 	./src/power/*.c \
@@ -59,23 +56,23 @@ SOURCES = \
 	./src/thread/generic/*.c \
 	./src/timer/*.c \
 	./src/timer/dummy/*.c \
-	./src/timer/macosclassic/*.c \
 	./src/video/*.c \
+	./src/video/amigaos3/*.c \
 	./src/video/offscreen/*.c \
-	./src/video/macosclassic/*.c \
 	./src/video/yuv2rgb/*.c \
 
 TESTLIB_SOURCES =./src/test/*.c
 
 OBJECTS = $(shell echo $(SOURCES) | sed -e 's,\.c,\.o,g')
 TESTLIB_OBJECTS = $(shell echo $(TESTLIB_SOURCES) | sed -e 's,\.c,\.o,g')
-MAIN_OBJECT = src/main/macosclassic/SDL_main.o
+MAIN_OBJECT = src/main/dummy/SDL_main.o
+ALL_OBJECTS = $(OBJECTS) $(TESTLIB_OBJECTS) $(MAIN_OBJECT) $(PREFS_OBJECT)
 DEPS = $(ALL_OBJECTS:.o=.d)
 
 
 all: info $(TARGET_STATIC) $(TARGET_SHARED) $(TESTLIB_STATIC) $(PREFS_PROGRAM)
 	@echo All done
-#	cp libSDL2.a src/main/macosclassic/SDL_main.o ..
+#	cp libSDL2.a src/main/dummy/SDL_main.o ..
 #	cp include/*.h ../SDL2
 
 info:

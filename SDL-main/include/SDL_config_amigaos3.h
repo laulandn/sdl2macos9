@@ -19,8 +19,8 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef SDL_config_macosclassic_h_
-#define SDL_config_macosclassic_h_
+#ifndef SDL_config_amigaos3_h_
+#define SDL_config_amigaos3_h_
 #define SDL_config_h_
 
 #include "SDL_platform.h"
@@ -147,7 +147,6 @@ typedef unsigned int uintptr_t;
 #endif
 
 /* Enable the dummy audio driver (src/audio/dummy/\*.c) */
-#define SDL_AUDIO_DRIVER_MACOSCLASSIC  1
 #define SDL_AUDIO_DRIVER_DUMMY  1
 #define SDL_AUDIO_DRIVER_DISK  1
 
@@ -155,7 +154,6 @@ typedef unsigned int uintptr_t;
 /*#define SDL_JOYSTICK_DISABLED   1*/
 #define SDL_JOYSTICK_DUMMY   1
 #define SDL_JOYSTICK_VIRTUAL   1
-/*#define SDL_JOYSTICK_MACOSCLASSIC   1*/
 
 /* Enable the stub haptic driver (src/haptic/dummy/\*.c) */
 /*#define SDL_HAPTIC_DISABLED 1*/
@@ -175,16 +173,14 @@ typedef unsigned int uintptr_t;
 
 /* Enable the stub thread support (src/thread/generic/\*.c) */
 #define SDL_THREADS_DISABLED    1
-/*#define SDL_THREAD_MACOSCLASSIC 1*/
 
 /* Enable the stub timer support (src/timer/dummy/\*.c) */
 /*#define SDL_TIMERS_DISABLED 1*/
-/*#define SDL_TIMER_DUMMY 1*/
-#define SDL_TIMER_MACOSCLASSIC 1
+#define SDL_TIMER_DUMMY 1
 
 /* Enable the dummy video driver (src/video/dummy/\*.c) */
 /*#define SDL_VIDEO_DRIVER_DUMMY  1*/
-#define SDL_VIDEO_DRIVER_MACOSCLASSIC  1
+#define SDL_VIDEO_DRIVER_AMIGAOS3  1
 
 /* Enable OpenGL support */
 #define SDL_VIDEO_OPENGL 1
@@ -192,6 +188,6 @@ typedef unsigned int uintptr_t;
 
 /* Enable the dummy filesystem driver (src/filesystem/dummy/\*.c) */
 /*#define SDL_FILESYSTEM_DUMMY  1*/
-#define SDL_FILESYSTEM_MACOSCLASSIC 1
+#define SDL_FILESYSTEM_AMIGAOS3  1
 
-#endif /* SDL_config_macosclassic_h_ */
+#endif /* SDL_config_amigaos3_h_ */

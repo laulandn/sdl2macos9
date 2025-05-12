@@ -352,8 +352,7 @@ void SDL_RunThread(SDL_Thread *thread)
 #undef SDL_CreateThreadWithStackSize
 #endif
 #if SDL_DYNAMIC_API
-#ifdef __MACOSCLASSIC__
-#else
+#if !defined(__MACOSCLASSIC__) && !defined(__AMIGAOS3__)
 #define SDL_CreateThread              SDL_CreateThread_REAL
 #define SDL_CreateThreadWithStackSize SDL_CreateThreadWithStackSize_REAL
 #endif

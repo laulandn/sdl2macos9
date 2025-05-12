@@ -481,6 +481,7 @@ extern VideoBootStrap VIVANTE_bootstrap;
 extern VideoBootStrap Emscripten_bootstrap;
 extern VideoBootStrap QNX_bootstrap;
 extern VideoBootStrap Mac_bootstrap;
+extern VideoBootStrap Amiga_bootstrap;
 extern VideoBootStrap OFFSCREEN_bootstrap;
 extern VideoBootStrap NGAGE_bootstrap;
 extern VideoBootStrap OS2DIVE_bootstrap;

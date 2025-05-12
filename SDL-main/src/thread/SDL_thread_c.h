@@ -46,6 +46,9 @@
 #include "os2/SDL_systhread_c.h"
 #elif defined(SDL_THREAD_NGAGE)
 #include "ngage/SDL_systhread_c.h"
+#elif defined(SDL_THREAD_MACOSCLASSIC)
+/* Just to skip the #error... */
+#include "generic/SDL_systhread_c.h"
 #else
 #error Need thread implementation for this platform
 #include "generic/SDL_systhread_c.h"

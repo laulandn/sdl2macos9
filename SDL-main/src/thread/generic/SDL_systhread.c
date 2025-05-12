@@ -33,31 +33,37 @@ int SDL_SYS_CreateThread(SDL_Thread *thread,
 int SDL_SYS_CreateThread(SDL_Thread *thread)
 #endif /* SDL_PASSED_BEGINTHREAD_ENDTHREAD */
 {
+    fprintf(stderr,"generic create thread\n"); fflush(stderr);
     return SDL_SetError("Threads are not supported on this platform");
 }
 
 void SDL_SYS_SetupThread(const char *name)
 {
+    fprintf(stderr,"generic setup thread\n"); fflush(stderr);
     return;
 }
 
 SDL_threadID SDL_ThreadID(void)
 {
+    fprintf(stderr,"generic id thread\n"); fflush(stderr);
     return 0;
 }
 
 int SDL_SYS_SetThreadPriority(SDL_ThreadPriority priority)
 {
+    fprintf(stderr,"generic setpriority thread\n"); fflush(stderr);
     return 0;
 }
 
 void SDL_SYS_WaitThread(SDL_Thread *thread)
 {
+    fprintf(stderr,"generic wait thread\n"); fflush(stderr);
     return;
 }
 
 void SDL_SYS_DetachThread(SDL_Thread *thread)
 {
+    fprintf(stderr,"generic detach thread\n"); fflush(stderr);
     return;
 }
 

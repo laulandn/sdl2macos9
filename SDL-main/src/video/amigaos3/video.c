@@ -24,9 +24,14 @@
 */
 #include "../../SDL_internal.h"
 #include "../SDL_sysvideo.h"
-#include "sdl_mac.h"
+#include "sdl_amiga.h"
 
-#ifdef SDL_VIDEO_DRIVER_MACOSCLASSIC
+#include <cybergraphics/cybergraphics.h>
+#include <proto/cybergraphics.h>
+#include <proto/graphics.h>
+#include <proto/intuition.h>
+
+#ifdef SDL_VIDEO_DRIVER_AMIGAOS3
 
 #define QUICKDRAW_BLIT 1
 
@@ -37,18 +42,11 @@
 
 
 /* Globals are evil...these belong in driver data slash impl vars/params! */
-WindowPtr macwindow;
-CGrafPtr macport;
-/*PixMapHandle offPixMapHandle;
-GrafPtr origPort;
-GDHandle origDevice;*/
-PixMapPtr thePM;
-char *mypixels;
-int macWidth,macHeight,macDepth;
-/*
-GWorldPtr macoffworld;
-GWorldPtr maconworld;*/
-/**/
+struct Window *amigawindow=NULL;
+struct RastPort *amigaport=NULL;
+struct BitMap *theBM=NULL;
+char *mypixels=NULL;
+int myWidth,myHeight,myDepth;
 SDL_VideoDevice *sdlvdev;
 SDL_VideoDisplay *sdlvdisp;
 SDL_Window *sdlw;
@@ -67,11 +65,13 @@ static screen_event_t   event;*/
 static int videoInit(_THIS)
 {
     SDL_VideoDisplay display;
-    struct Rect WindowBox;
+    struct NewWindow nw;
+    int iflags;
     SDL_DisplayMode m;
 
 /*printf("This should show up on the SIOUX console...\n");*/
 
+    /*
 #ifndef SDL_MAIN_NEEDED
 #if !TARGET_API_MAC_CARBON
 	InitGraf    (&qd.thePort);
@@ -90,32 +90,48 @@ static int videoInit(_THIS)
 	MoreMasters ();
 	MoreMasters ();
 #endif
+*/
 
-#ifdef MAC_DEBUG
-  fprintf(stderr,"macosclassic videoInit...\n"); fflush(stderr);
+#ifdef AMIGA_DEBUG
+  fprintf(stderr,"amigaos3 videoInit...\n"); fflush(stderr);
 #endif
 
-  macWidth=PLATFORM_SCREEN_WIDTH;
-  macHeight=PLATFORM_SCREEN_HEIGHT;
-  macDepth=PLATFORM_SCREEN_DEPTH;
+  myWidth=PLATFORM_SCREEN_WIDTH;
+  myHeight=PLATFORM_SCREEN_HEIGHT;
+  myDepth=PLATFORM_SCREEN_DEPTH;
   /* Creating window here so I have screen dims...this belongs in in createWindow obs */
-#ifdef MAC_DEBUG
-  fprintf(stderr,"macosclassic Going to NewCWindow...\n"); fflush(stderr);
+#ifdef AMIGA_DEBUG
+  fprintf(stderr,"amigaos3 Going to OpenWindowTags...\n"); fflush(stderr);
 #endif
-  WindowBox.top=40;  WindowBox.left=4;
-  WindowBox.bottom=macHeight+40;  WindowBox.right=macWidth+4;
-  macwindow=NewCWindow(NULL,&WindowBox,(ConstStr255Param)"\pMac SDL2 Window",true,noGrowDocProc+8,(WindowPtr)(-1L),true,0L);
-  SetPort((GrafPtr)macwindow);
-#ifdef __MWERKS__
-  macport=(CGrafPtr)macwindow;
-#else
-  macport=GetWindowPort(macwindow);
-#endif
-  thePM=NULL;
-  /*macoffworld=macwindow;*/
-  ShowWindow((WindowPtr)macwindow);
-#ifdef MAC_DEBUG
-  fprintf(stderr,"macosclassic Window done\n"); fflush(stderr);
+  nw.LeftEdge=0;  nw.TopEdge=0;  nw.Width=myWidth;  nw.Height=myHeight;
+  nw.DetailPen=2;  nw.BlockPen=1;  nw.Title=(unsigned char *)"Amiga SDL2 Window";
+  /* Set all event flags correctly */
+  iflags=0;
+  iflags|=(IDCMP_VANILLAKEY|IDCMP_RAWKEY);
+  iflags|=IDCMP_CLOSEWINDOW;
+  iflags|=(IDCMP_NEWSIZE|IDCMP_CHANGEWINDOW);
+  iflags|=IDCMP_ACTIVEWINDOW;
+  iflags|=IDCMP_INACTIVEWINDOW;
+  iflags|=IDCMP_MOUSEBUTTONS;
+  iflags=WFLG_GIMMEZEROZERO|WFLG_ACTIVATE|WFLG_DRAGBAR|
+  WFLG_DEPTHGADGET|WFLG_RMBTRAP;
+  //iflags|=(WFLG_BORDERLESS|WFLG_BACKDROP);
+  iflags|=WFLG_SIZEGADGET;
+  iflags|=WFLG_CLOSEGADGET;
+  nw.Flags=iflags;
+  nw.Type=WBENCHSCREEN;
+  nw.FirstGadget=NULL;  nw.CheckMark=NULL;
+  nw.Screen=NULL; /* Is this ok? */
+  nw.BitMap=NULL;  nw.MaxWidth=8192;  nw.MaxHeight=8192;
+  nw.MinWidth=50;  nw.MinHeight=20;     /* WARN: should check big enuff */
+  amigawindow=(struct Window *)OpenWindowTags(&nw,WA_AutoAdjust,TRUE, TAG_DONE);
+  if(!amigawindow) {
+    fprintf(stderr,"amigaos3 Couldn't open window!\n"); fflush(stderr);
+    exitCleanly(0);
+  }
+  amigaport=amigawindow->RPort;
+#ifdef AMIGA_DEBUG
+  fprintf(stderr,"amigaos3 Window done\n"); fflush(stderr);
 #endif
 
     /*if (screen_create_context(&context, 0) < 0) {
@@ -128,22 +144,22 @@ static int videoInit(_THIS)
 
     SDL_zero(display);
 
-    m.w=macWidth;
-    m.h=macHeight;    
+    m.w=myWidth;
+    m.h=myHeight;    
 
     if (SDL_AddVideoDisplay(&display, SDL_FALSE) < 0) {
         return -1;
     }
     
     sdlvdisp=&sdlvdev->displays[0];
-#ifdef MAC_DEBUG
-    fprintf(stderr,"macosclassic sdlvdisp is %0lx8\n",(long)sdlvdisp); fflush(stderr);
+#ifdef AMIGA_DEBUG
+    fprintf(stderr,"amigaos3 sdlvdisp is %0lx8\n",(long)sdlvdisp); fflush(stderr);
 #endif
 
 /*offPixMapHandle=NULL;*/
 
-    m.w=macWidth;
-    m.h=macHeight;
+    m.w=myWidth;
+    m.h=myHeight;
     m.refresh_rate=60;
     m.format=SDL_PIXELFORMAT_RGB888;    
 
@@ -157,8 +173,8 @@ static int videoInit(_THIS)
 
 static void videoQuit(_THIS)
 {
-#ifdef MAC_DEBUG
-    fprintf(stderr,"macosclassic videoQuit...\n"); fflush(stderr);
+#ifdef AMIGA_DEBUG
+    fprintf(stderr,"amigaos3 videoQuit...\n"); fflush(stderr);
 #endif
 }
 
@@ -183,8 +199,8 @@ static int createWindow(_THIS, SDL_Window *window)
         return -1;
     }
     
-#ifdef MAC_DEBUG
-    fprintf(stderr,"macosclassic createWindow...\n"); fflush(stderr);
+#ifdef AMIGA_DEBUG
+    fprintf(stderr,"amigaos3 createWindow...\n"); fflush(stderr);
 #endif
 
     /* Create a native window.*/
@@ -196,8 +212,8 @@ static int createWindow(_THIS, SDL_Window *window)
     size[0] = window->w;
     size[1] = window->h;
     
-#ifdef MAC_DEBUG
-    fprintf(stderr,"macosclassic requested win is %dx%d\n",window->w,window->h); fflush(stderr);
+#ifdef AMIGA_DEBUG
+    fprintf(stderr,"amigaos3 requested win is %dx%d\n",window->w,window->h); fflush(stderr);
 #endif
 
     /*if (screen_set_window_property_iv(impl->window, SCREEN_PROPERTY_SIZE,
@@ -239,8 +255,8 @@ static int createWindow(_THIS, SDL_Window *window)
     }*/
     
     sdlw=window;
-#ifdef MAC_DEBUG
-    fprintf(stderr,"macosclassic sdlw at %08lx\n",(long)sdlw); fflush(stderr);
+#ifdef AMIGA_DEBUG
+    fprintf(stderr,"amigaos3 sdlw at %08lx\n",(long)sdlw); fflush(stderr);
 #endif
 
     window->driverdata = impl;
@@ -270,13 +286,12 @@ static int createWindowFramebuffer(_THIS, SDL_Window * window, Uint32 * format,
 {
     window_impl_t   *impl = (window_impl_t *)window->driverdata;
     /*screen_buffer_t buffer;*/
-    
-    Rect r; 
-    QDErr err;
-    int good;
+ 
+    struct BitMap *friendbmap=amigaport->BitMap;   
+    int bformat=BMF_MINPLANES|BMF_DISPLAYABLE;
   
-#ifdef MAC_DEBUG
-    fprintf(stderr,"macosclassic createWindowFramebuffer...\n"); fflush(stderr);
+#ifdef AMIGA_DEBUG
+    fprintf(stderr,"amigaos3 createWindowFramebuffer...\n"); fflush(stderr);
 #endif
 
     /* Get a pointer to the buffer's memory.*/
@@ -297,56 +312,25 @@ static int createWindowFramebuffer(_THIS, SDL_Window * window, Uint32 * format,
     }*/
     
     /* Hand build window sized pixmap */
+    /*
      r.left=0; r.top=0;
-     r.bottom=macHeight; r.right=macWidth;
-     mypixels=calloc(1,macWidth*macHeight*(macDepth/8));
-#ifdef MAC_DEBUG
-  fprintf(stderr,"macosclassic mypixels at %lx\n",(long)mypixels); fflush(stderr);
-#endif
-    thePM=(PixMapPtr)calloc(1,sizeof(PixMap));
-    thePM->bounds.top=0;  thePM->bounds.bottom=macHeight;
-    thePM->bounds.left=0; thePM->bounds.right=macWidth;
-    thePM->rowBytes=(1L<<15)|(macWidth*(macDepth/8));
-    thePM->baseAddr=(char *)mypixels;
-    thePM->hRes=72;  thePM->vRes=72;
-    thePM->pixelSize=macDepth;
-    thePM->cmpCount=1;  thePM->cmpSize=macDepth;
-    thePM->pmVersion=0;
-    thePM->pixelType=RGBDirect;
-    thePM->packType=0;  thePM->packSize=0;    
-#if TARGET_API_MAC_CARBON
-    thePM->pmTable=NULL;  /* TODO what goes here? */
-#else
-    thePM->planeBytes=0; /* Offset in bytes to next plane */
-    thePM->pmReserved=0;
-    thePM->pmTable=(*macport->portPixMap)->pmTable;
-#endif
-#ifdef MAC_DEBUG
-    fprintf(stderr,"macosclassic thePM at %lx\n",(long)thePM); fflush(stderr);
-#endif
-         /*GetGWorld(&origPort, &origDevice);
-  fprintf(stderr,"macosclassic origPort at %lx\n",(long)origPort); fflush(stderr);
-  fprintf(stderr,"macosclassic origDevice at %lx\n",(long)origDevice); fflush(stderr);
-  err=NewGWorld(&macoffworld,8,&r,NULL,NULL,keepLocal);
-  if(err!=noErr) {
-    fprintf(stderr,"QDErr was %d!\n",err); fflush(stderr);
-     exit(0);
+     r.bottom=myHeight; r.right=myWidth;*/
+    bformat=bformat|=BMF_SPECIALFMT | (PIXFMT_RGB16 << 24);
+    theBM=AllocBitMap(myWidth,myHeight,myDepth,bformat,friendbmap);
+    if(!theBM) {
+      fprintf(stderr,"amigaos3 didn't get theBM \n"); fflush(stderr);
+      exitCleanly(0);
     }
-  fprintf(stderr,"macosclassic new gworld at %lx\n",(long)macoffworld); fflush(stderr);
-  SetGWorld(macoffworld,NULL);
-  offPixMapHandle=GetGWorldPixMap(macoffworld);
-  fprintf(stderr,"macosclassic offPixMapHandle at %lx\n",(long)offPixMapHandle); fflush(stderr);
-  good=LockPixels(offPixMapHandle);
-  if(good) { fprintf(stderr,"DId LockPixels...\n"); fflush(stderr); }
-  else {
-  printf(stderr,"LockPixels failed!\n");  fflush(stderr); exit(0);
-  }
-  */
-  /*mypixels=(*offPixMapHandle)->baseAddr;*/
-  /*SetGWorld(origPort,origDevice);*/
-  /*UnlockPixels(macoffworld);*/
+#ifdef AMIGA_DEBUG
+  fprintf(stderr,"amigaos3 theBM at %lx\n",(long)theBM); fflush(stderr);
+#endif
+  /* This is wrong */
+     mypixels=calloc(1,myWidth*myHeight*(myDepth/8));
+#ifdef AMIGA_DEBUG
+  fprintf(stderr,"amigaos3 mypixels at %lx\n",(long)mypixels); fflush(stderr);
+#endif
     *pixels=mypixels;
-    *pitch=macWidth*(macDepth/8);
+    *pitch=myWidth*(myDepth/8);
     *format = SDL_PIXELFORMAT_RGB888;
     
     /*sdlw=window;*/
@@ -367,6 +351,7 @@ static int updateWindowFramebuffer(_THIS, SDL_Window *window, const SDL_Rect *re
 {
     window_impl_t   *impl = (window_impl_t *)window->driverdata;
 
+/*
 #ifdef QUICKDRAW_BLIT
   const BitMap *srcBits=NULL;  
   const BitMap *dstBits=NULL;
@@ -376,9 +361,10 @@ static int updateWindowFramebuffer(_THIS, SDL_Window *window, const SDL_Rect *re
   char *src;
   char *dest;
 #endif
- 
-#ifdef MAC_DEBUG
-    /*fprintf(stderr,"macosclassic updateWindowFramebuffer...\n"); fflush(stderr);*/
+*/
+
+#ifdef AMIGA_DEBUG
+    fprintf(stderr,"amigaos3 updateWindowFramebuffer...\n"); fflush(stderr);
 #endif
 
     /*screen_buffer_t buffer;*/
@@ -392,13 +378,14 @@ static int updateWindowFramebuffer(_THIS, SDL_Window *window, const SDL_Rect *re
     screen_flush_context(context, 0);*/
     
   /* We ignore the rects parameter, and just blit the whole screen  */
-  
+ 
+   /* 
 #ifdef QUICKDRAW_BLIT
-  /*SetGWorld(macoffworld,NULL);*/
+  *SetGWorld(macoffworld,NULL);*
   msr.top=0; msr.left=0; 
-  msr.bottom=macHeight;  msr.right=macWidth;
+  msr.bottom=myHeight;  msr.right=myWidth;
   mdr.top=0; mdr.left=0; 
-  mdr.bottom=macHeight;  mdr.right=macWidth;
+  mdr.bottom=myHeight;  mdr.right=myWidth;
   srcBits=(BitMap *)thePM;
 #if TARGET_API_MAC_CARBON
   dstBits=GetPortBitMapForCopyBits(macwindow);
@@ -409,11 +396,12 @@ static int updateWindowFramebuffer(_THIS, SDL_Window *window, const SDL_Rect *re
 #else
   src=mypixels;
   dest=
-  bytesToCopy=macWidth*macHeight*(macDepth/8);
+  bytesToCopy=myWidth*myHeight*(myDepth/8);
   for(t-0;t<bytesToCopy;t++) {
     *(dest+t)=*(src+t);
   }
 #endif
+*/
 
     return 0;
 }
@@ -424,25 +412,28 @@ static int updateWindowFramebuffer(_THIS, SDL_Window *window, const SDL_Rect *re
  */
 static void pumpEvents(_THIS)
 {
-  EventRecord event;
+  //EventRecord event;
   int etype,val;
 
-#ifdef MAC_DEBUG
-  /*fprintf(stderr,"macosclassic pumpEvents...\n"); fflush(stderr);*/
+#ifdef AMIGA_DEBUG
+  fprintf(stderr,"amigaos3 pumpEvents...\n"); fflush(stderr);
 #endif
 
+  fprintf(stderr,"Exiting as we don't handle events yet!\n"); fflush(stderr);
+  exitCleanly(0);
+  /*
   val=EventAvail(everyEvent,&event);
   if(val) {
 	GetNextEvent(everyEvent,&event);
     etype=event.what;
-    /*fprintf(stderr,"macosclassic what=%d\n",event.what); fflush(stderr);*/
+    *fprintf(stderr,"amigaos3 what=%d\n",event.what); fflush(stderr);*
     switch(etype) {
       case nullEvent: break;
       case kHighLevelEvent:
-        /* Handle this eventually... */
+        * Handle this eventually... *
         break;
       case activateEvt:
-        /* Just skip for now */
+        * Just skip for now *
         break;
       case updateEvt:
         SetPort((GrafPtr)GetWindowPort((WindowPtr)event.message));
@@ -451,33 +442,33 @@ static void pumpEvents(_THIS)
         DrawGrowIcon((WindowPtr)event.message);
         break;
       case mouseDown:
-        fprintf(stderr,"macosclassic mouseDown!\n"); fflush(stderr);
+        fprintf(stderr,"amigaos3 mouseDown!\n"); fflush(stderr);
         SDL_SendMouseButton(sdlw,1,1,SDL_BUTTON_LEFT);
         break;
       case mouseUp:
-        fprintf(stderr,"macosclassic mouseUp!\n"); fflush(stderr);
+        fprintf(stderr,"amigaos3 mouseUp!\n"); fflush(stderr);
         SDL_SendMouseButton(sdlw,1,0,SDL_BUTTON_LEFT);
         break;
       case autoKey:
-        /*fprintf(stderr,"macosclassic autoKey!\n"); fflush(stderr);*/
+        *fprintf(stderr,"amigaos3 autoKey!\n"); fflush(stderr);*
         handleKeyboardEvent(&event,etype);
         break;
 	  case keyDown:
-        /*fprintf(stderr,"macosclassic keyDown!\n"); fflush(stderr);*/
+        *fprintf(stderr,"amigaos3 keyDown!\n"); fflush(stderr);*
         handleKeyboardEvent(&event,etype);
         break;
 	  case keyUp:
-        /*fprintf(stderr,"macosclassic keyUp!\n"); fflush(stderr);*/
+        *fprintf(stderr,"amigaos3 keyUp!\n"); fflush(stderr);*
         handleKeyboardEvent(&event,etype);
 	    break;
 	  default:
-#ifdef MAC_DEBUG
-	    fprintf(stderr,"macosclassic mac event.what=%d skipped!\n",etype); fflush(stderr);
+#ifdef AMIGA_DEBUG
+	    fprintf(stderr,"amigaos3 mac event.what=%d skipped!\n",etype); fflush(stderr);
 #endif
 	    break;
 	}
   }
-
+*/
 
 }
 
@@ -494,15 +485,15 @@ static void setWindowSize(_THIS, SDL_Window *window)
     size[0] = window->w;
     size[1] = window->h;
 
-#ifdef MAC_DEBUG
-    fprintf(stderr,"macosclassic setWindowSize to %dx%d...\n",window->w,window->h); fflush(stderr);
+#ifdef AMIGA_DEBUG
+    fprintf(stderr,"amigaos3 setWindowSize to %dx%d...\n",window->w,window->h); fflush(stderr);
 #endif
 
     /*screen_set_window_property_iv(impl->window, SCREEN_PROPERTY_SIZE, size);
     screen_set_window_property_iv(impl->window, SCREEN_PROPERTY_SOURCE_SIZE,
                                   size);*/
                                   
-    /* TODO: Resize the window, change macWidth/macDepth, recreate the pixmap */
+    /* TODO: Resize the window, change myWidth/myDepth, recreate the pixmap */
 }
 
 /**
@@ -515,8 +506,8 @@ static void showWindow(_THIS, SDL_Window *window)
     window_impl_t   *impl = (window_impl_t *)window->driverdata;
     const int       visible = 1;
 
-#ifdef MAC_DEBUG
-    fprintf(stderr,"macosclassic showWindow...\n"); fflush(stderr);
+#ifdef AMIGA_DEBUG
+    fprintf(stderr,"amigaos3 showWindow...\n"); fflush(stderr);
 #endif
 
     /*screen_set_window_property_iv(impl->window, SCREEN_PROPERTY_VISIBLE,
@@ -534,8 +525,8 @@ static void hideWindow(_THIS, SDL_Window *window)
     window_impl_t   *impl = (window_impl_t *)window->driverdata;
     const int       visible = 0;
 
-#ifdef MAC_DEBUG
-    fprintf(stderr,"macosclassic hideWindow...\n"); fflush(stderr);
+#ifdef AMIGA_DEBUG
+    fprintf(stderr,"amigaos3 hideWindow...\n"); fflush(stderr);
 #endif
 
     /*screen_set_window_property_iv(impl->window, SCREEN_PROPERTY_VISIBLE,
@@ -552,8 +543,8 @@ static void destroyWindow(_THIS, SDL_Window *window)
 {
     window_impl_t   *impl = (window_impl_t *)window->driverdata;
 
-#ifdef MAC_DEBUG
-    fprintf(stderr,"macosclassic destroyWindow...\n"); fflush(stderr);
+#ifdef AMIGA_DEBUG
+    fprintf(stderr,"amigaos3 destroyWindow...\n"); fflush(stderr);
 #endif
 
     if (impl) {
@@ -569,9 +560,9 @@ static void destroyWindow(_THIS, SDL_Window *window)
  */
 static void deleteDevice(SDL_VideoDevice *device)
 {
-    fprintf(stderr,"macosclassic deleteDevice...\n"); fflush(stderr);
+    fprintf(stderr,"amigaos3 deleteDevice...\n"); fflush(stderr);
     SDL_free(device);
-    /* TODO cleanup here */
+    cleanupAmiga();
 }
 
 /**
@@ -588,8 +579,8 @@ static SDL_VideoDevice *createDevice(int devindex)
     freopen (STDERR_FILE, "w", stderr);
 #endif
 
-#ifdef MAC_DEBUG
-    fprintf(stderr,"macosclassic createDevice...\n"); fflush(stderr);
+#ifdef AMIGA_DEBUG
+    fprintf(stderr,"amigaos3 createDevice...\n"); fflush(stderr);
 #endif
 
     device = (SDL_VideoDevice *)SDL_calloc(1, sizeof(SDL_VideoDevice));
@@ -636,41 +627,28 @@ static SDL_VideoDevice *createDevice(int devindex)
     return device;
 }
 
-#if !TARGET_API_MAC_CARBON
-/* Since we don't initialize QuickDraw, we need to get a pointer to qd */
-struct QDGlobals *theQD = NULL;
-#endif
 
-/* Exported to the macmain code */
-void SDL_InitQuickDraw(struct QDGlobals *the_qd)
+void cleanupAmiga()
 {
-#if !TARGET_API_MAC_CARBON
-        theQD = the_qd;
+#ifdef AMIGA_DEBUG
+    fprintf(stderr,"amigaos3 cleanupAmiga...\n"); fflush(stderr);
 #endif
-}
-
-void cleanupMac()
-{   
-#ifdef MAC_DEBUG
-    fprintf(stderr,"macosclassic cleanupMac...\n"); fflush(stderr);
-#endif 
-  /*
-   TODO
-  */
+  if(amigawindow) { CloseWindow(amigawindow); amigawindow=NULL; }
+  if(theBM) { FreeBitMap(theBM); theBM=NULL; }
   if(mypixels) { free(mypixels); mypixels=NULL; }
 }
 
 void exitCleanly(int result)
 {
-#ifdef MAC_DEBUG
-    fprintf(stderr,"macosclassic exitCleanly...\n"); fflush(stderr);
+#ifdef AMIGA_DEBUG
+    fprintf(stderr,"amigaos3 exitCleanly...\n"); fflush(stderr);
 #endif
-  cleanupMac();
+  cleanupAmiga();
   exit(result);
 }
 
-VideoBootStrap Mac_bootstrap = {
-    "macosclassic", "Mac Screen",
+VideoBootStrap Amiga_bootstrap = {
+    "amigaos3", "Amiga Screen",
     (struct SDL_VideoDevice * (*)())createDevice,
     NULL /* no ShowMessageBox implementation */
 };

@@ -120,6 +120,12 @@
 #endif /* TARGET_OS_IPHONE */
 #endif /* defined(__APPLE__) */
 
+#if __MWERKS__ || macintosh
+#ifndef __MACH__
+#define __MACOSCLASSIC__ 1
+#endif
+#endif
+
 #if defined(__NetBSD__)
 #undef __NETBSD__
 #define __NETBSD__  1
@@ -213,6 +219,14 @@
 #endif
 #if defined(PS2)
 #define __PS2__ 1
+#endif
+
+#if defined(__amigaos4__)
+#undef __AMIGAOS4__
+#define __AMIGAOS4__ 1
+#endif
+#if defined(__amigaos3__)
+#define __AMIGAOS3__ 1
 #endif
 
 /* The NACL compiler defines __native_client__ and __pnacl__

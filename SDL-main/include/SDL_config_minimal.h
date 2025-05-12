@@ -35,12 +35,6 @@
 #define HAVE_STDARG_H   1
 #define HAVE_STDDEF_H   1
 
-#define LACKS_SYS_PARAM_H
-#define LACKS_SYS_MMAN_H
-
-#undef HAVE_MALLOC
-
-
 #if !defined(HAVE_STDINT_H) && !defined(_STDINT_H_)
 /* Most everything except Visual Studio 2008 and earlier has stdint.h now */
 #if defined(_MSC_VER) && (_MSC_VER < 1600)
