@@ -32,7 +32,7 @@
 #if (defined(__GNUC__) && (__GNUC__ <= 2)) || defined(__CC_ARM) || defined(__cplusplus)
 #define SDL_VARIABLE_LENGTH_ARRAY 1
 #else
-#define SDL_VARIABLE_LENGTH_ARRAY 1
+#define SDL_VARIABLE_LENGTH_ARRAY
 #endif
 
 #define SDL_MAX_SMALL_ALLOC_STACKSIZE          128

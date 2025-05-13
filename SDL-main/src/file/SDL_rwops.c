@@ -537,13 +537,12 @@ static SDL_bool IsRegularFileOrPipe(FILE *f)
         !((st.st_mode & _S_IFMT) == _S_IFREG || (st.st_mode & _S_IFMT) == _S_IFIFO)) {
         return SDL_FALSE;
     }
-    #else
+    #elif defined __MACOSCLASSIC__
+      return SDL_TRUE;
+    #elif !defined __EMSCRIPTEN__
     struct stat st;
     if (fstat(fileno(f), &st) < 0 || !(S_ISREG(st.st_mode) || S_ISFIFO(st.st_mode))) {
-#ifdef __MACOSCLASSIC__
-#else
         return SDL_FALSE;
-#endif
     }
     #endif
     return SDL_TRUE;

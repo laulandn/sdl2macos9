@@ -32,11 +32,11 @@
 #include <stdio.h>
 */
 
-
+#ifdef __MWERKS__
 #ifndef M_PI
 #define M_PI 3.1415926535
 #endif
-
+#endif
 
 /* TODO: Replace with SDL_malloc */
 

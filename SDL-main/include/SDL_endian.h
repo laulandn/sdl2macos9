@@ -164,7 +164,7 @@ SDL_Swap16(Uint16 x)
 #ifdef __MWERKS__
     return SDL_static_cast(Uint16, ((x << 8) | (x >> 8)));
 #else
-  int result;
+    int result;
   __asm__("rlwimi %0,%2,8,16,23": "=&r"(result):"0"(x >> 8), "r"(x));
     return (Uint16)result;
 #endif

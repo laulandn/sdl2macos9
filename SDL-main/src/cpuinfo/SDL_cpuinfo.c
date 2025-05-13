@@ -27,7 +27,6 @@
 #if defined(__WIN32__) || defined(__WINRT__) || defined(__GDK__)
 #include "../core/windows/SDL_windows.h"
 #endif
-
 #if defined(__OS2__)
 #undef HAVE_SYSCTLBYNAME
 #define INCL_DOS
@@ -36,8 +35,7 @@
 #define QSV_NUMPROCESSORS 26
 #endif
 #endif
-
-#ifdef __MWERKS__
+#ifdef __MACOSCLASSIC__
 #include <Gestalt.h>
 #endif
 
@@ -1143,7 +1141,7 @@ int SDL_GetSystemRAM(void)
             SDL_SystemRAM = GetMemorySize();
         }
 #endif
-#ifdef __MWERKS__
+#ifdef __MACOSCLASSIC__
         if (SDL_SystemRAM <= 0) {
           long response;
 		  if(!Gestalt(gestaltLogicalRAMSize, &response)) SDL_SystemRAM=response/(1024*1024);

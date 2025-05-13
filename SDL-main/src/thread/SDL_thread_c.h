@@ -42,6 +42,8 @@
 #include "n3ds/SDL_systhread_c.h"
 #elif defined(SDL_THREAD_STDCPP)
 #include "stdcpp/SDL_systhread_c.h"
+#elif defined(SDL_THREAD_AMIGAOS4)
+#include "amigaos4/SDL_systhread_c.h"
 #elif defined(SDL_THREAD_OS2)
 #include "os2/SDL_systhread_c.h"
 #elif defined(SDL_THREAD_NGAGE)

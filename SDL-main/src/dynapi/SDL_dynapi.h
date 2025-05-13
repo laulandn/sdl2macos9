@@ -65,10 +65,12 @@
 #define SDL_DYNAMIC_API 0 /* vitasdk doesn't support dynamic linking */
 #elif defined(__NGAGE__)
 #define SDL_DYNAMIC_API 0 /* The N-Gage doesn't support dynamic linking either */
-#elif defined(__MWERKS__)
-#define SDL_DYNAMIC_API 0
 #elif defined(__3DS__)
 #define SDL_DYNAMIC_API 0 /* devkitARM doesn't support dynamic linking */
+#elif defined(__MACOSCLASSIC__)
+#define SDL_DYNAMIC_API 0 /* */
+#elif defined(__AMIGAOS3__)
+#define SDL_DYNAMIC_API 0 /* */
 #elif defined(DYNAPI_NEEDS_DLOPEN) && !defined(HAVE_DLOPEN)
 #define SDL_DYNAMIC_API 0 /* we need dlopen(), but don't have it.... */
 #endif

@@ -226,6 +226,7 @@
 #define __AMIGAOS4__ 1
 #endif
 #if defined(__amigaos3__)
+#undef __AMIGAOS3__
 #define __AMIGAOS3__ 1
 #endif
 
