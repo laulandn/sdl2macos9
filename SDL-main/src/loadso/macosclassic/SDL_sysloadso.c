@@ -45,6 +45,8 @@ void *SDL_LoadObject(const char *sofile)
 	OSErr error;
 	char psofile[512];
 
+	fprintf(stderr,"macosclassic load object '%s'\n",sofile); fflush(stderr);
+
 	SDL_strlcpy(psofile, sofile, SDL_arraysize(psofile));
 	error = GetSharedLibrary(C2PStr(psofile), kCompiledCFragArch,
 			kLoadCFrag, &library_id, &mainAddr, errName);
@@ -82,6 +84,8 @@ void *SDL_LoadFunction(void *handle, const char *name)
 	CFragConnectionID library_id = (CFragConnectionID)handle;
 	char pname[512];
 
+	fprintf(stderr,"macosclassic load func '%s'\n",name); fflush(stderr);
+
 	SDL_strlcpy(pname, name, SDL_arraysize(pname));
 	if ( FindSymbol(library_id, C2PStr(pname),
 	                (char **)&symbol, &class) != noErr ) {
@@ -97,6 +101,7 @@ void *SDL_LoadFunction(void *handle, const char *name)
 void SDL_UnloadObject(void *handle)
 {
 	CFragConnectionID library_id;
+	fprintf(stderr,"macosclassic unload obj \n"); fflush(stderr);
 	if ( handle != NULL ) {
 		library_id = (CFragConnectionID)handle;
 		CloseConnection(&library_id);

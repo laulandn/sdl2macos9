@@ -33,7 +33,9 @@
 #define SDL_BYTEORDER 4321
 
 #define STDC_HEADERS 1
-/*#define HAVE_ALLOCA_H 1*/
+#if !defined(__MWERKS__)
+#define HAVE_ALLOCA_H 1
+#endif
 #define HAVE_CTYPE_H 1
 #define HAVE_ICONV_H 1
 #define HAVE_INTTYPES_H 1
@@ -46,9 +48,13 @@
 #define HAVE_STDINT_H 1
 #define HAVE_STDIO_H 1
 #define HAVE_STDLIB_H 1
-/*#define HAVE_STRINGS_H 1*/
-#define HAVE_STRING_H 1
-/*#define HAVE_SYS_TYPES_H 1*/
+#if !defined(__MWERKS__)
+#define HAVE_STRINGS_H 1
+#endif
+#define HAVE_STRING_H 14
+#if !defined(__MWERKS__)
+#define HAVE_SYS_TYPES_H 1
+#endif
 
 #define HAVE_DLOPEN 1
 #define HAVE_MALLOC 1
@@ -110,12 +116,11 @@
 #define HAVE_SETJMP 1
 /*#define HAVE_NANOSLEEP 1*/
 
-/*#define SDL_MAIN_NEEDED  1*/
-
+#ifdef __MWERKS__
 #define LACKS_SYS_PARAM_H
-#define LACKS_SYS_MMAN_H 1
+#endif
 
-/*#undef HAVE_MALLOC*/
+#define LACKS_SYS_MMAN_H 1
 
 
 #if !defined(HAVE_STDINT_H) && !defined(_STDINT_H_)
@@ -148,14 +153,14 @@ typedef unsigned int uintptr_t;
 
 /* Enable the dummy audio driver (src/audio/dummy/\*.c) */
 #define SDL_AUDIO_DRIVER_MACOSCLASSIC  1
-#define SDL_AUDIO_DRIVER_DUMMY  1
+/*#define SDL_AUDIO_DRIVER_DUMMY  1*/
 #define SDL_AUDIO_DRIVER_DISK  1
 
 /* Enable the stub joystick driver (src/joystick/dummy/\*.c) */
 /*#define SDL_JOYSTICK_DISABLED   1*/
-#define SDL_JOYSTICK_DUMMY   1
+/*#define SDL_JOYSTICK_DUMMY   1*/
 #define SDL_JOYSTICK_VIRTUAL   1
-/*#define SDL_JOYSTICK_MACOSCLASSIC   1*/
+#define SDL_JOYSTICK_MACOSCLASSIC   1
 
 /* Enable the stub haptic driver (src/haptic/dummy/\*.c) */
 /*#define SDL_HAPTIC_DISABLED 1*/
@@ -171,7 +176,8 @@ typedef unsigned int uintptr_t;
 
 /* Enable the stub shared object loader (src/loadso/dummy/\*.c) */
 /*#define SDL_LOADSO_DISABLED 1*/
-#define SDL_LOADSO_DUMMY 1
+/*#define SDL_LOADSO_DUMMY 1*/
+#define SDL_LOADSO_MACOSCLASSIC 1
 
 /* Enable the stub thread support (src/thread/generic/\*.c) */
 #define SDL_THREADS_DISABLED    1

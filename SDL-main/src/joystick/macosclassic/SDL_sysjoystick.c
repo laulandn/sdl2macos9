@@ -1,331 +1,180 @@
 /*
-    SDL - Simple DirectMedia Layer
-    Copyright (C) 1997-2012 Sam Lantinga
+  Simple DirectMedia Layer
+  Copyright (C) 1997-2025 Sam Lantinga <slouken@libsdl.org>
 
-    This library is free software; you can redistribute it and/or
-    modify it under the terms of the GNU Lesser General Public
-    License as published by the Free Software Foundation; either
-    version 2.1 of the License, or (at your option) any later version.
+  This software is provided 'as-is', without any express or implied
+  warranty.  In no event will the authors be held liable for any damages
+  arising from the use of this software.
 
-    This library is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-    Lesser General Public License for more details.
+  Permission is granted to anyone to use this software for any purpose,
+  including commercial applications, and to alter it and redistribute it
+  freely, subject to the following restrictions:
 
-    You should have received a copy of the GNU Lesser General Public
-    License along with this library; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-
-    Sam Lantinga
-    slouken@libsdl.org
+  1. The origin of this software must not be misrepresented; you must not
+     claim that you wrote the original software. If you use this software
+     in a product, an acknowledgment in the product documentation would be
+     appreciated but is not required.
+  2. Altered source versions must be plainly marked as such, and must not be
+     misrepresented as being the original software.
+  3. This notice may not be removed or altered from any source distribution.
 */
-#include "SDL_config.h"
+#include "../../SDL_internal.h"
 
+#if defined(SDL_JOYSTICK_MACOSCLASSIC)
 
-#define DEBUG_JOYSTICK 1
-
-
-#ifdef SDL_JOYSTICK_MACOSCLASSIC
-
-/* Bit below may or may not work as intended, so left commented out*/
-/*
-#if !kISpDeviceClass_Gamepad
-#define kISpDeviceClass_Gamepad FOUR_CHAR_CODE('gmpd')
-#endif
-*/
-
-/*  SDL stuff  --  "SDL_sysjoystick.c"
-    MacOS joystick functions by Frederick Reitberger
-
-    The code that follows is meant for SDL.  Use at your own risk.
-*/
-
-#include <InputSprocket.h>
+/* This is the dummy implementation of the SDL joystick API */
 
 #include "SDL_joystick.h"
 #include "../SDL_sysjoystick.h"
 #include "../SDL_joystick_c.h"
 
-
-/*  The max number of joysticks we will detect  */
-#define     MAX_JOYSTICKS       16 
-/*  Limit ourselves to 32 elements per device  */
-#define     kMaxReferences      32 
-
-#define		ISpSymmetricAxisToFloat(axis)	((((float) axis) - kISpAxisMiddle) / (kISpAxisMaximum-kISpAxisMiddle))
-#define		ISpAsymmetricAxisToFloat(axis)	(((float) axis) / (kISpAxisMaximum))
-
-
-static  ISpDeviceReference  SYS_Joysticks[MAX_JOYSTICKS];
-static  ISpElementListReference SYS_Elements[MAX_JOYSTICKS];
-static  ISpDeviceDefinition     SYS_DevDef[MAX_JOYSTICKS];
-
-struct joystick_hwdata 
+static int MACOS_JoystickInit(void)
 {
-    char name[64];
-/*    Uint8   id;*/
-    ISpElementReference refs[kMaxReferences];
-    /*  gonna need some sort of mapping info  */
-}; 
-
-
-/* Function to scan the system for joysticks.
- * Joystick 0 should be the system default joystick.
- * This function should return the number of available joysticks, or -1
- * on an unrecoverable fatal error.
- */
-int SDL_SYS_JoystickInit(void)
-{
-    static ISpDeviceClass classes[4] = {
-        kISpDeviceClass_Joystick,
-    /*#if kISpDeviceClass_Gamepad*/
-        FOUR_CHAR_CODE('gmpd'), /*kISpDeviceClass_Gamepad*/
-    /*#endif*/
-        kISpDeviceClass_Wheel,
-        0
-    };
-    OSErr   err;
-    int     i;
-    UInt32  count, numJoysticks;
-
-    if ( (Ptr)0 == (Ptr)ISpStartup ) {
-        SDL_SetError("InputSprocket not installed");
-        return -1;  //  InputSprocket not installed
-    }
-
-    if( (Ptr)0 == (Ptr)ISpGetVersion ) {
-        SDL_SetError("InputSprocket not version 1.1 or newer");
-        return -1;  //  old version of ISp (not at least 1.1)
-    }
-
-    ISpStartup();
-
-    /* Get all the joysticks */
-    numJoysticks = 0;
-    for ( i=0; classes[i]; ++i ) {
-        count = 0;
-        err = ISpDevices_ExtractByClass(
-            classes[i],
-            MAX_JOYSTICKS-numJoysticks,
-            &count,
-            &SYS_Joysticks[numJoysticks]);
-        numJoysticks += count;
-    }
-
-    for(i = 0; i < numJoysticks; i++)
-    {
-        ISpDevice_GetDefinition(
-            SYS_Joysticks[i], sizeof(ISpDeviceDefinition),
-            &SYS_DevDef[i]);
-        
-        err = ISpElementList_New(
-            0, NULL,
-            &SYS_Elements[i], 0);
-        
-        if (err) {
-            SDL_OutOfMemory();
-            return -1;
-        }
-
-        ISpDevice_GetElementList(
-            SYS_Joysticks[i],
-            &SYS_Elements[i]);
-    }
-
-    ISpDevices_Deactivate(numJoysticks, SYS_Joysticks);
-
-    return numJoysticks;
-}
-
-/* Function to get the device-dependent name of a joystick */
-const char *SDL_SYS_JoystickName(int index)
-{
-    static char name[64];
-    int len;
-
-    /*  convert pascal string to c-string  */
-    len = SYS_DevDef[index].deviceName[0];
-    if ( len >= sizeof(name) ) {
-        len = (sizeof(name) - 1);
-    }
-    SDL_memcpy(name, &SYS_DevDef[index].deviceName[1], len);
-    name[len] = '\0';
-
-    return name;
-}
-
-/* Function to open a joystick for use.
-   The joystick to open is specified by the index field of the joystick.
-   This should fill the nbuttons and naxes fields of the joystick structure.
-   It returns 0, or -1 if there is an error.
- */
-int SDL_SYS_JoystickOpen(SDL_Joystick *joystick)
-{
-    int     index;
-    UInt32  count, gotCount, count2;
-    long    numAxis, numButtons, numHats, numBalls;
-
-    count = kMaxReferences;
-    count2 = 0;
-    numAxis = numButtons = numHats = numBalls = 0;
-
-    index = joystick->index;
-
-    /* allocate memory for system specific hardware data */
-    joystick->hwdata = (struct joystick_hwdata *) SDL_malloc(sizeof(*joystick->hwdata));
-    if (joystick->hwdata == NULL)
-    {
-		SDL_OutOfMemory();
-		return(-1);
-    }
-    SDL_memset(joystick->hwdata, 0, sizeof(*joystick->hwdata));
-    SDL_strlcpy(joystick->hwdata->name, SDL_SYS_JoystickName(index), SDL_arraysize(joystick->hwdata->name));
-    joystick->name = joystick->hwdata->name;
-
-    ISpElementList_ExtractByKind(
-        SYS_Elements[index],
-        kISpElementKind_Axis,
-        count,
-        &gotCount,
-        joystick->hwdata->refs);
-
-    numAxis = gotCount;
-    count -= gotCount;
-    count2 += gotCount;
-
-    ISpElementList_ExtractByKind(
-        SYS_Elements[index],
-        kISpElementKind_DPad,
-        count,
-        &gotCount,
-        &(joystick->hwdata->refs[count2]));
-
-    numHats = gotCount;
-    count -= gotCount;
-    count2 += gotCount;
-
-    ISpElementList_ExtractByKind(
-        SYS_Elements[index],
-        kISpElementKind_Button,
-        count,
-        &gotCount,
-        &(joystick->hwdata->refs[count2]));
-
-    numButtons = gotCount;
-    count -= gotCount;
-    count2 += gotCount;
-
-    joystick->naxes = numAxis;
-    joystick->nhats = numHats;
-    joystick->nballs = numBalls;
-    joystick->nbuttons = numButtons;
-
-    ISpDevices_Activate(
-        1,
-        &SYS_Joysticks[index]);
-
+    fprintf(stderr,"macosclassic joystick init\n"); fflush(stderr);
     return 0;
 }
 
-/* Function to update the state of a joystick - called as a device poll.
- * This function shouldn't update the joystick structure directly,
- * but instead should call SDL_PrivateJoystick*() to deliver events
- * and update joystick device state.
- */
-void SDL_SYS_JoystickUpdate(SDL_Joystick *joystick)
+static int MACOS_JoystickGetCount(void)
 {
-    int     i, j;
-    ISpAxisData     a;
-    ISpDPadData     b;
-    //ISpDeltaData    c;
-    ISpButtonData   d;
-
-    for(i = 0, j = 0; i < joystick->naxes; i++, j++)
-    {
-        Sint16 value;
-
-        ISpElement_GetSimpleState(
-            joystick->hwdata->refs[j],
-            &a);
-        value = (ISpSymmetricAxisToFloat(a)* 32767.0);
-        if ( value != joystick->axes[i] ) {
-            SDL_PrivateJoystickAxis(joystick, i, value);
-        }
-    }
-
-    for(i = 0; i < joystick->nhats; i++, j++)
-    {
-        Uint8 pos;
-
-        ISpElement_GetSimpleState(
-            joystick->hwdata->refs[j],
-            &b);
-        switch(b) {
-            case kISpPadIdle:
-                pos = SDL_HAT_CENTERED;
-                break;
-            case kISpPadLeft:
-                pos = SDL_HAT_LEFT;
-                break;
-            case kISpPadUpLeft:
-                pos = SDL_HAT_LEFTUP;
-                break;
-            case kISpPadUp:
-                pos = SDL_HAT_UP;
-                break;
-            case kISpPadUpRight:
-                pos = SDL_HAT_RIGHTUP;
-                break;
-            case kISpPadRight:
-                pos = SDL_HAT_RIGHT;
-                break;
-            case kISpPadDownRight:
-                pos = SDL_HAT_RIGHTDOWN;
-                break;
-            case kISpPadDown:
-                pos = SDL_HAT_DOWN;
-                break;
-            case kISpPadDownLeft:
-                pos = SDL_HAT_LEFTDOWN;
-                break;
-        }
-        if ( pos != joystick->hats[i] ) {
-            SDL_PrivateJoystickHat(joystick, i, pos);
-        }
-    }
-
-    for(i = 0; i < joystick->nballs; i++, j++)
-    {
-        /*  ignore balls right now  */
-    }
-
-    for(i = 0; i < joystick->nbuttons; i++, j++)
-    {
-        ISpElement_GetSimpleState(
-            joystick->hwdata->refs[j],
-            &d);
-        if ( d != joystick->buttons[i] ) {
-            SDL_PrivateJoystickButton(joystick, i, d);
-        }
-    }
+    fprintf(stderr,"macosclassic joystick get count\n"); fflush(stderr);
+    return 0;
 }
 
-/* Function to close a joystick after use */
-void SDL_SYS_JoystickClose(SDL_Joystick *joystick)
+static void MACOS_JoystickDetect(void)
 {
-    int index;
-
-    index = joystick->index;
-
-    ISpDevices_Deactivate(
-        1,
-        &SYS_Joysticks[index]);
+    fprintf(stderr,"macosclassic joystick detect\n"); fflush(stderr);
 }
 
-/* Function to perform any system-specific joystick related cleanup */
-void SDL_SYS_JoystickQuit(void)
+static const char *MACOS_JoystickGetDeviceName(int device_index)
 {
-    ISpShutdown();
+    fprintf(stderr,"macosclassic joystick get dev name\n"); fflush(stderr);
+    return NULL;
 }
+
+static const char *MACOS_JoystickGetDevicePath(int device_index)
+{
+    fprintf(stderr,"macosclassic joystick get dev path\n"); fflush(stderr);
+    return NULL;
+}
+
+static int MACOS_JoystickGetDeviceSteamVirtualGamepadSlot(int device_index)
+{
+    fprintf(stderr,"macosclassic joystick get dev steam virt\n"); fflush(stderr);
+    return -1;
+}
+
+static int MACOS_JoystickGetDevicePlayerIndex(int device_index)
+{
+    fprintf(stderr,"macosclassic joystick get dev player index\n"); fflush(stderr);
+    return -1;
+}
+
+static void MACOS_JoystickSetDevicePlayerIndex(int device_index, int player_index)
+{
+    fprintf(stderr,"macosclassic joystick set dev player index\n"); fflush(stderr);
+}
+
+static SDL_JoystickGUID MACOS_JoystickGetDeviceGUID(int device_index)
+{
+    SDL_JoystickGUID guid;
+    fprintf(stderr,"macosclassic joystick get dev guid\n"); fflush(stderr);
+    SDL_zero(guid);
+    return guid;
+}
+
+static SDL_JoystickID MACOS_JoystickGetDeviceInstanceID(int device_index)
+{
+    fprintf(stderr,"macosclassic joystick get dev inst id\n"); fflush(stderr);
+    return -1;
+}
+
+static int MACOS_JoystickOpen(SDL_Joystick *joystick, int device_index)
+{
+    fprintf(stderr,"macosclassic joystick open\n"); fflush(stderr);
+    return SDL_SetError("Logic error: No joysticks available");
+}
+
+static int MACOS_JoystickRumble(SDL_Joystick *joystick, Uint16 low_frequency_rumble, Uint16 high_frequency_rumble)
+{
+    fprintf(stderr,"macosclassic joystick rumble\n"); fflush(stderr);
+    return SDL_Unsupported();
+}
+
+static int MACOS_JoystickRumbleTriggers(SDL_Joystick *joystick, Uint16 left_rumble, Uint16 right_rumble)
+{
+    fprintf(stderr,"macosclassic joystick rumble triggers\n"); fflush(stderr);
+    return SDL_Unsupported();
+}
+
+static Uint32 MACOS_JoystickGetCapabilities(SDL_Joystick *joystick)
+{
+    fprintf(stderr,"macosclassic joystick get cap\n"); fflush(stderr);
+    return 0;
+}
+
+static int MACOS_JoystickSetLED(SDL_Joystick *joystick, Uint8 red, Uint8 green, Uint8 blue)
+{
+    fprintf(stderr,"macosclassic joystick joystick set led\n"); fflush(stderr);
+    return SDL_Unsupported();
+}
+
+static int MACOS_JoystickSendEffect(SDL_Joystick *joystick, const void *data, int size)
+{
+    fprintf(stderr,"macosclassic joystick send effects\n"); fflush(stderr);
+    return SDL_Unsupported();
+}
+
+static int MACOS_JoystickSetSensorsEnabled(SDL_Joystick *joystick, SDL_bool enabled)
+{
+    fprintf(stderr,"macosclassic joystick set sensors\n"); fflush(stderr);
+    return SDL_Unsupported();
+}
+
+static void MACOS_JoystickUpdate(SDL_Joystick *joystick)
+{
+    fprintf(stderr,"macosclassic joystick update\n"); fflush(stderr);
+}
+
+static void MACOS_JoystickClose(SDL_Joystick *joystick)
+{
+    fprintf(stderr,"macosclassic joystick close\n"); fflush(stderr);
+}
+
+static void MACOS_JoystickQuit(void)
+{
+    fprintf(stderr,"macosclassic joystick quit\n"); fflush(stderr);
+}
+
+static SDL_bool MACOS_JoystickGetGamepadMapping(int device_index, SDL_GamepadMapping *out)
+{
+    fprintf(stderr,"macosclassic joystick get gamepad mapping\n"); fflush(stderr);
+    return SDL_FALSE;
+}
+
+SDL_JoystickDriver SDL_MACOS_JoystickDriver = {
+    MACOS_JoystickInit,
+    MACOS_JoystickGetCount,
+    MACOS_JoystickDetect,
+    MACOS_JoystickGetDeviceName,
+    MACOS_JoystickGetDevicePath,
+    MACOS_JoystickGetDeviceSteamVirtualGamepadSlot,
+    MACOS_JoystickGetDevicePlayerIndex,
+    MACOS_JoystickSetDevicePlayerIndex,
+    MACOS_JoystickGetDeviceGUID,
+    MACOS_JoystickGetDeviceInstanceID,
+    MACOS_JoystickOpen,
+    MACOS_JoystickRumble,
+    MACOS_JoystickRumbleTriggers,
+    MACOS_JoystickGetCapabilities,
+    MACOS_JoystickSetLED,
+    MACOS_JoystickSendEffect,
+    MACOS_JoystickSetSensorsEnabled,
+    MACOS_JoystickUpdate,
+    MACOS_JoystickClose,
+    MACOS_JoystickQuit,
+    MACOS_JoystickGetGamepadMapping
+};
 
 #endif /* SDL_JOYSTICK_MACOSCLASSIC */
+
+/* vi: set ts=4 sw=4 expandtab: */

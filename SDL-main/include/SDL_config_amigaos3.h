@@ -110,8 +110,6 @@
 #define HAVE_SETJMP 1
 /*#define HAVE_NANOSLEEP 1*/
 
-/*#define SDL_MAIN_NEEDED  1*/
-
 #define LACKS_SYS_PARAM_H
 #define LACKS_SYS_MMAN_H 1
 

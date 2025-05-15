@@ -10,7 +10,7 @@ MakePEF -o $1.pef $1
 #cmd="/Developer/Tools/Rez $RES -s $RINC -a -t APPL -c '????' -o $1.pef"
 
 # Uncomment on Linux
-cmd="Rez -I$RINC $RES --data $1.pef -t \"APPL\" -c \"????\" -o $1.bin --cc $1.APPL --cc $1.dsk"
+cmd="Rez -I$RINC $RES --data $1.pef -t APPL -c 1234 -o $1.bin --cc $1.APPL --cc $1.dsk"
 
 # Uncomment on MacOS X
 #cp $1.pef $1.APPL
