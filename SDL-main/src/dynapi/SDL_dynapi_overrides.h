@@ -28,6 +28,7 @@
 #endif
 
 #if defined(__MACOSCLASSIC__) || defined(__AMIGAOS3__)
+#error foo
 #else
 #define SDL_SetError SDL_SetError_REAL
 #define SDL_Log SDL_Log_REAL

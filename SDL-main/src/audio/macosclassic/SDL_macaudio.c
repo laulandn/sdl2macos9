@@ -28,9 +28,9 @@
 #include "../SDL_audio_c.h"
 #include "SDL_macaudio.h"
 
-//#include "../../core/android/SDL_android.h"
+/*#include "../../core/android/SDL_android.h"*/
 
-//#include <android/log.h>
+/*#include <android/log.h>*/
 
 static SDL_AudioDevice *audioDevice = NULL;
 static SDL_AudioDevice *captureDevice = NULL;
@@ -66,9 +66,10 @@ void MACOSAUDIO_DetectDevices()
 
 static int MACOSAUDIO_OpenDevice(_THIS, const char *devname)
 {
-  fprintf(stderr,"macosclassic MACOSAUDIO_OpenDevice\n"); fflush(stderr);
     SDL_AudioFormat test_format;
     SDL_bool iscapture = this->iscapture;
+
+  fprintf(stderr,"macosclassic MACOSAUDIO_OpenDevice\n"); fflush(stderr);
 
     SDL_assert((captureDevice == NULL) || !iscapture);
     SDL_assert((audioDevice == NULL) || iscapture);

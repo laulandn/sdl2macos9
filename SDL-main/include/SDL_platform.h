@@ -122,7 +122,9 @@
 
 #if __MWERKS__ || macintosh
 #ifndef __MACH__
+#ifndef __MACOSCLASSIC__
 #define __MACOSCLASSIC__ 1
+#endif
 #endif
 #endif
 

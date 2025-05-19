@@ -53,7 +53,7 @@ SOURCES = \
 	./src/sensor/dummy/*.c \
 	./src/stdlib/*.c \
 	./src/thread/*.c \
-	./src/thread/generic/*.c \
+	./src/thread/macosclassic/*.c \
 	./src/timer/*.c \
 	./src/timer/macosclassic/*.c \
 	./src/video/*.c \
@@ -99,6 +99,7 @@ $(TARGET_SHARED): $(OBJECTS) $(MAIN_OBJECT)
 clean:
 	@echo Cleaning
 	@rm -f $(TARGET_STATIC) $(TARGET_SHARED) $(TESTLIB_STATIC) $(ALL_OBJECTS) $(PREFS_PROGRAM) $(DEPS) libSDL2main.a
+	make -C test -fMakefile.r68ppc clean
 
 install:
 	mkdir -p $(PATH_TO_RETRO68)/include/SDL2

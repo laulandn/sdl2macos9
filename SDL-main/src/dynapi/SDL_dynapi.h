@@ -68,9 +68,9 @@
 #elif defined(__3DS__)
 #define SDL_DYNAMIC_API 0 /* devkitARM doesn't support dynamic linking */
 #elif defined(__MACOSCLASSIC__)
-#define SDL_DYNAMIC_API 0 /* */
+#define SDL_DYNAMIC_API 0
 #elif defined(__AMIGAOS3__)
-#define SDL_DYNAMIC_API 0 /* */
+#define SDL_DYNAMIC_API 0
 #elif defined(DYNAPI_NEEDS_DLOPEN) && !defined(HAVE_DLOPEN)
 #define SDL_DYNAMIC_API 0 /* we need dlopen(), but don't have it.... */
 #endif

@@ -6,7 +6,7 @@ RES="$PATH_TO_SDL2/Retro68APPL.r $PATH_TO_SDL2/SDL.r"
 #cmd="/Developer/Tools/Rez $RES -s $RINC -a -t APPL -c '????' -o $1.pef"
 
 # Uncomment on Linux
-cmd="Rez -I$RINC $RES --copy $1.code.bin -t \"APPL\" -c \"????\" -o $1.bin --cc $1.APPL --cc $1.dsk"
+cmd="Rez -I$RINC $RES --copy $1.code.bin -t APPL -c 1234 -o $1.bin --cc $1.APPL --cc $1.dsk"
 
 # TODO: This isn't right...fix this...
 # Uncomment on MacOS X

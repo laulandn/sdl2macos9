@@ -53,7 +53,8 @@ static const char *GetControllerTypeOverride( int nVID, int nPID )
 
 EControllerType GuessControllerType( int nVID, int nPID )
 {
-#if 0//def _DEBUG
+#if 0
+//def _DEBUG
 	// Verify that there are no duplicates in the controller list
 	// If the list were sorted, we could do this much more efficiently, as well as improve lookup speed.
 	static bool s_bCheckedForDuplicates;
@@ -72,7 +73,7 @@ EControllerType GuessControllerType( int nVID, int nPID )
 			}
 		}
 	}
-#endif // _DEBUG
+#endif /* _DEBUG */
 
 	unsigned int unDeviceID = MAKE_CONTROLLER_ID( nVID, nPID );
 	int iIndex;
