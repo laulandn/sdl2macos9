@@ -24,21 +24,25 @@
 
 void SDL_SYS_InitTLSData(void)
 {
+    fprintf(stderr,"macosclassic init tls\n"); fflush(stderr);
     SDL_Generic_InitTLSData();
 }
 
 SDL_TLSData *SDL_SYS_GetTLSData(void)
 {
+    fprintf(stderr,"macosclassic get tls\n"); fflush(stderr);
     return SDL_Generic_GetTLSData();
 }
 
 int SDL_SYS_SetTLSData(SDL_TLSData *data)
 {
+    fprintf(stderr,"macosclassic set tls\n"); fflush(stderr);
     return SDL_Generic_SetTLSData(data);
 }
 
 void SDL_SYS_QuitTLSData(void)
 {
+    fprintf(stderr,"macosclassic quit tls\n"); fflush(stderr);
     SDL_Generic_QuitTLSData();
 }
 

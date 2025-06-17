@@ -26,12 +26,6 @@
 #include "../SDL_sysvideo.h"
 #include "sdl_amiga.h"
 
-#include <cybergraphics/cybergraphics.h>
-#include <intuition/intuitionbase.h>
-
-#include <proto/cybergraphics.h>
-#include <proto/graphics.h>
-#include <proto/intuition.h>
 
 #ifdef SDL_VIDEO_DRIVER_AMIGAOS3
 
@@ -91,7 +85,7 @@ static int videoInit(_THIS)
 {
     SDL_VideoDisplay display;
     struct NewWindow nw;
-    int iflags;
+    int iflags,wflags;
     SDL_DisplayMode m;
     int DisplayID=0;
     int Depth=0;
@@ -159,18 +153,22 @@ amigascreen=OpenScreenTags(NULL,
   nw.DetailPen=2;  nw.BlockPen=1;  nw.Title=(unsigned char *)"Amiga SDL2 Window";
   /* Set all event flags correctly */
   iflags=0;
-  iflags|=(IDCMP_VANILLAKEY|IDCMP_RAWKEY);
+  //iflags|=IDCMP_VANILLAKEY;
+  iflags|=IDCMP_RAWKEY;
   iflags|=IDCMP_CLOSEWINDOW;
   iflags|=(IDCMP_NEWSIZE|IDCMP_CHANGEWINDOW);
   iflags|=IDCMP_ACTIVEWINDOW;
   iflags|=IDCMP_INACTIVEWINDOW;
   iflags|=IDCMP_MOUSEBUTTONS;
-  iflags=WFLG_GIMMEZEROZERO|WFLG_ACTIVATE|WFLG_DRAGBAR|
+  iflags|=IDCMP_MOUSEMOVE;
+  iflags|=IDCMP_DELTAMOVE;
+  wflags=SIMPLE_REFRESH;
+  wflags|=WFLG_GIMMEZEROZERO|WFLG_ACTIVATE|WFLG_DRAGBAR|
   WFLG_DEPTHGADGET|WFLG_RMBTRAP;
-  //iflags|=(WFLG_BORDERLESS|WFLG_BACKDROP);
-  iflags|=WFLG_SIZEGADGET;
-  iflags|=WFLG_CLOSEGADGET;
-  nw.Flags=iflags;
+  //wflags|=(WFLG_BORDERLESS|WFLG_BACKDROP);
+  wflags|=WFLG_SIZEGADGET;
+  wflags|=WFLG_CLOSEGADGET;
+  nw.Flags=iflags|wflags;
   nw.Type=WBENCHSCREEN;
   nw.FirstGadget=NULL;  nw.CheckMark=NULL;
   nw.Screen=NULL; /* Is this ok? */
@@ -188,9 +186,7 @@ amigascreen=OpenScreenTags(NULL,
 				WFLG_DRAGBAR|
                                 WFLG_DEPTHGADGET|
 				  WFLG_CLOSEGADGET,
-                                 WA_IDCMP,
-                                  IDCMP_SIZEVERIFY|IDCMP_NEWSIZE|
-                                  IDCMP_CLOSEWINDOW|IDCMP_REFRESHWINDOW,
+                                 WA_IDCMP,iflags,
                                  WA_Left,0,
                                  WA_Top,0,
                                  WA_Width,myWidth,
@@ -204,6 +200,7 @@ amigascreen=OpenScreenTags(NULL,
     fprintf(stderr,"amigaos3 Couldn't open window!\n"); fflush(stderr);
     exitCleanly(0);
   }
+  ActivateWindow(amigawindow);
   amigaport=amigawindow->RPort;
 #ifdef AMIGA_DEBUG
   fprintf(stderr,"amigaos3 Window done\n"); fflush(stderr);
@@ -427,7 +424,7 @@ static int updateWindowFramebuffer(_THIS, SDL_Window *window, const SDL_Rect *re
 
 
 #ifdef AMIGA_DEBUG
-    fprintf(stderr,"amigaos3 updateWindowFramebuffer...\n"); fflush(stderr);
+    //fprintf(stderr,"amigaos3 updateWindowFramebuffer...\n"); fflush(stderr);
 #endif
 
     /*screen_buffer_t buffer;*/
@@ -461,10 +458,8 @@ static void pumpEvents(_THIS)
   int etype,val;
 
 #ifdef AMIGA_DEBUG
-  fprintf(stderr,"amigaos3 pumpEvents...\n"); fflush(stderr);
+  //fprintf(stderr,"amigaos3 pumpEvents...\n"); fflush(stderr);
 #endif
-
-  //fprintf(stderr,"Exiting as we don't handle events yet!\n"); fflush(stderr);
 
     // (void)Wait(SIGMASK(amigawindow));
 
@@ -486,6 +481,23 @@ static void pumpEvents(_THIS)
 	     fprintf(stderr,"amigaos3 close event\n"); fflush(stderr);
   exitCleanly(0);
         break;
+       case IDCMP_MOUSEBUTTONS:
+	     fprintf(stderr,"amigaos3 button event\n"); fflush(stderr);
+	     fprintf(stderr,"amigaos3 button MouseX=%d MouseY=%d\n",IntMsg->MouseX,IntMsg->MouseY); fflush(stderr);
+		     if(IntMsg->Code&IECODE_UP_PREFIX) {
+		       SDL_SendMouseButton(sdlw,1,0,SDL_BUTTON_LEFT);
+	     fprintf(stderr,"amigaos3 button up\n",IntMsg->MouseX,IntMsg->MouseY); fflush(stderr);
+		     }
+		     else {
+		       SDL_SendMouseButton(sdlw,1,1,SDL_BUTTON_LEFT);
+	     fprintf(stderr,"amigaos3 button down\n",IntMsg->MouseX,IntMsg->MouseY); fflush(stderr);
+		     }
+	     break;
+       case IDCMP_VANILLAKEY:
+       case IDCMP_RAWKEY:
+	     fprintf(stderr,"amigaos3 key event\n"); fflush(stderr);
+	     handleKeyboardEvent(IntMsg);
+	     break;
        default:
 	     fprintf(stderr,"amigaos3 %d event\n",IntMsg->Class); fflush(stderr);
 	break;

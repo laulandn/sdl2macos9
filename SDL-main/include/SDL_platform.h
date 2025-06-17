@@ -115,16 +115,21 @@
 #undef __MACOSX__
 #define __MACOSX__  1
 #if MAC_OS_X_VERSION_MIN_REQUIRED < 1070
-# error SDL for Mac OS X only supports deploying on 10.7 and above.
+//# error SDL for Mac OS X only supports deploying on 10.7 and above.
 #endif /* MAC_OS_X_VERSION_MIN_REQUIRED < 1070 */
 #endif /* TARGET_OS_IPHONE */
 #endif /* defined(__APPLE__) */
 
 #if __MWERKS__ || macintosh
-#ifndef __MACH__
+//#ifndef __MACH__
 #ifndef __MACOSCLASSIC__
 #define __MACOSCLASSIC__ 1
 #endif
+//#endif
+#endif
+#ifdef __MACOSCLASSIC__
+#ifdef __MACOSX__
+#undef __MACOSX__
 #endif
 #endif
 

@@ -164,8 +164,12 @@ SDL_bool SDL_AtomicTryLock(SDL_SpinLock *lock)
     }
     return res;
 #elif defined(__MACOSCLASSIC__)
+#ifdef __MACH__
+    return OSAtomicCompareAndSwap32Barrier(0, 1, lock);
+#else
     extern int _SDL_xchg_macosclassic(SDL_SpinLock *lock,int v);
     return _SDL_xchg_macosclassic(lock, 1) == 0;
+#endif
 #else
 #error Please implement for your platform.
     return SDL_FALSE;

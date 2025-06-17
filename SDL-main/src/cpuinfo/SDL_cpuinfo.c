@@ -36,7 +36,11 @@
 #endif
 #endif
 #ifdef __MACOSCLASSIC__
+#ifdef TARGET_API_MAC_CARBON
+#include <Carbon/Carbon.h>
+#else
 #include <Gestalt.h>
+#endif
 #endif
 
 /* CPU feature detection for SDL */

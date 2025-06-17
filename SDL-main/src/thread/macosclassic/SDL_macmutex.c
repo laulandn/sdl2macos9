@@ -36,6 +36,7 @@ struct SDL_mutex
 SDL_mutex *SDL_CreateMutex(void)
 {
     SDL_mutex *mutex;
+    fprintf(stderr,"macosclassic create mut\n"); fflush(stderr);
 
     /* Allocate mutex memory */
     mutex = (SDL_mutex *)SDL_calloc(1, sizeof(*mutex));
@@ -61,6 +62,7 @@ SDL_mutex *SDL_CreateMutex(void)
 /* Free the mutex */
 void SDL_DestroyMutex(SDL_mutex *mutex)
 {
+    fprintf(stderr,"macosclassic destroy mut\n"); fflush(stderr);
     if (mutex) {
         if (mutex->sem) {
             SDL_DestroySemaphore(mutex->sem);
@@ -76,6 +78,7 @@ int SDL_LockMutex(SDL_mutex *mutex) SDL_NO_THREAD_SAFETY_ANALYSIS /* clang doesn
     return 0;
 #else
     SDL_threadID this_thread;
+    fprintf(stderr,"macosclassic lock mut\n"); fflush(stderr);
 
     if (mutex == NULL) {
         return 0;
@@ -106,6 +109,7 @@ int SDL_TryLockMutex(SDL_mutex *mutex)
 #else
     int retval = 0;
     SDL_threadID this_thread;
+    fprintf(stderr,"macosclassic trylock mut\n"); fflush(stderr);
 
     if (!mutex) {
         return 0;
@@ -136,6 +140,7 @@ int SDL_UnlockMutex(SDL_mutex *mutex) SDL_NO_THREAD_SAFETY_ANALYSIS /* clang doe
 #ifdef SDL_THREADS_DISABLED
     return 0;
 #else
+    fprintf(stderr,"macosclassic unloock mut\n"); fflush(stderr);
     if (mutex == NULL) {
         return 0;
     }

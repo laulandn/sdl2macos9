@@ -35,36 +35,37 @@
  * suffixed
  */
 #ifndef SDL_THREAD_GENERIC_COND_SUFFIX
-#define SDL_CreateCond_generic      SDL_CreateCond
-#define SDL_DestroyCond_generic     SDL_DestroyCond
-#define SDL_CondSignal_generic      SDL_CondSignal
-#define SDL_CondBroadcast_generic   SDL_CondBroadcast
-#define SDL_CondWait_generic        SDL_CondWait
-#define SDL_CondWaitTimeout_generic SDL_CondWaitTimeout
+#define SDL_CreateCond_mac      SDL_CreateCond
+#define SDL_DestroyCond_mac     SDL_DestroyCond
+#define SDL_CondSignal_mac      SDL_CondSignal
+#define SDL_CondBroadcast_mac   SDL_CondBroadcast
+#define SDL_CondWait_mac        SDL_CondWait
+#define SDL_CondWaitTimeout_mac SDL_CondWaitTimeout
 #endif
 
-typedef struct SDL_cond_generic
+typedef struct SDL_cond_mac
 {
     SDL_mutex *lock;
     int waiting;
     int signals;
     SDL_sem *wait_sem;
     SDL_sem *wait_done;
-} SDL_cond_generic;
+} SDL_cond_mac;
 
 /* Create a condition variable */
-SDL_cond *SDL_CreateCond_generic(void)
+SDL_cond *SDL_CreateCond_mac(void)
 {
-    SDL_cond_generic *cond;
+    SDL_cond_mac *cond;
+    fprintf(stderr,"macosclassic create cond\n"); fflush(stderr);
 
-    cond = (SDL_cond_generic *)SDL_malloc(sizeof(SDL_cond_generic));
+    cond = (SDL_cond_mac *)SDL_malloc(sizeof(SDL_cond_mac));
     if (cond) {
         cond->lock = SDL_CreateMutex();
         cond->wait_sem = SDL_CreateSemaphore(0);
         cond->wait_done = SDL_CreateSemaphore(0);
         cond->waiting = cond->signals = 0;
         if (!cond->lock || !cond->wait_sem || !cond->wait_done) {
-            SDL_DestroyCond_generic((SDL_cond *)cond);
+            SDL_DestroyCond_mac((SDL_cond *)cond);
             cond = NULL;
         }
     } else {
@@ -74,9 +75,10 @@ SDL_cond *SDL_CreateCond_generic(void)
 }
 
 /* Destroy a condition variable */
-void SDL_DestroyCond_generic(SDL_cond *_cond)
+void SDL_DestroyCond_mac(SDL_cond *_cond)
 {
-    SDL_cond_generic *cond = (SDL_cond_generic *)_cond;
+    SDL_cond_mac *cond = (SDL_cond_mac *)_cond;
+    fprintf(stderr,"macosclassic destroy cond\n"); fflush(stderr);
     if (cond) {
         if (cond->wait_sem) {
             SDL_DestroySemaphore(cond->wait_sem);
@@ -92,9 +94,10 @@ void SDL_DestroyCond_generic(SDL_cond *_cond)
 }
 
 /* Restart one of the threads that are waiting on the condition variable */
-int SDL_CondSignal_generic(SDL_cond *_cond)
+int SDL_CondSignal_mac(SDL_cond *_cond)
 {
-    SDL_cond_generic *cond = (SDL_cond_generic *)_cond;
+    SDL_cond_mac *cond = (SDL_cond_mac *)_cond;
+    fprintf(stderr,"macosclassic signal cond\n"); fflush(stderr);
     if (!cond) {
         return SDL_InvalidParamError("cond");
     }
@@ -116,9 +119,10 @@ int SDL_CondSignal_generic(SDL_cond *_cond)
 }
 
 /* Restart all threads that are waiting on the condition variable */
-int SDL_CondBroadcast_generic(SDL_cond *_cond)
+int SDL_CondBroadcast_mac(SDL_cond *_cond)
 {
-    SDL_cond_generic *cond = (SDL_cond_generic *)_cond;
+    SDL_cond_mac *cond = (SDL_cond_mac *)_cond;
+    fprintf(stderr,"macosclassic broadcast cond\n"); fflush(stderr);
     if (!cond) {
         return SDL_InvalidParamError("cond");
     }
@@ -170,10 +174,11 @@ Thread B:
     SDL_CondSignal(cond);
     SDL_UnlockMutex(lock);
  */
-int SDL_CondWaitTimeout_generic(SDL_cond *_cond, SDL_mutex *mutex, Uint32 ms)
+int SDL_CondWaitTimeout_mac(SDL_cond *_cond, SDL_mutex *mutex, Uint32 ms)
 {
-    SDL_cond_generic *cond = (SDL_cond_generic *)_cond;
+    SDL_cond_mac *cond = (SDL_cond_mac *)_cond;
     int retval;
+    fprintf(stderr,"macosclassic waittimeout cond\n"); fflush(stderr);
 
     if (!cond) {
         return SDL_InvalidParamError("cond");
@@ -225,9 +230,10 @@ int SDL_CondWaitTimeout_generic(SDL_cond *_cond, SDL_mutex *mutex, Uint32 ms)
 }
 
 /* Wait on the condition variable forever */
-int SDL_CondWait_generic(SDL_cond *cond, SDL_mutex *mutex)
+int SDL_CondWait_mac(SDL_cond *cond, SDL_mutex *mutex)
 {
-    return SDL_CondWaitTimeout_generic(cond, mutex, SDL_MUTEX_MAXWAIT);
+    fprintf(stderr,"macosclassic wait cond\n"); fflush(stderr);
+    return SDL_CondWaitTimeout_mac(cond, mutex, SDL_MUTEX_MAXWAIT);
 }
 
 /* vi: set ts=4 sw=4 expandtab: */

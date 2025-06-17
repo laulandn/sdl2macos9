@@ -1,0 +1,124 @@
+PATH_TO_RETRO68=$(HOME)/Retro68-build/toolchain/powerpc-apple-macos
+
+.SUFFIXES:	.xcoff
+
+CC=gcc -DTARGET_API_MAC_CARBON=1 -g
+CXX=g++ -DTARGET_API_MAC_CARBON=1 -g
+
+INCPATH+= -I"../include"
+
+LIBPATH = -L..
+#LIBS    = -lSDL2_test -lSDL2 -lm -lRetroConsole
+LIBS    = -lSDL2main -lSDL2_test -lSDL2 -lm -framework Carbon
+
+#CFLAGS+= -DHAVE_SDL_TTF
+#TTFLIBS = SDL2ttf.lib
+
+CFLAGS+= $(INCPATH) -D__MACOSCLASSIC__
+
+TARGETS = testatomic.xcoff testdisplayinfo.xcoff testbounds.xcoff testdraw2.xcoff \
+          testdrawchessboard.xcoff testdropfile.xcoff testerror.xcoff testfile.xcoff \
+          testfilesystem.xcoff testgamecontroller.xcoff testgeometry.xcoff testgesture.xcoff \
+          testhittesting.xcoff testhotplug.xcoff testiconv.xcoff testime.xcoff testlocale.xcoff \
+          testintersections.xcoff testjoystick.xcoff testkeys.xcoff testloadso.xcoff \
+          testlock.xcoff testmessage.xcoff testoverlay2.xcoff testplatform.xcoff \
+          testpower.xcoff testsensor.xcoff testrelative.xcoff testrendercopyex.xcoff \
+          testrendertarget.xcoff testrumble.xcoff testscale.xcoff testsem.xcoff \
+          testshader.xcoff testshape.xcoff testsprite2.xcoff testspriteminimal.xcoff \
+          teststreaming.xcoff testthread.xcoff testtimer.xcoff testver.xcoff \
+          testviewport.xcoff testwm2.xcoff torturethread.xcoff checkkeys.xcoff \
+          checkkeysthreads.xcoff testmouse.xcoff testgles.xcoff testgles2.xcoff \
+          controllermap.xcoff testhaptic.xcoff testqsort.xcoff testresample.xcoff \
+          testaudioinfo.xcoff testaudiocapture.xcoff loopwave.xcoff loopwavequeue.xcoff \
+          testsurround.xcoff testyuv.xcoff testgl2.xcoff testvulkan.xcoff testnative.xcoff \
+          testaudiohotplug.xcoff testcustomcursor.xcoff testmultiaudio.xcoff \
+          testoffscreen.xcoff testurl.xcoff
+
+noninteractive = \
+	testatomic.xcoff \
+	testerror.xcoff \
+	testfilesystem.xcoff \
+	testkeys.xcoff \
+	testlocale.xcoff \
+	testplatform.xcoff \
+	testpower.xcoff \
+	testqsort.xcoff \
+	testthread.xcoff \
+	testtimer.xcoff \
+	testver.xcoff
+
+needs_audio = \
+	testaudioinfo.xcoff \
+	testsurround.xcoff
+
+needs_display = \
+	testbounds.xcoff \
+	testdisplayinfo.xcoff
+
+TESTS = $(noninteractive) $(needs_audio) $(needs_display)
+
+# testautomation sources
+TASRCS = testautomation.c \
+	testautomation_audio.c testautomation_clipboard.c \
+	testautomation_events.c testautomation_guid.c \
+	testautomation_hints.c testautomation_joystick.c \
+	testautomation_keyboard.c testautomation_log.c \
+	testautomation_main.c testautomation_math.c \
+	testautomation_mouse.c testautomation_pixels.c \
+	testautomation_platform.c testautomation_rect.c \
+	testautomation_render.c testautomation_rwops.c \
+	testautomation_sdltest.c testautomation_stdlib.c \
+	testautomation_subsystems.c testautomation_surface.c \
+	testautomation_syswm.c testautomation_timer.c \
+	testautomation_video.c
+
+OBJS = $(TARGETS:.xcoff=.o)
+COBJS = $(CSRCS:.c=.o)
+TAOBJS = $(TASRCS:.c=.o)
+TNOBJS = $(TNSRCS:.c=.o)
+
+
+all: testutils.lib $(TARGETS)
+
+
+.o.xcoff:
+	$(CXX) -o $@ $< testutils.o testyuv_cvt.o ../src/main/macosclassic/SDL_main.o $(LIBPATH) $(LIBS)
+	mv $@ $*
+	../../makeapp.sh $*
+
+%.o : %.c
+	@echo Compiling $<
+	@$(CC) -o $@ -c $< $(CFLAGS)
+
+
+# specials
+
+#testautomation_stdlib.o: testautomation_stdlib.c
+#	 $(CFLAGS) -wcd=201 -fo=$^@ $<
+
+#testautomation.xcoff: $(TAOBJS)
+#	 $(CC) $(LIBPATH) lib {$(LIBS)} op q op el file {$<} name $@
+
+
+testutils.lib: testutils.o testyuv_cvt.o
+#  wlib -q -b -n -c -pa -s -t -zld -ii -io $@ $<
+
+check: .SYMBOLIC $(TESTS)
+#  @set SDL_AUDIODRIVER=dummy
+#  @set SDL_VIDEODRIVER=dummy
+#  @copy ..\SDL2.dll .
+#  @for .xcoff in ($(TESTS)) do .xcoff
+
+check-quick: .SYMBOLIC $(TESTS)
+#  @set SDL_TESTS_QUICK=1
+#  @set SDL_AUDIODRIVER=dummy
+#  @set SDL_VIDEODRIVER=dummy
+#  @copy ..\SDL2.dll .
+#  @for .xcoff in ($(TESTS)) do .xcoff
+
+clean:
+	rm -rf *.o *.err *.xcoff *.pef *.dsk *.bin *.APPL *.gdb .rsrc .finf *.app
+	rm -f testkeys testoverlay2 testscale testaudioinfo testlocale testvulkan testintersect ions testerror testviewport testcustomcursor testmessage testrendertarget testver test file testsurround testgl2 controllermap testmouse testplatform testhotplug testdisplay info testloadso loopwave testsem checkkeysthreads testresample testgamecontroller chec kkeys testshader testsensor testyuv testsprite2 testime testurl testshape testiconv te stgles teststreaming testtimer testatomic testoffscreen testwm2 testbounds testthread testgles2 testgeometry testspriteminimal testrumble torturethread testdraw2 testaudioh otplug testhittesting testjoystick testrelative testmultiaudio testpower testaudiocapt ure loopwavequeue testdropfile testfilesystem testqsort testdrawchessboard testnative testrendercopyex testlock testgesture testhaptic testgles testintersections testfile testaudiocapture testaudiohotplug checkkeys testdisplayinfo
+
+distclean: clean
+	rm -f *.xcoff *.lib

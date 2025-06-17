@@ -105,7 +105,7 @@ static int key_to_sdl[] = {
  * Translates the event such that it can be handled by SDL.
  * @param   event   Screen keyboard event
  */
-void handleKeyboardEvent(/*EventRecord *event,*/ int what)
+void handleKeyboardEvent(struct IntuiMessage *event)
 {
     /*int             val;*/
     SDL_Scancode    scancode=0;
@@ -135,49 +135,24 @@ void handleKeyboardEvent(/*EventRecord *event,*/ int what)
     }*/
     
 #ifdef AMIGA_DEBUG
-    /*fprintf(stderr,"amigaos3 key event type %d what %d\n",event->what,what); fflush(stderr);*/
+    fprintf(stderr,"amigaos3 key event type code=%x qual=%x\n",event->Code,event->Qualifier); fflush(stderr);
 #endif
-   
-   /* 
-		if(event->modifiers&cmdKey) {
-          int mchoice=MenuKey(event->message&0xff);
-#ifdef AMIGA_DEBUG
-          fprintf(stderr,"amigaos3 mac menu '%c' mchoice=%d\n",(char)event->message&0xff,mchoice); fflush(stderr);
-#endif
-          * TODO: Possibly handle other command menus here... *
-          if((event->message&0xff)=='q') {
-#ifdef AMIGA_DEBUG
-            fprintf(stderr,"amigaos3 Command-Q...quiting...\n"); fflush(stderr);
-#endif
-            ExitToShell();
-          }
-        }
-        else {
-	      keyToReturn=event->message&0xff;
-#ifdef AMIGA_DEBUG
-   		  fprintf(stderr,"amigaos3 mac keypress '%c' (%d)\n",keyToReturn,keyToReturn); fflush(stderr);
-   		  fprintf(stderr,"amigaos3 event->modifiers %d\n",event->modifiers); fflush(stderr);
-#endif
-        }
-
-        * This code is just a hack to get bare minimum done for now... *
+        keyToReturn=event->Code&0x7f;
+        /* This code is just a hack to get bare minimum done for now... */
         switch(keyToReturn) {
+	/*
           case 28: scancode=SDL_SCANCODE_LEFT; break;
           case 29: scancode=SDL_SCANCODE_RIGHT; break;
           case 30: scancode=SDL_SCANCODE_UP; break;
-          case 31: scancode=SDL_SCANCODE_DOWN; break;
-          case 32: scancode=SDL_SCANCODE_SPACE; break;
-          case 13: scancode=SDL_SCANCODE_RETURN; break;
-          case 9: scancode=SDL_SCANCODE_TAB; break;
-          case 27: scancode=SDL_SCANCODE_ESCAPE; break;
+          case 31: scancode=SDL_SCANCODE_DOWN; break;*/
+          case 0x40: scancode=SDL_SCANCODE_SPACE; break;
+          case 0x44: scancode=SDL_SCANCODE_RETURN; break;
+          case 0x42: scancode=SDL_SCANCODE_TAB; break;
+          case 0x45: scancode=SDL_SCANCODE_ESCAPE; break;
           default:
-            scancode=keyToReturn;
-            if(scancode>92) scancode=scancode-93;  * alphas...at least... *
+            scancode=RawKeyConvert(keyToReturn);
             break;
-        }
-        
-     	*scancode=scancode<<16;*
-*/
+	}
 
 #ifdef AMIGA_DEBUG
      	fprintf(stderr,"amigaos3 SDL scancode is 0x%x\n",scancode); fflush(stderr);
@@ -186,12 +161,11 @@ void handleKeyboardEvent(/*EventRecord *event,*/ int what)
     /* Propagate the event to SDL.
     // FIXME:
     // Need to handle more key states (such as key combinations).*/
-    /*
-    if (event->what==keyDown) {
+    if (event->Code&0x80) {
         SDL_SendKeyboardKey(SDL_PRESSED, scancode);
     } else {
         SDL_SendKeyboardKey(SDL_RELEASED, scancode);
-    }*/
+    }
 }
 
 #endif

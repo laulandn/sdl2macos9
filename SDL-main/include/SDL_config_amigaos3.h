@@ -147,6 +147,7 @@ typedef unsigned int uintptr_t;
 /* Enable the dummy audio driver (src/audio/dummy/\*.c) */
 #define SDL_AUDIO_DRIVER_DUMMY  1
 #define SDL_AUDIO_DRIVER_DISK  1
+//#define SDL_AUDIO_DRIVER_AHI  1
 
 /* Enable the stub joystick driver (src/joystick/dummy/\*.c) */
 /*#define SDL_JOYSTICK_DISABLED   1*/

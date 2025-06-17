@@ -27,7 +27,7 @@
 #include "SDL_macthread_c.h"
 
 #ifdef SDL_THREADS_DISABLED
-
+#error foo
 SDL_sem *SDL_CreateSemaphore(Uint32 initial_value)
 {
     SDL_SetError("SDL not built with thread support");
@@ -76,6 +76,7 @@ struct SDL_semaphore
 SDL_sem *SDL_CreateSemaphore(Uint32 initial_value)
 {
     SDL_sem *sem;
+    fprintf(stderr,"macosclassic create sem\n"); fflush(stderr);
 
     sem = (SDL_sem *)SDL_malloc(sizeof(*sem));
     if (!sem) {
@@ -100,6 +101,7 @@ SDL_sem *SDL_CreateSemaphore(Uint32 initial_value)
 */
 void SDL_DestroySemaphore(SDL_sem *sem)
 {
+    fprintf(stderr,"macosclassic destroy sem\n"); fflush(stderr);
     if (sem) {
         sem->count = 0xFFFFFFFF;
         while (sem->waiters_count > 0) {
@@ -119,6 +121,7 @@ void SDL_DestroySemaphore(SDL_sem *sem)
 int SDL_SemTryWait(SDL_sem *sem)
 {
     int retval;
+    fprintf(stderr,"macosclassic trywait sem\n"); fflush(stderr);
 
     if (!sem) {
         return SDL_InvalidParamError("sem");
@@ -138,6 +141,7 @@ int SDL_SemTryWait(SDL_sem *sem)
 int SDL_SemWaitTimeout(SDL_sem *sem, Uint32 timeout)
 {
     int retval;
+    fprintf(stderr,"macosclassic waittimeout sem\n"); fflush(stderr);
 
     if (!sem) {
         return SDL_InvalidParamError("sem");
@@ -166,12 +170,14 @@ int SDL_SemWaitTimeout(SDL_sem *sem, Uint32 timeout)
 
 int SDL_SemWait(SDL_sem *sem)
 {
+    fprintf(stderr,"macosclassic wait sem\n"); fflush(stderr);
     return SDL_SemWaitTimeout(sem, SDL_MUTEX_MAXWAIT);
 }
 
 Uint32 SDL_SemValue(SDL_sem *sem)
 {
     Uint32 value;
+    fprintf(stderr,"macosclassic val sem\n"); fflush(stderr);
 
     value = 0;
     if (sem) {
@@ -184,6 +190,7 @@ Uint32 SDL_SemValue(SDL_sem *sem)
 
 int SDL_SemPost(SDL_sem *sem)
 {
+    fprintf(stderr,"macosclassic post sem\n"); fflush(stderr);
     if (!sem) {
         return SDL_InvalidParamError("sem");
     }

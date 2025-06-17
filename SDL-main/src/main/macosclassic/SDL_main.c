@@ -694,6 +694,9 @@ int main(int argc, char *argv[])
 #endif
 	MoreMasters ();
 	MoreMasters ();
+
+        fprintf(stderr,"Top of main...toolbox init'd...\n"); fflush(stderr);
+
 #if 0
 	/* Intialize SDL, and put up a dialog if we fail */
 	if ( SDL_Init (0) < 0 ) {
@@ -736,7 +739,8 @@ int main(int argc, char *argv[])
 	SDL_InitQuickDraw(&qd);
 #endif
 
-	 if ( readPreferences (&prefs) ) {
+        fprintf(stderr,"main going to read prefs...\n"); fflush(stderr);
+	if ( readPreferences (&prefs) ) {
 		
         if (SDL_memcmp(prefs.video_driver_name+1, "DSp", 3) == 0)
             videodriver = 1;
@@ -745,6 +749,7 @@ int main(int argc, char *argv[])
 	 }
 	 	
 	if ( CommandKeyIsDown() ) {
+        fprintf(stderr,"main cmd was down...\n"); fflush(stderr);
 
 #define kCL_OK		1
 #define kCL_Cancel	2
@@ -839,6 +844,7 @@ int main(int argc, char *argv[])
         }
 	}
     
+        fprintf(stderr,"main choosing video driver...\n"); fflush(stderr);
     /* Set pseudo-environment variables for video driver, update prefs */
 	switch ( videodriver ) {
 	   case VIDEO_ID_DRAWSPROCKET: 
@@ -881,6 +887,7 @@ int main(int argc, char *argv[])
     }
    
 #if !(defined(__APPLE__) && defined(__MACH__))
+    fprintf(stderr,"main handling cmd line...\n"); fflush(stderr);
     appNameText[0] = 0;
     getCurrentAppName (appNameText); /* check for error here ? */
 
@@ -975,6 +982,7 @@ int main(int argc, char *argv[])
     for(i=0;i<nargs;i++) fprintf(stderr,"%d : '%s'\n",i,args[i]);
 #endif
 
+	fprintf(stderr,"Going to call SDL_SetMainReady...\n"); fflush(stderr);
         SDL_SetMainReady();
 
 	/* Run the main application code */
@@ -988,7 +996,11 @@ int main(int argc, char *argv[])
    	/* Remove useless stdout.txt and stderr.txt */
    	cleanup_output ();
 #else // defined(__APPLE__) && defined(__MACH__)
-	SDL_main(argc, argv);
+        SDL_SetMainReady();
+        argc=1;
+        argv[1]="";
+        argv[2]="";
+	SDL_main(argc,argv);
 #endif
    	
 	/* Exit cleanly, calling atexit() functions */

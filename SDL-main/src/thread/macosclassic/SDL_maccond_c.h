@@ -22,21 +22,21 @@
 
 #include "SDL_thread.h"
 
-#ifndef SDL_syscond_generic_h_
-#define SDL_syscond_generic_h_
+#ifndef SDL_syscond_mac_h_
+#define SDL_syscond_mac_h_
 
 #ifdef SDL_THREAD_GENERIC_COND_SUFFIX
 
-SDL_cond *SDL_CreateCond_generic(void);
-void SDL_DestroyCond_generic(SDL_cond *cond);
-int SDL_CondSignal_generic(SDL_cond *cond);
-int SDL_CondBroadcast_generic(SDL_cond *cond);
-int SDL_CondWait_generic(SDL_cond *cond, SDL_mutex *mutex);
-int SDL_CondWaitTimeout_generic(SDL_cond *cond,
+SDL_cond *SDL_CreateCond_mac(void);
+void SDL_DestroyCond_mac(SDL_cond *cond);
+int SDL_CondSignal_mac(SDL_cond *cond);
+int SDL_CondBroadcast_mac(SDL_cond *cond);
+int SDL_CondWait_mac(SDL_cond *cond, SDL_mutex *mutex);
+int SDL_CondWaitTimeout_mac(SDL_cond *cond,
                                 SDL_mutex *mutex, Uint32 ms);
 
 #endif /* SDL_THREAD_GENERIC_COND_SUFFIX */
 
-#endif /* SDL_syscond_generic_h_ */
+#endif /* SDL_syscond_mac_h_ */
 
 /* vi: set ts=4 sw=4 expandtab: */

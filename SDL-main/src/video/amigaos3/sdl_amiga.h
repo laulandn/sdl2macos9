@@ -34,7 +34,13 @@
 /*#include <screen/screen.h>
 #include <EGL/egl.h>*/
 
+#include <intuition/intuitionbase.h>
 #include <intuition/intuition.h>
+#include <cybergraphics/cybergraphics.h>
+
+#include <proto/cybergraphics.h>
+#include <proto/graphics.h>
+#include <proto/intuition.h>
 
 
 #define AMIGA_DEBUG 1
@@ -85,7 +91,7 @@ typedef struct
 
 extern void exitCleanly(int result);
 
-extern void handleKeyboardEvent(/*EventRecord *event,*/int what);
+extern void handleKeyboardEvent(struct IntuiMessage *event);
 
 extern int chooseFormat(/*EGLConfig egl_conf*/);
 extern int glGetConfig(void /*EGLConfig*/ *pconf, int *pformat);

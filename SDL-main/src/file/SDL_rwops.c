@@ -629,7 +629,11 @@ SDL_RWops *SDL_RWFromFile(const char *file, const char *mode)
 #elif defined(HAVE_STDIO_H)
     {
 #if defined(__APPLE__) && !defined(SDL_FILE_DISABLED) /* TODO: add dummy? */
+#ifdef __MACOSCLASSIC__
+        FILE *fp = fopen(file, mode);
+#else
         FILE *fp = SDL_OpenFPFromBundleOrFallback(file, mode);
+#endif
 #elif defined(__WINRT__)
         FILE *fp = NULL;
 	fopen_s(&fp, file, mode);

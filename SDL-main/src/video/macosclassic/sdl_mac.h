@@ -34,8 +34,12 @@
 /*#include <screen/screen.h>
 #include <EGL/egl.h>*/
 
-#ifdef BUILDING_FOR_CARBON
-#include <Carbon.h>
+#ifdef TARGET_API_MAC_CARBON
+// These are needed for Retro68, but should otherwise be fine
+#undef SIGHUP
+#undef SIGURG
+#undef SIGPOLL
+#include <Carbon/Carbon.h>
 #else
 #include <Quickdraw.h>
 #include <QDOffscreen.h>

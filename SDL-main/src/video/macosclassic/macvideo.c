@@ -105,12 +105,12 @@ static int videoInit(_THIS)
   WindowBox.top=40;  WindowBox.left=4;
   WindowBox.bottom=macHeight+40;  WindowBox.right=macWidth+4;
   macwindow=NewCWindow(NULL,&WindowBox,(ConstStr255Param)"\pMac SDL2 Window",true,noGrowDocProc+8,(WindowPtr)(-1L),true,0L);
-  SetPort((GrafPtr)macwindow);
 #ifdef __MWERKS__
   macport=(CGrafPtr)macwindow;
 #else
   macport=GetWindowPort(macwindow);
 #endif
+  SetPort(macport);
   thePM=NULL;
   /*macoffworld=macwindow;*/
   ShowWindow((WindowPtr)macwindow);
@@ -395,6 +395,7 @@ static int updateWindowFramebuffer(_THIS, SDL_Window *window, const SDL_Rect *re
   
 #ifdef QUICKDRAW_BLIT
   /*SetGWorld(macoffworld,NULL);*/
+  SetPort(macport);
   msr.top=0; msr.left=0; 
   msr.bottom=macHeight;  msr.right=macWidth;
   mdr.top=0; mdr.left=0; 
@@ -569,9 +570,10 @@ static void destroyWindow(_THIS, SDL_Window *window)
  */
 static void deleteDevice(SDL_VideoDevice *device)
 {
-    fprintf(stderr,"macosclassic deleteDevice...\n"); fflush(stderr);
-    SDL_free(device);
+    fprintf(stderr,"macosclassic deleteDevice device is %x...\n",device); fflush(stderr);
+    if(device) SDL_free(device);
     /* TODO cleanup here */
+    fprintf(stderr,"macosclassic more cleanup would go here...\n"); fflush(stderr);
 }
 
 /**

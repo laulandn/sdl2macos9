@@ -23,13 +23,16 @@
 
 #ifdef SDL_TIMER_MACOSCLASSIC
 
+#ifdef TARGET_API_MAC_CARBON
+#include <Carbon/Carbon.h>
+#else
 #include <Types.h>
 #include <Timer.h>
 #include <OSUtils.h>
 #include <Gestalt.h>
 #include <Processes.h>
-
 #include <LowMem.h>
+#endif
 
 #include "SDL_timer.h"
 #include "../SDL_timer_c.h"

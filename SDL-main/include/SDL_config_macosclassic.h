@@ -148,7 +148,9 @@ typedef unsigned int uintptr_t;
 #endif /* !_STDINT_H_ && !HAVE_STDINT_H */
 
 #ifdef __GNUC__
+#ifndef __MACH__
 #define HAVE_GCC_SYNC_LOCK_TEST_AND_SET 1
+#endif
 #endif
 
 /* Enable the dummy audio driver (src/audio/dummy/\*.c) */
@@ -180,8 +182,10 @@ typedef unsigned int uintptr_t;
 #define SDL_LOADSO_MACOSCLASSIC 1
 
 /* Enable the stub thread support (src/thread/generic/\*.c) */
-#define SDL_THREADS_DISABLED    1
-/*#define SDL_THREAD_MACOSCLASSIC 1*/
+/*#define SDL_THREADS_DISABLED    1*/
+//#define SDL_THREAD_MACOSCLASSIC 1
+#define SDL_THREAD_PTHREAD  1
+#define SDL_THREAD_PTHREAD_RECURSIVE_MUTEX  1
 
 /* Enable the stub timer support (src/timer/dummy/\*.c) */
 /*#define SDL_TIMERS_DISABLED 1*/
