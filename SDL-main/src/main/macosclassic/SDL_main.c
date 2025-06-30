@@ -73,6 +73,9 @@ typedef struct {
 }  PrefsRecord;
 
 
+extern void SDL_InitQuickDraw(struct QDGlobals *the_qd);
+
+
 #ifdef APPLEEVENT_SUPPORT
 
 /* ////////////////////////////////////////////////// */
@@ -639,7 +642,7 @@ static int writePreferences (PrefsRecord *prefs) {
 int main(int argc, char *argv[])
 {
 #if !(defined(__APPLE__) && defined(__MACH__))
-#pragma unused(argc, argv)
+//#pragma unused(argc, argv)
 #endif
 	
 #define DEFAULT_ARGS "\p"                /* pascal string for default args */
@@ -649,6 +652,7 @@ int main(int argc, char *argv[])
 #define VIDEO_ID_DRAWSPROCKET 1          /* these correspond to popup menu choices */
 #define VIDEO_ID_TOOLBOX      2
 
+    // TODODODODODOD: There is something very wrong in the next line
     PrefsRecord prefs = { (unsigned char *)DEFAULT_ARGS, DEFAULT_VIDEO_DRIVER, DEFAULT_OUTPUT_TO_FILE }; 
 	
 #if !(defined(__APPLE__) && defined(__MACH__))

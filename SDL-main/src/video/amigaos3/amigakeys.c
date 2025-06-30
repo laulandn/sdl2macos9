@@ -150,7 +150,7 @@ void handleKeyboardEvent(struct IntuiMessage *event)
           case 0x42: scancode=SDL_SCANCODE_TAB; break;
           case 0x45: scancode=SDL_SCANCODE_ESCAPE; break;
           default:
-            scancode=RawKeyConvert(keyToReturn);
+            scancode=keyToReturn;//RawKeyConvert(keyToReturn);
             break;
 	}
 

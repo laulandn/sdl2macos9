@@ -30,6 +30,7 @@
 
 #ifdef SDL_VIDEO_DRIVER_AMIGAOS3
 
+#include "../../events/SDL_mouse_c.h"
 
 /*#include <screen/screen.h>
 #include <EGL/egl.h>*/
@@ -41,6 +42,8 @@
 #include <proto/cybergraphics.h>
 #include <proto/graphics.h>
 #include <proto/intuition.h>
+#include <proto/dos.h>
+#include <proto/exec.h>
 
 
 #define AMIGA_DEBUG 1
@@ -53,20 +56,16 @@
 
 
 /* Globals are evil...these belong in driver data slash impl vars/params! */
+// TODO: Move all these into the "impl" things
 extern int macmoddown;
 extern struct Window *amigawindow;
 extern struct RastPort *amigaport;
+extern struct BitMap *theBM;
 /**/
 extern char *mypixels;
-extern struct BitMap *theBM;
 extern int myWidth;
 extern int myHeight;
 extern int myDepth;
-/*extern PixMapHandle offPixMapHandle;*/
-/*extern GrafPtr origPort;
-extern GDHandle origDevice;*/
-/*extern GWorldPtr macoffworld;
-extern GWorldPtr maconworld;*/
 /**/
 extern SDL_VideoDevice *sdlvdev;
 extern SDL_VideoDisplay *sdlvdisp;

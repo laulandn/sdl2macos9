@@ -30,11 +30,12 @@
 
 #ifdef SDL_VIDEO_DRIVER_MACOSCLASSIC
 
+#include "../../events/SDL_mouse_c.h"
 
 /*#include <screen/screen.h>
 #include <EGL/egl.h>*/
 
-#ifdef TARGET_API_MAC_CARBON
+#if TARGET_API_MAC_CARBON
 // These are needed for Retro68, but should otherwise be fine
 #undef SIGHUP
 #undef SIGURG
@@ -50,6 +51,9 @@
 
 #define MAC_DEBUG 1
 
+#define QUICKDRAW_BLIT 1
+//#define USE_GWORLDS 1
+
 
 /* Default window size */
 #define PLATFORM_SCREEN_WIDTH 640 
@@ -58,20 +62,16 @@
 
 
 /* Globals are evil...these belong in driver data slash impl vars/params! */
+// TODO: Move all these into the "impl" things
 extern int macmoddown;
 extern WindowPtr macwindow;
 extern CGrafPtr macport;
+extern PixMapPtr thePM;
 /**/
 extern char *mypixels;
-extern PixMapPtr thePM;
-extern int macWidth;
-extern int macHeight;
-extern int macDepth;
-/*extern PixMapHandle offPixMapHandle;*/
-/*extern GrafPtr origPort;
-extern GDHandle origDevice;*/
-/*extern GWorldPtr macoffworld;
-extern GWorldPtr maconworld;*/
+extern int myWidth;
+extern int myHeight;
+extern int myDepth;
 /**/
 extern SDL_VideoDevice *sdlvdev;
 extern SDL_VideoDisplay *sdlvdisp;

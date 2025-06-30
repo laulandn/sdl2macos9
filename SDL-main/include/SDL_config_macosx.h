@@ -24,7 +24,7 @@
 #define SDL_config_h_
 
 #include "SDL_platform.h"
-
+#error foo
 /* This gets us MAC_OS_X_VERSION_MIN_REQUIRED... */
 #include <AvailabilityMacros.h>
 

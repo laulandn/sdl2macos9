@@ -33,6 +33,7 @@
 #include <dos/dos.h>
 #include <exec/execbase.h>
 #include <proto/exec.h>
+#include <proto/dos.h>
 
 #define RESTART_CAPTURE_THRESHOLD 	 500
 
@@ -45,7 +46,7 @@ void AHI_Mute(ULONG mute)
 
 static void AHI_DetectDevices(void)
 {
-	D("[%s]\n", __FUNCTION__);
+	fprintf(stderr,"[%s]\n", __FUNCTION__);
 	
 	SDL_AudioSpec output, capture;
 	output.freq = 44100;
@@ -135,7 +136,7 @@ static void AHI_ThreadInit(_THIS)
 	hidden->ahiport.mp_SigBit = SIGBREAKB_CTRL_E;
 	hidden->ahiport.mp_SigTask = SysBase->ThisTask;
 
-	NEWLIST(&hidden->ahiport.mp_MsgList);
+	NewList(&hidden->ahiport.mp_MsgList);
 
 	bcopy(&hidden->req[0], &hidden->req[1], sizeof(hidden->req[1]));
 }
@@ -179,7 +180,7 @@ static int AHI_OpenDevice(_THIS, const char *devname)
 				sample_format = this->spec.channels == 1 ? AHIST_M32S : AHIST_S32S;
 				break;
 			default:
-				D("[%s] unsupported SDL format 0x%ld\n", __FUNCTION__, test_format);
+				fprintf(stderr,"[%s] unsupported SDL format 0x%ld\n", __FUNCTION__, (long)test_format);
 				test_format = SDL_NextAudioFormat();
 				break;
 		}
@@ -188,7 +189,7 @@ static int AHI_OpenDevice(_THIS, const char *devname)
 	if (sample_format < 0)
 		return SDL_SetError("Unsupported audio format");
 
-	D("[%s] AHI sample format is %ld\n", __FUNCTION__, sample_format);
+	fprintf(stderr,"[%s] AHI sample format is %ld\n", __FUNCTION__, (long)sample_format);
 
 	if (this->spec.channels > 2)
 		this->spec.channels = 2;
@@ -210,7 +211,7 @@ static int AHI_OpenDevice(_THIS, const char *devname)
 	hidden->req[0].ahir_Std.io_Message.mn_Length = sizeof(struct AHIRequest);
 	hidden->req[0].ahir_Std.io_Command = CMD_WRITE;
 	hidden->req[0].ahir_Std.io_Data = NULL;
-	hidden->req[0].ahir_Version = 6;
+	hidden->req[0].ahir_Version = 4;
 
 	hidden->audioBufferSize = this->spec.size;
 	hidden->buffers[0] = (Uint8 *) SDL_malloc(hidden->audioBufferSize);
@@ -230,7 +231,8 @@ static int AHI_OpenDevice(_THIS, const char *devname)
 	hidden->requestSent = SDL_FALSE;
 
 	this->hidden = hidden;
-	
+
+	fprintf(stderr,"Going to OpenDevice %s...\n",AHINAME);	
 	if (OpenDevice(AHINAME, 0, (struct IORequest *)&hidden->req[0].ahir_Std, 0) != 0) {
 		SDL_SetError("Unable to open ahi.device unit 0! Error code %d.\n", hidden->req[0].ahir_Std.io_Error);
 		return -1;
@@ -278,7 +280,7 @@ static int AHI_CaptureFromDevice(_THIS, void *buffer, int buflen)
 
         request->ahir_Std.io_Offset = 0;
 
-        D("[%s] Start recording\n", __FUNCTION__);
+        fprintf(stderr,"[%s] Start recording\n", __FUNCTION__);
 
         DoIO((struct IORequest *)request);
         hidden->requestSent = SDL_FALSE;

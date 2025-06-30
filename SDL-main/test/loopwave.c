@@ -49,6 +49,7 @@ static void
 close_audio(void)
 {
     if (device != 0) {
+    fprintf(stderr,"Going to SDL_CloseAudioDevice...\n");
         SDL_CloseAudioDevice(device);
         device = 0;
     }
@@ -57,6 +58,7 @@ close_audio(void)
 static void
 open_audio(void)
 {
+    fprintf(stderr,"Going to SDL_OpenAudioDevice...\n");
     /* Initialize fillerup() variables */
     device = SDL_OpenAudioDevice(NULL, SDL_FALSE, &wave.spec, NULL, 0);
     if (!device) {
@@ -65,6 +67,7 @@ open_audio(void)
         quit(2);
     }
 
+    fprintf(stderr,"Going to SDL_PauseAudioDevice...\n");
     /* Let the audio run */
     SDL_PauseAudioDevice(device, SDL_FALSE);
 }
@@ -119,6 +122,7 @@ int main(int argc, char *argv[])
     /* Enable standard application logging */
     SDL_LogSetPriority(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_INFO);
 
+    fprintf(stderr,"Going to SDL_Init...\n");
     /* Load the SDL library */
     if (SDL_Init(SDL_INIT_AUDIO | SDL_INIT_EVENTS) < 0) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't initialize SDL: %s\n", SDL_GetError());
@@ -132,6 +136,7 @@ int main(int argc, char *argv[])
         quit(1);
     }
 
+    fprintf(stderr,"Going to SDL_LoadWAV...\n");
     /* Load the wave file into memory */
     if (SDL_LoadWAV(filename, &wave.spec, &wave.sound, &wave.soundlen) == NULL) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't load %s: %s\n", filename, SDL_GetError());
@@ -140,6 +145,7 @@ int main(int argc, char *argv[])
 
     wave.spec.callback = fillerup;
 
+    fprintf(stderr,"Going to show drivers...\n");
     /* Show the list of available drivers */
     SDL_Log("Available audio drivers:");
     for (i = 0; i < SDL_GetNumAudioDrivers(); ++i) {
@@ -150,11 +156,13 @@ int main(int argc, char *argv[])
 
     open_audio();
 
+    fprintf(stderr,"Going to SDL_FlushEvents...\n");
     SDL_FlushEvents(SDL_AUDIODEVICEADDED, SDL_AUDIODEVICEREMOVED);
 
 #ifdef __EMSCRIPTEN__
     emscripten_set_main_loop(loop, 0, 1);
 #else
+    fprintf(stderr,"Going to loop...\n");
     while (!done) {
         SDL_Event event;
 
@@ -171,6 +179,7 @@ int main(int argc, char *argv[])
     }
 #endif
 
+    fprintf(stderr,"loop done cleaning up...\n");
     /* Clean up on signal */
     close_audio();
     SDL_FreeWAV(wave.sound);

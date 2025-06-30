@@ -29,7 +29,7 @@
 #include <stdio.h>
 #include <string.h>
 #define OLDP2C 1
-#ifdef TARGET_API_MAC_CARBON
+#if TARGET_API_MAC_CARBON
 #include <Carbon/Carbon.h>
 #else
 #include <Strings.h>

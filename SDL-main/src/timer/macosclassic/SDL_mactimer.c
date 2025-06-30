@@ -37,6 +37,10 @@
 #include "SDL_timer.h"
 #include "../SDL_timer_c.h"
 
+#ifdef SDL_THREAD_MACOSCLASSIC
+#include "../../thread/macosclassic/MacThreads.h"
+#endif
+
 /** This is the maximum resolution of the SDL timer on all platforms */
 #define TIMER_RESOLUTION        10      /**< Experimentally determined */
 
@@ -108,11 +112,17 @@ void SDL_Delay(Uint32 ms)
 	Uint32 end_ms;
 	
 	end_ms = SDL_GetTicks() + ms;
+#ifdef SDL_THREAD_MACOSCLASSIC
+	YieldToAnyThread();
+#endif
 	do {
 		/* FIXME: Yield CPU? */ ;
 	} while ( SDL_GetTicks() < end_ms );
 #else
 	UInt32		unused; /* MJS */
+#ifdef SDL_THREAD_MACOSCLASSIC
+	YieldToAnyThread();
+#endif
 	Delay(ms/MS_PER_TICK, &unused);
 #endif
 }

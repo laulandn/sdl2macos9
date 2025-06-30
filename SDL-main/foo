@@ -1,0 +1,23 @@
+src/thread/amigaos3/SDL_syssem.c: In function 'SDL_CreateSemaphore':
+src/thread/amigaos3/SDL_syssem.c:54:2: warning: implicit declaration of function 'InitSemaphore' [-Wimplicit-function-declaration]
+  InitSemaphore(&sem->Sem);
+  ^~~~~~~~~~~~~
+src/thread/amigaos3/SDL_syssem.c: In function 'SDL_SemTryWait':
+src/thread/amigaos3/SDL_syssem.c:82:2: warning: implicit declaration of function 'ObtainSemaphore' [-Wimplicit-function-declaration]
+  ObtainSemaphore(&sem->Sem);
+  ^~~~~~~~~~~~~~~
+src/thread/amigaos3/SDL_syssem.c: In function 'SDL_SemWaitTimeout':
+src/thread/amigaos3/SDL_syssem.c:107:14: warning: implicit declaration of function 'AttemptSemaphore' [-Wimplicit-function-declaration]
+  if(!(retval=AttemptSemaphore(&sem->Sem)))
+              ^~~~~~~~~~~~~~~~
+src/thread/amigaos3/SDL_syssem.c:109:3: warning: implicit declaration of function 'SDL_Delay' [-Wimplicit-function-declaration]
+   SDL_Delay(timeout);
+   ^~~~~~~~~
+src/thread/amigaos3/SDL_syssem.c: In function 'SDL_SemPost':
+src/thread/amigaos3/SDL_syssem.c:156:2: warning: implicit declaration of function 'ReleaseSemaphore' [-Wimplicit-function-declaration]
+  ReleaseSemaphore(&sem->Sem);
+  ^~~~~~~~~~~~~~~~
+src/thread/amigaos3/SDL_thread.c: In function 'SDL_KillThread':
+src/thread/amigaos3/SDL_thread.c:288:3: warning: implicit declaration of function 'SDL_SYS_KillThread' [-Wimplicit-function-declaration]
+   SDL_SYS_KillThread(thread);
+   ^~~~~~~~~~~~~~~~~~

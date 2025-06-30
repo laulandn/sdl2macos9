@@ -54,12 +54,14 @@ int main(int argc, char **argv)
     /* Enable standard application logging */
     SDL_LogSetPriority(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_INFO);
 
+    fprintf(stderr,"Going to SDL_Init...\n"); fflush(stderr);
     /* Load the SDL library */
     if (SDL_Init(SDL_INIT_AUDIO) < 0) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't initialize SDL: %s\n", SDL_GetError());
         return 1;
     }
 
+    fprintf(stderr,"Going to SDL_GetNumAudioDrivers...\n"); fflush(stderr);
     /* Print available audio drivers */
     n = SDL_GetNumAudioDrivers();
     if (n == 0) {
@@ -73,11 +75,14 @@ int main(int argc, char **argv)
         SDL_Log("Select a driver with the SDL_AUDIODRIVER environment variable.\n");
     }
 
+    fprintf(stderr,"Going to SDL_GetCurrentAudioDriver...\n"); fflush(stderr);
     SDL_Log("Using audio driver: %s\n\n", SDL_GetCurrentAudioDriver());
 
+    fprintf(stderr,"Going to print_devices...\n"); fflush(stderr);
     print_devices(0);
     print_devices(1);
 
+    fprintf(stderr,"Going to SDL_GetDefaultAudioInfo...\n"); fflush(stderr);
     if (SDL_GetDefaultAudioInfo(&deviceName, &spec, 0) < 0) {
         SDL_Log("Error when calling SDL_GetDefaultAudioInfo: %s\n", SDL_GetError());
     } else {
@@ -88,6 +93,7 @@ int main(int argc, char **argv)
         SDL_Log("SDL_AudioFormat: %X\n", spec.format);
     }
 
+    fprintf(stderr,"Going to SDL_GetDefaultAudioInfo...\n"); fflush(stderr);
     if (SDL_GetDefaultAudioInfo(&deviceName, &spec, 1) < 0) {
         SDL_Log("Error when calling SDL_GetDefaultAudioInfo: %s\n", SDL_GetError());
     } else {
@@ -98,6 +104,7 @@ int main(int argc, char **argv)
         SDL_Log("SDL_AudioFormat: %X\n", spec.format);
     }
 
+    fprintf(stderr,"Going to SDL_Quit...\n"); fflush(stderr);
     SDL_Quit();
     return 0;
 }

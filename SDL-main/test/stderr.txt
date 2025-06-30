@@ -1,0 +1,17 @@
+main handling cmd line...
+Going to call SDL_SetMainReady...
+Going to call SDL_main...
+INFO: Sanity-checking GetTicks
+INFO: Waiting 10 seconds
+INFO: Timer resolution: desired = 1 ms, actual = 10000.000000 ms
+INFO: Testing multiple timers...
+INFO: Waiting 10 seconds
+INFO: Timer 50 : param = 2
+INFO: Timer 100 : param = 1
+INFO: Timer 233 : param = 3
+INFO: Removing timer 1 and waiting 5 more seconds
+INFO: Timer 50 : param = 2
+INFO: Timer 233 : param = 3
+INFO: 1 million iterations of ticktock took 14000.000000 ms
+INFO: Performance counter frequency: 0
+INFO: Delay 1 second = 1000 ms in ticks, 1000 ms in ticks64, 1000000.000000 ms according to performance counter

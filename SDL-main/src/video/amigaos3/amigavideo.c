@@ -44,21 +44,27 @@ struct Library *CyberGfxBase=NULL;
 
 
 /* Globals are evil...these belong in driver data slash impl vars/params! */
+// TODO: Move all these into the "impl" things
 struct Screen *amigascreen=NULL;
 struct Window *amigawindow=NULL;
 struct RastPort *amigaport=NULL;
 struct BitMap *theBM=NULL;
+/**/
 char *mypixels=NULL;
 int myWidth,myHeight,myDepth;
-SDL_VideoDevice *sdlvdev;
-SDL_VideoDisplay *sdlvdisp;
-SDL_Window *sdlw;
-window_impl_t   *impl;
-SDL_VideoDevice *device;
+/**/
+SDL_VideoDevice *sdlvdev=NULL;
+SDL_VideoDisplay *sdlvdisp=NULL;
+SDL_Window *sdlw=NULL;
+/**/
+window_impl_t   *timpl=NULL;
+SDL_VideoDevice *tdevice=NULL;
+
+
+void cleanupAmiga();
 
 
 ULONG NextDepth(ULONG Depth)
-
 {
  switch (Depth)
   {
@@ -84,11 +90,13 @@ static screen_event_t   event;*/
 static int videoInit(_THIS)
 {
     SDL_VideoDisplay display;
-    struct NewWindow nw;
+    //struct NewWindow nw;
     int iflags,wflags;
     SDL_DisplayMode m;
+#if USE_CUSTOM_SCREEN
     int DisplayID=0;
     int Depth=0;
+#endif
 
 /*printf("This should show up on the SIOUX console...\n");*/
 
@@ -98,12 +106,12 @@ static int videoInit(_THIS)
 #endif
 
    if ((IntuitionBase=(struct IntuitionBase *)
-                    OpenLibrary("intuition.library",39L))==NULL) {
+                    OpenLibrary("intuition.library",39))==NULL) {
   fprintf(stderr,"amigaos3 couldn't open intuition...\n"); fflush(stderr);
   exit(20);
    }
 
- if ((CyberGfxBase=OpenLibrary(CYBERGFXNAME,41L))==NULL)
+ if ((CyberGfxBase=OpenLibrary(CYBERGFXNAME,41))==NULL)
   {
    CloseLibrary (&IntuitionBase->LibNode);
   fprintf(stderr,"amigaos3 couldn't open cybergfx...\n"); fflush(stderr);
@@ -143,14 +151,17 @@ amigascreen=OpenScreenTags(NULL,
     fprintf(stderr,"amigaos3 Couldn't open screen!\n"); fflush(stderr);
     exitCleanly(0);
   }
+#ifdef AMIGA_DEBUG
+    fprintf(stderr,"amigaos3 amigascreen at %08lx\n",(long)amigascreen); fflush(stderr);
+#endif
 #endif
 
   /* Creating window here so I have screen dims...this belongs in in createWindow obs */
 #ifdef AMIGA_DEBUG
   fprintf(stderr,"amigaos3 Going to OpenWindowTags...\n"); fflush(stderr);
 #endif
-  nw.LeftEdge=0;  nw.TopEdge=0;  nw.Width=myWidth;  nw.Height=myHeight;
-  nw.DetailPen=2;  nw.BlockPen=1;  nw.Title=(unsigned char *)"Amiga SDL2 Window";
+  //nw.LeftEdge=0;  nw.TopEdge=0;  nw.Width=myWidth;  nw.Height=myHeight;
+  //nw.DetailPen=2;  nw.BlockPen=1;  nw.Title=(unsigned char *)"Amiga SDL2 Window";
   /* Set all event flags correctly */
   iflags=0;
   //iflags|=IDCMP_VANILLAKEY;
@@ -168,14 +179,14 @@ amigascreen=OpenScreenTags(NULL,
   //wflags|=(WFLG_BORDERLESS|WFLG_BACKDROP);
   wflags|=WFLG_SIZEGADGET;
   wflags|=WFLG_CLOSEGADGET;
-  nw.Flags=iflags|wflags;
-  nw.Type=WBENCHSCREEN;
-  nw.FirstGadget=NULL;  nw.CheckMark=NULL;
-  nw.Screen=NULL; /* Is this ok? */
-  nw.BitMap=NULL;  nw.MaxWidth=8192;  nw.MaxHeight=8192;
-  nw.MinWidth=50;  nw.MinHeight=20;     /* WARN: should check big enuff */
+  //nw.Flags=iflags|wflags;
+  //nw.Type=WBENCHSCREEN;
+  //nw.FirstGadget=NULL;  nw.CheckMark=NULL;
+  //nw.Screen=NULL; /* Is this ok? */
+  //nw.BitMap=NULL;  nw.MaxWidth=8192;  nw.MaxHeight=8192;
+  //nw.MinWidth=50;  nw.MinHeight=20;     /* WARN: should check big enuff */
   amigawindow=(struct Window *)OpenWindowTags(NULL/*&nw*/,
-		                                  WA_Title,"Amiga SDL Window",
+		                 WA_Title,"Amiga SDL Window",
                                  WA_Flags,
 				 WFLG_SIMPLE_REFRESH|
 				 /*WFLG_BORDERLESS|
@@ -225,7 +236,7 @@ amigascreen=OpenScreenTags(NULL,
     
     sdlvdisp=&sdlvdev->displays[0];
 #ifdef AMIGA_DEBUG
-    fprintf(stderr,"amigaos3 sdlvdisp is %0lx8\n",(long)sdlvdisp); fflush(stderr);
+    fprintf(stderr,"amigaos3 sdlvdisp is %8lx\n",(long)sdlvdisp); fflush(stderr);
 #endif
 
 /*offPixMapHandle=NULL;*/
@@ -259,14 +270,14 @@ static void videoQuit(_THIS)
  */
 static int createWindow(_THIS, SDL_Window *window)
 {
-    int             size[2];
+    //int             size[2];
     int             numbufs;
-    int             format;
-    int             usage;
+    //int             format;
+    //int             usage;
 
-    impl = SDL_calloc(1, sizeof(*impl));
-    if (!impl) {
-        fprintf(stderr,"impl was null!\n"); fflush(stderr);
+    timpl = SDL_calloc(1, sizeof(*timpl));
+    if (!timpl) {
+        fprintf(stderr,"timpl was null!\n"); fflush(stderr);
         return -1;
     }
     
@@ -280,8 +291,8 @@ static int createWindow(_THIS, SDL_Window *window)
     }*/
 
     /* Set the native window's size to match the SDL window. */
-    size[0] = window->w;
-    size[1] = window->h;
+    //size[0] = window->w;
+    //size[1] = window->h;
     
 #ifdef AMIGA_DEBUG
     fprintf(stderr,"amigaos3 requested win is %dx%d\n",window->w,window->h); fflush(stderr);
@@ -330,16 +341,16 @@ static int createWindow(_THIS, SDL_Window *window)
     fprintf(stderr,"amigaos3 sdlw at %08lx\n",(long)sdlw); fflush(stderr);
 #endif
 
-    window->driverdata = impl;
+    window->driverdata = timpl;
     return 0;
 
-fail:
-    /*if (impl->window) {
+/*fail:
+    if (impl->window) {
         screen_destroy_window(impl->window);
-    }*/
+    }
 
     SDL_free(impl);
-    return -1;
+    return -1;*/
 }
 
 /**
@@ -355,7 +366,7 @@ fail:
 static int createWindowFramebuffer(_THIS, SDL_Window * window, Uint32 * format,
                         void ** pixels, int *pitch)
 {
-    window_impl_t   *impl = (window_impl_t *)window->driverdata;
+    //window_impl_t   *impl = (window_impl_t *)window->driverdata;
     /*screen_buffer_t buffer;*/
  
     struct BitMap *friendbmap=amigaport->BitMap;   
@@ -386,7 +397,7 @@ static int createWindowFramebuffer(_THIS, SDL_Window * window, Uint32 * format,
     /*
      r.left=0; r.top=0;
      r.bottom=myHeight; r.right=myWidth;*/
-    bformat=bformat|=BMF_SPECIALFMT | (PIXFMT_RGB16 << 24);
+    bformat|=BMF_SPECIALFMT | (PIXFMT_RGB16 << 24);
     theBM=AllocBitMap(myWidth,myHeight,myDepth,bformat,friendbmap);
     if(!theBM) {
       fprintf(stderr,"amigaos3 didn't get theBM \n"); fflush(stderr);
@@ -420,7 +431,7 @@ static int createWindowFramebuffer(_THIS, SDL_Window * window, Uint32 * format,
 static int updateWindowFramebuffer(_THIS, SDL_Window *window, const SDL_Rect *rects,
                         int numrects)
 {
-    window_impl_t   *impl = (window_impl_t *)window->driverdata;
+    //window_impl_t   *impl = (window_impl_t *)window->driverdata;
 
 
 #ifdef AMIGA_DEBUG
@@ -455,7 +466,7 @@ static int updateWindowFramebuffer(_THIS, SDL_Window *window, const SDL_Rect *re
 static void pumpEvents(_THIS)
 {
   struct IntuiMessage *IntMsg;
-  int etype,val;
+  //int etype,val;
 
 #ifdef AMIGA_DEBUG
   //fprintf(stderr,"amigaos3 pumpEvents...\n"); fflush(stderr);
@@ -486,11 +497,11 @@ static void pumpEvents(_THIS)
 	     fprintf(stderr,"amigaos3 button MouseX=%d MouseY=%d\n",IntMsg->MouseX,IntMsg->MouseY); fflush(stderr);
 		     if(IntMsg->Code&IECODE_UP_PREFIX) {
 		       SDL_SendMouseButton(sdlw,1,0,SDL_BUTTON_LEFT);
-	     fprintf(stderr,"amigaos3 button up\n",IntMsg->MouseX,IntMsg->MouseY); fflush(stderr);
+	     fprintf(stderr,"amigaos3 button up %d,%d\n",IntMsg->MouseX,IntMsg->MouseY); fflush(stderr);
 		     }
 		     else {
 		       SDL_SendMouseButton(sdlw,1,1,SDL_BUTTON_LEFT);
-	     fprintf(stderr,"amigaos3 button down\n",IntMsg->MouseX,IntMsg->MouseY); fflush(stderr);
+	     fprintf(stderr,"amigaos3 button down %d,%d\n",IntMsg->MouseX,IntMsg->MouseY); fflush(stderr);
 		     }
 	     break;
        case IDCMP_VANILLAKEY:
@@ -515,11 +526,11 @@ static void pumpEvents(_THIS)
  */
 static void setWindowSize(_THIS, SDL_Window *window)
 {
-    window_impl_t   *impl = (window_impl_t *)window->driverdata;
-    int             size[2];
+    //window_impl_t   *impl = (window_impl_t *)window->driverdata;
+    //int             size[2];
 
-    size[0] = window->w;
-    size[1] = window->h;
+    //size[0] = window->w;
+    //size[1] = window->h;
 
 #ifdef AMIGA_DEBUG
     fprintf(stderr,"amigaos3 setWindowSize to %dx%d...\n",window->w,window->h); fflush(stderr);
@@ -539,8 +550,8 @@ static void setWindowSize(_THIS, SDL_Window *window)
  */
 static void showWindow(_THIS, SDL_Window *window)
 {
-    window_impl_t   *impl = (window_impl_t *)window->driverdata;
-    const int       visible = 1;
+    //window_impl_t   *impl = (window_impl_t *)window->driverdata;
+    //const int       visible = 1;
 
 #ifdef AMIGA_DEBUG
     fprintf(stderr,"amigaos3 showWindow...\n"); fflush(stderr);
@@ -558,8 +569,8 @@ static void showWindow(_THIS, SDL_Window *window)
  */
 static void hideWindow(_THIS, SDL_Window *window)
 {
-    window_impl_t   *impl = (window_impl_t *)window->driverdata;
-    const int       visible = 0;
+    //window_impl_t   *impl = (window_impl_t *)window->driverdata;
+    //const int       visible = 0;
 
 #ifdef AMIGA_DEBUG
     fprintf(stderr,"amigaos3 hideWindow...\n"); fflush(stderr);
@@ -608,6 +619,7 @@ static void deleteDevice(SDL_VideoDevice *device)
  */
 static SDL_VideoDevice *createDevice(int devindex)
 {
+    //SDL_VideoDevice *device;
 
 #ifndef SDL_MAIN_NEEDED
     freopen (STDOUT_FILE, "w", stdout);
@@ -618,48 +630,48 @@ static SDL_VideoDevice *createDevice(int devindex)
     fprintf(stderr,"amigaos3 createDevice...\n"); fflush(stderr);
 #endif
 
-    device = (SDL_VideoDevice *)SDL_calloc(1, sizeof(SDL_VideoDevice));
-    if (!device) {
-        fprintf(stderr,"Didn't create device!\n"); fflush(stderr);
+    tdevice = (SDL_VideoDevice *)SDL_calloc(1, sizeof(SDL_VideoDevice));
+    if (!tdevice) {
+        fprintf(stderr,"Didn't create tdevice!\n"); fflush(stderr);
         return NULL;
     }
     
-    sdlvdev=device;
+    sdlvdev=tdevice;
     sdlvdisp=NULL;
     sdlw=NULL;
     
-    device->driverdata = NULL;  /* Eventually these'll be the globals, etc */
+    tdevice->driverdata = NULL;  /* Eventually these'll be the globals, etc */
     
-    device->VideoInit = videoInit;
-    device->VideoQuit = videoQuit;
+    tdevice->VideoInit = videoInit;
+    tdevice->VideoQuit = videoQuit;
     /**/
-    device->CreateSDLWindow = createWindow;
+    tdevice->CreateSDLWindow = createWindow;
     /**/
-    device->SetWindowSize = setWindowSize;
+    tdevice->SetWindowSize = setWindowSize;
     /**/
-    device->ShowWindow = showWindow;
-    device->HideWindow = hideWindow;
+    tdevice->ShowWindow = showWindow;
+    tdevice->HideWindow = hideWindow;
     /**/
-    device->DestroyWindow = destroyWindow;
-    device->CreateWindowFramebuffer = createWindowFramebuffer;
-    device->UpdateWindowFramebuffer = updateWindowFramebuffer;
+    tdevice->DestroyWindow = destroyWindow;
+    tdevice->CreateWindowFramebuffer = createWindowFramebuffer;
+    tdevice->UpdateWindowFramebuffer = updateWindowFramebuffer;
 
-    device->PumpEvents = pumpEvents;
+    tdevice->PumpEvents = pumpEvents;
 
-    device->GL_LoadLibrary = glLoadLibrary;
-    device->GL_GetProcAddress = glGetProcAddress;
-    device->GL_UnloadLibrary = glUnloadLibrary;
-    device->GL_CreateContext = glCreateContext;
-    device->GL_MakeCurrent = glMakeCurrent;
+    tdevice->GL_LoadLibrary = glLoadLibrary;
+    tdevice->GL_GetProcAddress = glGetProcAddress;
+    tdevice->GL_UnloadLibrary = glUnloadLibrary;
+    tdevice->GL_CreateContext = glCreateContext;
+    tdevice->GL_MakeCurrent = glMakeCurrent;
     /**/
-    device->GL_SetSwapInterval = glSetSwapInterval;
+    tdevice->GL_SetSwapInterval = glSetSwapInterval;
     /**/
-    device->GL_SwapWindow = glSwapWindow;
-    device->GL_DeleteContext = glDeleteContext;
+    tdevice->GL_SwapWindow = glSwapWindow;
+    tdevice->GL_DeleteContext = glDeleteContext;
     /**/
 
-    device->free = deleteDevice;
-    return device;
+    tdevice->free = deleteDevice;
+    return tdevice;
 }
 
 
@@ -668,8 +680,8 @@ void cleanupAmiga()
 #ifdef AMIGA_DEBUG
     fprintf(stderr,"amigaos3 cleanupAmiga...\n"); fflush(stderr);
 #endif
-  if(impl) { free(impl); impl=NULL; }
-  if(device) { free(device); device=NULL; }
+  if(timpl) { free(timpl); timpl=NULL; }
+  if(tdevice) { free(tdevice); tdevice=NULL; }
   if(amigawindow) { CloseWindow(amigawindow); amigawindow=NULL; }
   if(amigascreen) { CloseScreen(amigascreen); amigascreen=NULL; }
   if(theBM) { FreeBitMap(theBM); theBM=NULL; }

@@ -1,14 +1,129 @@
-macosclassic createDevice...
-macosclassic videoInit...
-macosclassic Going to NewCWindow...
-macosclassic Window done
-macosclassic sdlvdisp is 1e5295e08
-macosclassic createWindow...
-macosclassic requested win is 640x480
-macosclassic sdlw at 1e529950
-macosclassic showWindow...
-macosclassic createWindowFramebuffer...
-macosclassic macpixels at 0
-macosclassic thePM at 1e529b40
-macosclassic mac menu 'q' mchoice=0
-macosclassic Command-Q...quiting...
+generic lock mut 00000000
+generic unlock mut 00000000
+generic create mut
+macosclassic Creating semaphore 1c824aa0...
+generic created mut 1c824a80
+generic lock mut 1c824a80
+macosclassic SemWait semaphore...1c824aa0
+generic lock mut done!
+generic unlock mut 1c824a80
+macosclassic SemPost semaphore...1c824aa0
+generic unlock mut done!
+generic lock mut 1c824a80
+macosclassic SemWait semaphore...1c824aa0
+generic lock mut done!
+generic unlock mut 1c824a80
+macosclassic SemPost semaphore...1c824aa0
+generic unlock mut done!
+generic lock mut 1c824a80
+macosclassic SemWait semaphore...1c824aa0
+generic lock mut done!
+generic unlock mut 1c824a80
+macosclassic SemPost semaphore...1c824aa0
+generic unlock mut done!
+generic create mut
+macosclassic Creating semaphore 1c824b70...
+generic created mut 1c824b50
+generic create mut
+macosclassic Creating semaphore 1c824bb0...
+generic created mut 1c824b90
+generic lock mut 1c824b50
+macosclassic SemWait semaphore...1c824b70
+generic lock mut done!
+generic unlock mut 1c824b50
+macosclassic SemPost semaphore...1c824b70
+generic unlock mut done!
+generic lock mut 1c824b50
+macosclassic SemWait semaphore...1c824b70
+generic lock mut done!
+generic unlock mut 1c824b50
+macosclassic SemPost semaphore...1c824b70
+generic unlock mut done!
+generic lock mut 1c824b50
+macosclassic SemWait semaphore...1c824b70
+generic lock mut done!
+generic unlock mut 1c824b50
+macosclassic SemPost semaphore...1c824b70
+generic unlock mut done!
+generic lock mut 1c824b50
+macosclassic SemWait semaphore...1c824b70
+generic lock mut done!
+generic unlock mut 1c824b50
+macosclassic SemPost semaphore...1c824b70
+generic unlock mut done!
+generic lock mut 1c824b50
+macosclassic SemWait semaphore...1c824b70
+generic lock mut done!
+generic unlock mut 1c824b50
+macosclassic SemPost semaphore...1c824b70
+generic unlock mut done!
+generic lock mut 1c824b50
+macosclassic SemWait semaphore...1c824b70
+generic lock mut done!
+generic unlock mut 1c824b50
+macosclassic SemPost semaphore...1c824b70
+generic unlock mut done!
+generic lock mut 1c824b50
+macosclassic SemWait semaphore...1c824b70
+generic lock mut done!
+generic unlock mut 1c824b50
+macosclassic SemPost semaphore...1c824b70
+generic unlock mut done!
+generic lock mut 1c824b50
+macosclassic SemWait semaphore...1c824b70
+generic lock mut done!
+generic unlock mut 1c824b50
+macosclassic SemPost semaphore...1c824b70
+generic unlock mut done!
+generic lock mut 1c824b50
+macosclassic SemWait semaphore...1c824b70
+generic lock mut done!
+generic unlock mut 1c824b50
+macosclassic SemPost semaphore...1c824b70
+generic unlock mut done!
+generic lock mut 1c824b50
+macosclassic SemWait semaphore...1c824b70
+generic lock mut done!
+generic unlock mut 1c824b50
+macosclassic SemPost semaphore...1c824b70
+generic unlock mut done!
+generic lock mut 1c824a80
+macosclassic SemWait semaphore...1c824aa0
+generic lock mut done!
+generic unlock mut 1c824a80
+macosclassic SemPost semaphore...1c824aa0
+generic unlock mut done!
+generic lock mut 1c824a80
+macosclassic SemWait semaphore...1c824aa0
+generic lock mut done!
+generic unlock mut 1c824a80
+macosclassic SemPost semaphore...1c824aa0
+generic unlock mut done!
+generic lock mut 1c824b90
+macosclassic SemWait semaphore...1c824bb0
+generic lock mut done!
+INFO: Final shared_data value: 10
+generic unlock mut 1c824b90
+macosclassic SemPost semaphore...1c824bb0
+generic unlock mut done!
+generic destroy mut 1c824b50
+macosclassic Destroying semaphore 1c824b70...
+generic destory mut done!
+generic destroy mut 1c824b90
+macosclassic Destroying semaphore 1c824bb0...
+generic destory mut done!
+generic lock mut 1c824a80
+macosclassic SemWait semaphore...1c824aa0
+generic lock mut done!
+generic unlock mut 1c824a80
+macosclassic SemPost semaphore...1c824aa0
+generic unlock mut done!
+generic lock mut 1c824a80
+macosclassic SemWait semaphore...1c824aa0
+generic lock mut done!
+generic unlock mut 1c824a80
+macosclassic SemPost semaphore...1c824aa0
+generic unlock mut done!
+generic destroy mut 1c824a80
+macosclassic Destroying semaphore 1c824aa0...
+generic destory mut done!

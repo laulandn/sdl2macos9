@@ -29,6 +29,11 @@
 #include "../thread/SDL_systhread.h"
 #include "../SDL_utils_c.h"
 
+#ifdef __AMIGAOS3__
+#undef OpenDevice
+#undef CloseDevice
+#endif
+
 #define _THIS SDL_AudioDevice *_this
 
 typedef struct AudioThreadStartupData
@@ -137,6 +142,9 @@ static const AudioBootStrap *const bootstrap[] = {
 #endif
 #ifdef SDL_AUDIO_DRIVER_DUMMY
     &DUMMYAUDIO_bootstrap,
+#endif
+#if SDL_AUDIO_DRIVER_AHI
+    &AHIAUD_bootstrap,
 #endif
     NULL
 };

@@ -182,10 +182,10 @@ typedef unsigned int uintptr_t;
 #define SDL_LOADSO_MACOSCLASSIC 1
 
 /* Enable the stub thread support (src/thread/generic/\*.c) */
-/*#define SDL_THREADS_DISABLED    1*/
-//#define SDL_THREAD_MACOSCLASSIC 1
-#define SDL_THREAD_PTHREAD  1
-#define SDL_THREAD_PTHREAD_RECURSIVE_MUTEX  1
+//#define SDL_THREADS_DISABLED    1
+#define SDL_THREAD_MACOSCLASSIC 1
+//#define SDL_THREAD_PTHREAD  1
+//#define SDL_THREAD_PTHREAD_RECURSIVE_MUTEX  1
 
 /* Enable the stub timer support (src/timer/dummy/\*.c) */
 /*#define SDL_TIMERS_DISABLED 1*/

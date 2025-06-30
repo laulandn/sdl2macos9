@@ -28,7 +28,6 @@
 
 #ifdef SDL_VIDEO_DRIVER_MACOSCLASSIC
 
-#define QUICKDRAW_BLIT 1
 
 #ifndef SDL_MAIN_NEEDED
 #define STDOUT_FILE	"stdout.txt"
@@ -37,21 +36,20 @@
 
 
 /* Globals are evil...these belong in driver data slash impl vars/params! */
-WindowPtr macwindow;
-CGrafPtr macport;
-/*PixMapHandle offPixMapHandle;
-GrafPtr origPort;
-GDHandle origDevice;*/
-PixMapPtr thePM;
-char *mypixels;
-int macWidth,macHeight,macDepth;
-/*
-GWorldPtr macoffworld;
-GWorldPtr maconworld;*/
+// TODO: Move all these into the "impl" things
+WindowPtr macwindow=NULL;
+CGrafPtr macport=NULL;
+PixMapPtr thePM=NULL;
 /**/
-SDL_VideoDevice *sdlvdev;
-SDL_VideoDisplay *sdlvdisp;
-SDL_Window *sdlw;
+char *mypixels=NULL;
+int myWidth,myHeight,myDepth;
+/**/
+SDL_VideoDevice *sdlvdev=NULL;
+SDL_VideoDisplay *sdlvdisp=NULL;
+SDL_Window *sdlw=NULL;
+/**/
+window_impl_t   *timpl=NULL;
+SDL_VideoDevice *tdevice=NULL;
 
 
 /*static screen_context_t context;
@@ -95,22 +93,22 @@ static int videoInit(_THIS)
   fprintf(stderr,"macosclassic videoInit...\n"); fflush(stderr);
 #endif
 
-  macWidth=PLATFORM_SCREEN_WIDTH;
-  macHeight=PLATFORM_SCREEN_HEIGHT;
-  macDepth=PLATFORM_SCREEN_DEPTH;
+  myWidth=PLATFORM_SCREEN_WIDTH;
+  myHeight=PLATFORM_SCREEN_HEIGHT;
+  myDepth=PLATFORM_SCREEN_DEPTH;
   /* Creating window here so I have screen dims...this belongs in in createWindow obs */
 #ifdef MAC_DEBUG
   fprintf(stderr,"macosclassic Going to NewCWindow...\n"); fflush(stderr);
 #endif
   WindowBox.top=40;  WindowBox.left=4;
-  WindowBox.bottom=macHeight+40;  WindowBox.right=macWidth+4;
+  WindowBox.bottom=myHeight+40;  WindowBox.right=myWidth+4;
   macwindow=NewCWindow(NULL,&WindowBox,(ConstStr255Param)"\pMac SDL2 Window",true,noGrowDocProc+8,(WindowPtr)(-1L),true,0L);
 #ifdef __MWERKS__
   macport=(CGrafPtr)macwindow;
 #else
   macport=GetWindowPort(macwindow);
 #endif
-  SetPort(macport);
+  SetPort((GrafPtr)macport);
   thePM=NULL;
   /*macoffworld=macwindow;*/
   ShowWindow((WindowPtr)macwindow);
@@ -128,8 +126,8 @@ static int videoInit(_THIS)
 
     SDL_zero(display);
 
-    m.w=macWidth;
-    m.h=macHeight;    
+    m.w=myWidth;
+    m.h=myHeight;    
 
     if (SDL_AddVideoDisplay(&display, SDL_FALSE) < 0) {
         return -1;
@@ -142,8 +140,8 @@ static int videoInit(_THIS)
 
 /*offPixMapHandle=NULL;*/
 
-    m.w=macWidth;
-    m.h=macHeight;
+    m.w=myWidth;
+    m.h=myHeight;
     m.refresh_rate=60;
     m.format=SDL_PIXELFORMAT_RGB888;    
 
@@ -171,15 +169,15 @@ static void videoQuit(_THIS)
  */
 static int createWindow(_THIS, SDL_Window *window)
 {
-    window_impl_t   *impl;
-    int             size[2];
+    //window_impl_t   *impl;
+    //int             size[2];
     int             numbufs;
-    int             format;
-    int             usage;
+    //int             format;
+    //int             usage;
 
-    impl = SDL_calloc(1, sizeof(*impl));
-    if (!impl) {
-        fprintf(stderr,"impl was null!\n"); fflush(stderr);
+    timpl = SDL_calloc(1, sizeof(*timpl));
+    if (!timpl) {
+        fprintf(stderr,"timpl was null!\n"); fflush(stderr);
         return -1;
     }
     
@@ -193,8 +191,8 @@ static int createWindow(_THIS, SDL_Window *window)
     }*/
 
     /* Set the native window's size to match the SDL window. */
-    size[0] = window->w;
-    size[1] = window->h;
+    //size[0] = window->w;
+    //size[1] = window->h;
     
 #ifdef MAC_DEBUG
     fprintf(stderr,"macosclassic requested win is %dx%d\n",window->w,window->h); fflush(stderr);
@@ -243,16 +241,18 @@ static int createWindow(_THIS, SDL_Window *window)
     fprintf(stderr,"macosclassic sdlw at %08lx\n",(long)sdlw); fflush(stderr);
 #endif
 
-    window->driverdata = impl;
+    window->driverdata = timpl;
     return 0;
 
+/*
 fail:
-    /*if (impl->window) {
+    if (impl->window) {
         screen_destroy_window(impl->window);
-    }*/
+    }
 
     SDL_free(impl);
     return -1;
+*/
 }
 
 /**
@@ -268,12 +268,12 @@ fail:
 static int createWindowFramebuffer(_THIS, SDL_Window * window, Uint32 * format,
                         void ** pixels, int *pitch)
 {
-    window_impl_t   *impl = (window_impl_t *)window->driverdata;
+    //window_impl_t   *impl = (window_impl_t *)window->driverdata;
     /*screen_buffer_t buffer;*/
     
     Rect r; 
-    QDErr err;
-    int good;
+    //QDErr err;
+    //int good;
   
 #ifdef MAC_DEBUG
     fprintf(stderr,"macosclassic createWindowFramebuffer...\n"); fflush(stderr);
@@ -298,28 +298,30 @@ static int createWindowFramebuffer(_THIS, SDL_Window * window, Uint32 * format,
     
     /* Hand build window sized pixmap */
      r.left=0; r.top=0;
-     r.bottom=macHeight; r.right=macWidth;
-     mypixels=calloc(1,macWidth*macHeight*(macDepth/8));
+     r.bottom=myHeight; r.right=myWidth;
+     mypixels=calloc(1,myWidth*myHeight*(myDepth/8));
 #ifdef MAC_DEBUG
   fprintf(stderr,"macosclassic mypixels at %lx\n",(long)mypixels); fflush(stderr);
 #endif
     thePM=(PixMapPtr)calloc(1,sizeof(PixMap));
-    thePM->bounds.top=0;  thePM->bounds.bottom=macHeight;
-    thePM->bounds.left=0; thePM->bounds.right=macWidth;
-    thePM->rowBytes=(1L<<15)|(macWidth*(macDepth/8));
+    thePM->bounds.top=0;  thePM->bounds.bottom=myHeight;
+    thePM->bounds.left=0; thePM->bounds.right=myWidth;
+    thePM->rowBytes=(1L<<15)|(myWidth*(myDepth/8));
     thePM->baseAddr=(char *)mypixels;
     thePM->hRes=72;  thePM->vRes=72;
-    thePM->pixelSize=macDepth;
-    thePM->cmpCount=1;  thePM->cmpSize=macDepth;
+    thePM->pixelSize=myDepth;
+    thePM->cmpCount=1;  thePM->cmpSize=myDepth;
     thePM->pmVersion=0;
     thePM->pixelType=RGBDirect;
     thePM->packType=0;  thePM->packSize=0;    
 #if TARGET_API_MAC_CARBON
+    thePM->pixelFormat='ABGR';
     thePM->pmTable=NULL;  /* TODO what goes here? */
+    thePM->pmExt=NULL;
 #else
     thePM->planeBytes=0; /* Offset in bytes to next plane */
-    thePM->pmReserved=0;
     thePM->pmTable=(*macport->portPixMap)->pmTable;
+    thePM->pmReserved=0;
 #endif
 #ifdef MAC_DEBUG
     fprintf(stderr,"macosclassic thePM at %lx\n",(long)thePM); fflush(stderr);
@@ -346,7 +348,7 @@ static int createWindowFramebuffer(_THIS, SDL_Window * window, Uint32 * format,
   /*SetGWorld(origPort,origDevice);*/
   /*UnlockPixels(macoffworld);*/
     *pixels=mypixels;
-    *pitch=macWidth*(macDepth/8);
+    *pitch=myWidth*(myDepth/8);
     *format = SDL_PIXELFORMAT_RGB888;
     
     /*sdlw=window;*/
@@ -365,7 +367,7 @@ static int createWindowFramebuffer(_THIS, SDL_Window * window, Uint32 * format,
 static int updateWindowFramebuffer(_THIS, SDL_Window *window, const SDL_Rect *rects,
                         int numrects)
 {
-    window_impl_t   *impl = (window_impl_t *)window->driverdata;
+    //window_impl_t   *impl = (window_impl_t *)window->driverdata;
 
 #ifdef QUICKDRAW_BLIT
   const BitMap *srcBits=NULL;  
@@ -395,11 +397,11 @@ static int updateWindowFramebuffer(_THIS, SDL_Window *window, const SDL_Rect *re
   
 #ifdef QUICKDRAW_BLIT
   /*SetGWorld(macoffworld,NULL);*/
-  SetPort(macport);
+  SetPort((GrafPtr)macport);
   msr.top=0; msr.left=0; 
-  msr.bottom=macHeight;  msr.right=macWidth;
+  msr.bottom=myHeight;  msr.right=myWidth;
   mdr.top=0; mdr.left=0; 
-  mdr.bottom=macHeight;  mdr.right=macWidth;
+  mdr.bottom=myHeight;  mdr.right=myWidth;
   srcBits=(BitMap *)thePM;
 #if TARGET_API_MAC_CARBON
   dstBits=GetPortBitMapForCopyBits(macwindow);
@@ -407,15 +409,15 @@ static int updateWindowFramebuffer(_THIS, SDL_Window *window, const SDL_Rect *re
   dstBits=(BitMap *)&((GrafPtr)macwindow)->portBits;
 #endif
   CopyBits(srcBits,dstBits,&msr,&mdr,srcCopy,NULL);
+  //fprintf(stderr,"QDError is %d\n",QDError());
 #else
   src=mypixels;
   dest=
-  bytesToCopy=macWidth*macHeight*(macDepth/8);
+  bytesToCopy=myWidth*myHeight*(myDepth/8);
   for(t-0;t<bytesToCopy;t++) {
     *(dest+t)=*(src+t);
   }
 #endif
-
     return 0;
 }
 
@@ -489,7 +491,7 @@ static void pumpEvents(_THIS)
  */
 static void setWindowSize(_THIS, SDL_Window *window)
 {
-    window_impl_t   *impl = (window_impl_t *)window->driverdata;
+    //window_impl_t   *impl = (window_impl_t *)window->driverdata;
     int             size[2];
 
     size[0] = window->w;
@@ -503,7 +505,7 @@ static void setWindowSize(_THIS, SDL_Window *window)
     screen_set_window_property_iv(impl->window, SCREEN_PROPERTY_SOURCE_SIZE,
                                   size);*/
                                   
-    /* TODO: Resize the window, change macWidth/macDepth, recreate the pixmap */
+    /* TODO: Resize the window, change myWidth/myDepth, recreate the pixmap */
 }
 
 /**
@@ -513,8 +515,8 @@ static void setWindowSize(_THIS, SDL_Window *window)
  */
 static void showWindow(_THIS, SDL_Window *window)
 {
-    window_impl_t   *impl = (window_impl_t *)window->driverdata;
-    const int       visible = 1;
+    //window_impl_t   *impl = (window_impl_t *)window->driverdata;
+   // const int       visible = 1;
 
 #ifdef MAC_DEBUG
     fprintf(stderr,"macosclassic showWindow...\n"); fflush(stderr);
@@ -532,8 +534,8 @@ static void showWindow(_THIS, SDL_Window *window)
  */
 static void hideWindow(_THIS, SDL_Window *window)
 {
-    window_impl_t   *impl = (window_impl_t *)window->driverdata;
-    const int       visible = 0;
+    //window_impl_t   *impl = (window_impl_t *)window->driverdata;
+    //const int       visible = 0;
 
 #ifdef MAC_DEBUG
     fprintf(stderr,"macosclassic hideWindow...\n"); fflush(stderr);
@@ -570,7 +572,7 @@ static void destroyWindow(_THIS, SDL_Window *window)
  */
 static void deleteDevice(SDL_VideoDevice *device)
 {
-    fprintf(stderr,"macosclassic deleteDevice device is %x...\n",device); fflush(stderr);
+    fprintf(stderr,"macosclassic deleteDevice device is %lx...\n",(long)device); fflush(stderr);
     if(device) SDL_free(device);
     /* TODO cleanup here */
     fprintf(stderr,"macosclassic more cleanup would go here...\n"); fflush(stderr);
@@ -583,7 +585,7 @@ static void deleteDevice(SDL_VideoDevice *device)
  */
 static SDL_VideoDevice *createDevice(int devindex)
 {
-    SDL_VideoDevice *device;
+    //SDL_VideoDevice *device;
 
 #ifndef SDL_MAIN_NEEDED
     freopen (STDOUT_FILE, "w", stdout);
@@ -594,48 +596,48 @@ static SDL_VideoDevice *createDevice(int devindex)
     fprintf(stderr,"macosclassic createDevice...\n"); fflush(stderr);
 #endif
 
-    device = (SDL_VideoDevice *)SDL_calloc(1, sizeof(SDL_VideoDevice));
-    if (!device) {
-        fprintf(stderr,"Didn't create device!\n"); fflush(stderr);
+    tdevice = (SDL_VideoDevice *)SDL_calloc(1, sizeof(SDL_VideoDevice));
+    if (!tdevice) {
+        fprintf(stderr,"Didn't create tdevice!\n"); fflush(stderr);
         return NULL;
     }
     
-    sdlvdev=device;
+    sdlvdev=tdevice;
     sdlvdisp=NULL;
     sdlw=NULL;
     
-    device->driverdata = NULL;  /* Eventually these'll be the globals, etc */
+    tdevice->driverdata = NULL;  /* Eventually these'll be the globals, etc */
     
-    device->VideoInit = videoInit;
-    device->VideoQuit = videoQuit;
+    tdevice->VideoInit = videoInit;
+    tdevice->VideoQuit = videoQuit;
     /**/
-    device->CreateSDLWindow = createWindow;
+    tdevice->CreateSDLWindow = createWindow;
     /**/
-    device->SetWindowSize = setWindowSize;
+    tdevice->SetWindowSize = setWindowSize;
     /**/
-    device->ShowWindow = showWindow;
-    device->HideWindow = hideWindow;
+    tdevice->ShowWindow = showWindow;
+    tdevice->HideWindow = hideWindow;
     /**/
-    device->DestroyWindow = destroyWindow;
-    device->CreateWindowFramebuffer = createWindowFramebuffer;
-    device->UpdateWindowFramebuffer = updateWindowFramebuffer;
+    tdevice->DestroyWindow = destroyWindow;
+    tdevice->CreateWindowFramebuffer = createWindowFramebuffer;
+    tdevice->UpdateWindowFramebuffer = updateWindowFramebuffer;
 
-    device->PumpEvents = pumpEvents;
+    tdevice->PumpEvents = pumpEvents;
 
-    device->GL_LoadLibrary = glLoadLibrary;
-    device->GL_GetProcAddress = glGetProcAddress;
-    device->GL_UnloadLibrary = glUnloadLibrary;
-    device->GL_CreateContext = glCreateContext;
-    device->GL_MakeCurrent = glMakeCurrent;
+    tdevice->GL_LoadLibrary = glLoadLibrary;
+    tdevice->GL_GetProcAddress = glGetProcAddress;
+    tdevice->GL_UnloadLibrary = glUnloadLibrary;
+    tdevice->GL_CreateContext = glCreateContext;
+    tdevice->GL_MakeCurrent = glMakeCurrent;
     /**/
-    device->GL_SetSwapInterval = glSetSwapInterval;
+    tdevice->GL_SetSwapInterval = glSetSwapInterval;
     /**/
-    device->GL_SwapWindow = glSwapWindow;
-    device->GL_DeleteContext = glDeleteContext;
+    tdevice->GL_SwapWindow = glSwapWindow;
+    tdevice->GL_DeleteContext = glDeleteContext;
     /**/
 
-    device->free = deleteDevice;
-    return device;
+    tdevice->free = deleteDevice;
+    return tdevice;
 }
 
 #if !TARGET_API_MAC_CARBON
@@ -659,6 +661,15 @@ void cleanupMac()
   /*
    TODO
   */
+  if(timpl) { free(timpl); timpl=NULL; }
+  if(tdevice) { free(tdevice); tdevice=NULL; }
+/* TODO: Cleanup any windows, or anything else alloc'd...like this...
+  if(amigawindow) { CloseWindow(amigawindow); amigawindow=NULL; }
+  if(amigascreen) { CloseScreen(amigascreen); amigascreen=NULL; }
+  if(theBM) { FreeBitMap(theBM); theBM=NULL; }
+  if(CyberGfxBase) { CloseLibrary(CyberGfxBase); CyberGfxBase=NULL; }
+  if(IntuitionBase) { CloseLibrary(&IntuitionBase->LibNode); IntuitionBase=NULL; }
+*/
   if(mypixels) { free(mypixels); mypixels=NULL; }
 }
 

@@ -36,7 +36,7 @@
 #endif
 #endif
 #ifdef __MACOSCLASSIC__
-#ifdef TARGET_API_MAC_CARBON
+#if TARGET_API_MAC_CARBON
 #include <Carbon/Carbon.h>
 #else
 #include <Gestalt.h>
