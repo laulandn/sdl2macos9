@@ -1,129 +1,21 @@
-generic lock mut 00000000
-generic unlock mut 00000000
-generic create mut
-macosclassic Creating semaphore 1c824aa0...
-generic created mut 1c824a80
-generic lock mut 1c824a80
-macosclassic SemWait semaphore...1c824aa0
-generic lock mut done!
-generic unlock mut 1c824a80
-macosclassic SemPost semaphore...1c824aa0
-generic unlock mut done!
-generic lock mut 1c824a80
-macosclassic SemWait semaphore...1c824aa0
-generic lock mut done!
-generic unlock mut 1c824a80
-macosclassic SemPost semaphore...1c824aa0
-generic unlock mut done!
-generic lock mut 1c824a80
-macosclassic SemWait semaphore...1c824aa0
-generic lock mut done!
-generic unlock mut 1c824a80
-macosclassic SemPost semaphore...1c824aa0
-generic unlock mut done!
-generic create mut
-macosclassic Creating semaphore 1c824b70...
-generic created mut 1c824b50
-generic create mut
-macosclassic Creating semaphore 1c824bb0...
-generic created mut 1c824b90
-generic lock mut 1c824b50
-macosclassic SemWait semaphore...1c824b70
-generic lock mut done!
-generic unlock mut 1c824b50
-macosclassic SemPost semaphore...1c824b70
-generic unlock mut done!
-generic lock mut 1c824b50
-macosclassic SemWait semaphore...1c824b70
-generic lock mut done!
-generic unlock mut 1c824b50
-macosclassic SemPost semaphore...1c824b70
-generic unlock mut done!
-generic lock mut 1c824b50
-macosclassic SemWait semaphore...1c824b70
-generic lock mut done!
-generic unlock mut 1c824b50
-macosclassic SemPost semaphore...1c824b70
-generic unlock mut done!
-generic lock mut 1c824b50
-macosclassic SemWait semaphore...1c824b70
-generic lock mut done!
-generic unlock mut 1c824b50
-macosclassic SemPost semaphore...1c824b70
-generic unlock mut done!
-generic lock mut 1c824b50
-macosclassic SemWait semaphore...1c824b70
-generic lock mut done!
-generic unlock mut 1c824b50
-macosclassic SemPost semaphore...1c824b70
-generic unlock mut done!
-generic lock mut 1c824b50
-macosclassic SemWait semaphore...1c824b70
-generic lock mut done!
-generic unlock mut 1c824b50
-macosclassic SemPost semaphore...1c824b70
-generic unlock mut done!
-generic lock mut 1c824b50
-macosclassic SemWait semaphore...1c824b70
-generic lock mut done!
-generic unlock mut 1c824b50
-macosclassic SemPost semaphore...1c824b70
-generic unlock mut done!
-generic lock mut 1c824b50
-macosclassic SemWait semaphore...1c824b70
-generic lock mut done!
-generic unlock mut 1c824b50
-macosclassic SemPost semaphore...1c824b70
-generic unlock mut done!
-generic lock mut 1c824b50
-macosclassic SemWait semaphore...1c824b70
-generic lock mut done!
-generic unlock mut 1c824b50
-macosclassic SemPost semaphore...1c824b70
-generic unlock mut done!
-generic lock mut 1c824b50
-macosclassic SemWait semaphore...1c824b70
-generic lock mut done!
-generic unlock mut 1c824b50
-macosclassic SemPost semaphore...1c824b70
-generic unlock mut done!
-generic lock mut 1c824a80
-macosclassic SemWait semaphore...1c824aa0
-generic lock mut done!
-generic unlock mut 1c824a80
-macosclassic SemPost semaphore...1c824aa0
-generic unlock mut done!
-generic lock mut 1c824a80
-macosclassic SemWait semaphore...1c824aa0
-generic lock mut done!
-generic unlock mut 1c824a80
-macosclassic SemPost semaphore...1c824aa0
-generic unlock mut done!
-generic lock mut 1c824b90
-macosclassic SemWait semaphore...1c824bb0
-generic lock mut done!
-INFO: Final shared_data value: 10
-generic unlock mut 1c824b90
-macosclassic SemPost semaphore...1c824bb0
-generic unlock mut done!
-generic destroy mut 1c824b50
-macosclassic Destroying semaphore 1c824b70...
-generic destory mut done!
-generic destroy mut 1c824b90
-macosclassic Destroying semaphore 1c824bb0...
-generic destory mut done!
-generic lock mut 1c824a80
-macosclassic SemWait semaphore...1c824aa0
-generic lock mut done!
-generic unlock mut 1c824a80
-macosclassic SemPost semaphore...1c824aa0
-generic unlock mut done!
-generic lock mut 1c824a80
-macosclassic SemWait semaphore...1c824aa0
-generic lock mut done!
-generic unlock mut 1c824a80
-macosclassic SemPost semaphore...1c824aa0
-generic unlock mut done!
-generic destroy mut 1c824a80
-macosclassic Destroying semaphore 1c824aa0...
-generic destory mut done!
+macos 9?
+gNewNewGWorld
+AllocBuffer...
+not fwLocOffscreen
+BuildOffscreen...
+wPixDepth is 32
+fMustRebuild is 1
+asked for vram
+No vram...
+asked for agp
+No agp...
+asked for sys ram
+we rebuilt
+BuildOffscreen...
+wPixDepth is 32
+fMustRebuild is 0
+all was well
+BuildOffscreen...
+wPixDepth is 32
+fMustRebuild is 0
+all was well

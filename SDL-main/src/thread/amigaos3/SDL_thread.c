@@ -21,6 +21,8 @@
 */
 #include "SDL_config.h"
 
+//#define MYDEBUG 1
+
 #ifdef SDL_THREAD_AMIGAOS3
 
 /* System independent thread management routines for SDL */
@@ -32,6 +34,8 @@
 #include <exec/semaphores.h>
 #include <dos/dos.h>
 #include <proto/exec.h>
+
+//#define DEBUG_THREADS 1
 
 #define ARRAY_CHUNKSIZE	32
 /* The array of threads currently active in the application
@@ -50,7 +54,9 @@ extern void SDL_SYS_KillThread(SDL_Thread *thread);
 
 int SDL_ThreadsInit(void)
 {
+#ifdef MYDEBUG
     fprintf(stderr,"amigaos3 threads init\n");
+#endif
 	InitSemaphore(&thread_lock);
 	thread_lock_created=1;
 	return 0;
@@ -63,7 +69,9 @@ int SDL_ThreadsInit(void)
  */
 void SDL_ThreadsQuit()
 {
+#ifdef MYDEBUG
     fprintf(stderr,"amigaos3 threads quit\n");
+#endif
 	thread_lock_created=0;
 }
 
@@ -72,7 +80,9 @@ static void SDL_AddThread(SDL_Thread *thread)
 {
 	SDL_Thread **threads;
 
-    fprintf(stderr,"amigaos3 add thread %8lx\n",(long)thread);
+#ifdef MYDEBUG
+    fprintf(stderr,"amigaos3 add thread %08lx\n",(long)thread);
+#endif
 	/* WARNING:
 	   If the very first threads are created simultaneously, then
 	   there could be a race condition causing memory corruption.
@@ -88,7 +98,7 @@ static void SDL_AddThread(SDL_Thread *thread)
 
 	/* Expand the list of threads, if necessary */
 #ifdef DEBUG_THREADS
-	printf("Adding thread (%d already - %d max)\n",
+	printf("amigaos3 Adding thread (%d already - %d max)\n",
 			SDL_numthreads, SDL_maxthreads);
 #endif
 	if ( SDL_numthreads == SDL_maxthreads ) {
@@ -114,7 +124,9 @@ static void SDL_DelThread(SDL_Thread *thread)
 {
 	int i;
 
-    fprintf(stderr,"amigaos3 del thread %8lx\n",(long)thread);
+#ifdef MYDEBUG
+    fprintf(stderr,"amigaos3 del thread %08lx\n",(long)thread);
+#endif
 	if ( thread_lock_created ) {
 		ObtainSemaphore(&thread_lock);
 		for ( i=0; i<SDL_numthreads; ++i ) {
@@ -129,7 +141,7 @@ static void SDL_DelThread(SDL_Thread *thread)
 				++i;
 			}
 #ifdef DEBUG_THREADS
-			printf("Deleting thread (%d left - %d max)\n",
+			printf("amigaos3 Deleting thread (%d left - %d max)\n",
 					SDL_numthreads, SDL_maxthreads);
 #endif
 		}
@@ -145,7 +157,9 @@ SDL_error *SDL_GetErrBuf(void)
 {
 	SDL_error *errbuf;
 
+#ifdef MYDEBUG
     fprintf(stderr,"amigaos3 thread geterrbuf\n");
+#endif
 	errbuf = &SDL_global_error;
 	if ( SDL_Threads ) {
 		int i;
@@ -181,7 +195,9 @@ void SDL_RunThread(SDL_Thread *thread)
 	void *userdata;
 	int *statusloc;
 
-    fprintf(stderr,"amigaos3 run thread %8lx\n",(long)thread);
+#ifdef MYDEBUG
+    fprintf(stderr,"amigaos3 run thread %08lx\n",(long)thread);
+#endif
 	/* Perform any system-dependent setup
 	   - this function cannot fail, and cannot use SDL_SetError()
 	 */
@@ -189,16 +205,28 @@ void SDL_RunThread(SDL_Thread *thread)
 
 	/* Get the thread id */
 	args = (thread_args *)data;
+#ifdef MYDEBUG
+fprintf(stderr,"amigaos3 run thread args=%08lx\n",(long)args);
 	args->info->threadid = SDL_ThreadID();
+#endif
+#ifdef MYDEBUG
+fprintf(stderr,"amigaos3 run thread id=%08lx\n",(long)args->info->threadid);
+#endif
 
 	/* Figure out what function to run */
 	userfunc = args->func;
 	userdata = args->data;
 	statusloc = &args->info->status;
-
+	
+#ifdef MYDEBUG
+fprintf(stderr,"amigaos3 run thread going to wake parent\n");
+#endif
 	/* Wake up the parent thread */
 	Signal(args->wait,SIGBREAKF_CTRL_E);
-
+	
+#ifdef MYDEBUG
+fprintf(stderr,"amigaos3 run thread calling %08lx with %08lx\n",(long)userfunc,(long)userdata);
+#endif
 	/* Run the function */
 	*statusloc = userfunc(userdata);
 }
@@ -209,7 +237,9 @@ SDL_Thread *SDL_CreateThread(SDL_ThreadFunction fn, const char *name, void *data
 	thread_args *args;
 	int ret;
 
-    fprintf(stderr,"amigaos3 create thread %8lx %s %8lx\n",(long)fn,name,(long)data);
+#ifdef MYDEBUG
+    fprintf(stderr,"amigaos3 create thread %08lx %s %08lx\n",(long)fn,name,(long)data);
+#endif
 	/* Allocate memory for the thread info structure */
 	thread = (SDL_Thread *)SDL_malloc(sizeof(*thread));
 	if ( thread == NULL ) {
@@ -240,15 +270,21 @@ SDL_Thread *SDL_CreateThread(SDL_ThreadFunction fn, const char *name, void *data
 	/* Add the thread to the list of available threads */
 	SDL_AddThread(thread);
 
-	fprintf(stderr,"Starting thread...\n");
+#ifdef MYDEBUG
+	fprintf(stderr,"amigaos3 Starting thread...\n");
+#endif
 
 	/* Create the thread and go! */
 	ret = SDL_SYS_CreateThread(thread/*, args*/);
 	if ( ret >= 0 ) {
-		fprintf(stderr,"Waiting for thread CTRL_E...\n");
+#ifdef MYDEBUG
+		fprintf(stderr,"amigaos3 Waiting for thread CTRL_E...\n");
+#endif
 		/* Wait for the thread function to use arguments */
 		Wait(SIGBREAKF_CTRL_E);
-		fprintf(stderr,"  Arrived.");
+#ifdef MYDEBUG
+		fprintf(stderr,"amigaos3 Arrived.");
+#endif
 	} else {
 		/* Oops, failed.  Gotta free everything */
 		SDL_DelThread(thread);
@@ -263,12 +299,17 @@ SDL_Thread *SDL_CreateThread(SDL_ThreadFunction fn, const char *name, void *data
 
 void SDL_WaitThread(SDL_Thread *thread, int *status)
 {
+#ifdef MYDEBUG
     fprintf(stderr,"amigaos3 wait thread %8lx\n",(long)thread);
+#endif
 	if ( thread ) {
 		SDL_SYS_WaitThread(thread);
 		if ( status ) {
 			*status = thread->status;
 		}
+#ifdef MYDEBUG
+		fprintf(stderr,"amigaos3 wait thread done, deleting thread\n");
+#endif
 		SDL_DelThread(thread);
 		SDL_free(thread);
 	}
@@ -278,7 +319,9 @@ SDL_threadID SDL_GetThreadID(SDL_Thread *thread)
 {
 	SDL_threadID id;
 
+#ifdef MYDEBUG
     fprintf(stderr,"amigaos3 get thread id %8lx\n",(long)thread);
+#endif
 	if ( thread ) {
 		id = thread->threadid;
 	} else {
@@ -289,7 +332,9 @@ SDL_threadID SDL_GetThreadID(SDL_Thread *thread)
 
 void SDL_KillThread(SDL_Thread *thread)
 {
+#ifdef MYDEBUG
     fprintf(stderr,"amigaos3 kill thread %8lx\n",(long)thread);
+#endif
 	if ( thread ) {
 		SDL_SYS_KillThread(thread);
 		SDL_WaitThread(thread, NULL);

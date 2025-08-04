@@ -21,6 +21,8 @@
 */
 #include "SDL_config.h"
 
+//#define MYDEBUG 1
+
 #ifdef SDL_THREAD_AMIGAOS3
 
 /* Amiga thread management routines for SDL */
@@ -36,12 +38,21 @@
 #include <proto/exec.h>
 #include <proto/dos.h>
 
+
+#define WHERE stderr
+
+
+// NOTE: Not fully using this
 typedef struct {
 	int (*func)(void *);
 	void *data;
 	SDL_Thread *info;
 	struct Task *wait;
 } thread_args;
+
+
+SDL_threadID theMainThread=0;
+
 
 #ifndef MORPHOS
 
@@ -57,23 +68,40 @@ Uint32 /*__saveds*/ RunThread(char *args __asm("a0") )
 	thread_args *data=(thread_args *)args;
 	#else
 	//thread_args *data=(thread_args *)atol(args);
-	SDL_Thread *data=(SDL_Thread *)args;
+	SDL_Thread *data=(SDL_Thread *)atol(args);
 	#endif
 
+    // Because proc's are created with NIL: stdio
+    //freopen("stdout2.txt","w",stdout);
+    //freopen("stderr2.txt","w",stderr);
 
-	//struct Task *Father;
+	struct Task *Father;
 
-	fprintf(stderr,"Received data: %lx\n",(long)data);
+#ifdef MYDEBUG
+	fprintf(stderr,"amigaos3 RunThread Received args=%s data: %08lx\n",args,(long)data); fflush(stderr);
+#endif
+	
 	//Father=data->wait;
-
+	Father=(struct Task *)theMainThread;
+	
+#ifdef MYDEBUG
+fprintf(stderr,"We be %08lx\n",SDL_ThreadID()); fflush(stderr);
+#endif
 	SDL_RunThread(data);
+#ifdef MYDEBUG
+fprintf(stderr,"We now be %08lx\n",SDL_ThreadID()); fflush(stderr);
+#endif
 
-	//Signal(Father,SIGBREAKF_CTRL_F);
-	fprintf(stderr,"Thread with data %lx ended\n",(long)data);
+	Signal(Father,SIGBREAKF_CTRL_F);
+#ifdef MYDEBUG
+	fprintf(stderr,"amigaos3 RunThread Thread done\n"); fflush(stderr);
+#endif
 	return(0);
 }
 
 #else
+
+#error this code not worked on
 
 #include <emul/emulinterface.h>
 
@@ -82,13 +110,17 @@ Uint32 RunTheThread(void)
 	thread_args *data=(thread_args *)atol((char *)REG_A0);
 	struct Task *Father;
 
-	fprintf(stderr,"Received data: %lx\n",(long)data);
+#ifdef MYDEBUG
+	fprintf(stderr,"amigaos3 RunTheThread Received data: %lx\n",(long)data); fflush(stderr);
+#endif
 	Father=data->wait;
 
 	SDL_RunThread(data);
 
 	Signal(Father,SIGBREAKF_CTRL_F);
-	fprintf(stderr,"Thread with data %lx ended\n",(long)data);
+#ifdef MYDEBUG
+	fprintf(stderr,"amigaos3 RunTheThread Thread with data %lx ended\n",(long)data); fflush(stderr);
+#endif
 	return(0);
 }
 
@@ -105,29 +137,46 @@ void *RunThread=&RunThreadStruct;
 
 int SDL_SYS_CreateThread(SDL_Thread *thread/*, void *args*/)
 {
-	void *args=NULL;
 	/* Create the thread and go! */
 	char buffer[20];
 
-	fprintf(stderr,"amigaos3 sys create thread %8lx\n",(long)thread);
-	//fprintf(stderr,"Sending %lx to the new thread...\n",args);
+#ifdef MYDEBUG
+	fprintf(WHERE,"amigaos3 sys create thread %8lx\n",(long)thread); fflush(WHERE);
+	//fprintf(WHERE,"Sending %lx to the new thread...\n",args);
+#endif
 
-	if(args) SDL_snprintf(buffer, SDL_arraysize(buffer),"%ld",(long)args);
+	SDL_snprintf(buffer, SDL_arraysize(buffer),"%ld",(long)thread);
+	
+#ifdef MYDEBUG
+fprintf(WHERE,"We are %08lx\n",SDL_ThreadID()); fflush(WHERE);
+#endif
+    if(theMainThread) {
+      if(SDL_ThreadID()!=theMainThread) {
+        SDL_SetError("Sorry, threads creating threads not implemented!\n");
+        return (-1);
+      }
+    }
+    else
+    {
+      theMainThread=SDL_ThreadID();
+    }
 
 	#ifdef STORMC4_WOS
+	#error code not worked on
 	thread->handle=CreateTaskPPCTags(TASKATTR_CODE,	RunThread,
 					TASKATTR_NAME,	"SDL subtask",
 					TASKATTR_STACKSIZE, 100000,
-					(args ? TASKATTR_R3 : TAG_IGNORE), args,
+					//(args ? TASKATTR_R3 : TAG_IGNORE), args,
+					TASKATTR_R3,(ULONG)thread,
 					TASKATTR_INHERITR2, TRUE,
 					TAG_DONE);
 	#else
 	thread->handle=(struct Task *)CreateNewProcTags(NP_Output,Output(),
 					NP_Name,(ULONG)"SDL subtask",
 					NP_CloseOutput, FALSE,
-					NP_StackSize,20000,
+					NP_StackSize,65535,
 					NP_Entry,(ULONG)RunThread,
-					NP_Arguments,(ULONG)thread,
+					NP_Arguments,(ULONG)buffer,
 					//args ? NP_Arguments : TAG_IGNORE,(ULONG)buffer,
 					TAG_DONE);
 	#endif
@@ -138,12 +187,22 @@ int SDL_SYS_CreateThread(SDL_Thread *thread/*, void *args*/)
 		return(-1);
 	}
 
+#ifdef MYDEBUG
+fprintf(WHERE,"We are now %08lx\n",SDL_ThreadID()); fflush(WHERE);
+#endif
+
+#ifdef MYDEBUG
+	fprintf(WHERE,"amigaos3 sys create thread created handle=%08lx\n",(long)thread->handle); fflush(WHERE);
+#endif
 	return(0);
 }
 
 void SDL_SYS_SetupThread(const char *name)
 {
-	fprintf(stderr,"amigaos3 sys setup thread %s\n",name);
+#ifdef MYDEBUG
+	fprintf(WHERE,"amigaos3 sys setup thread %s\n",name); fflush(WHERE);
+#endif
+	// NOTE: Safe to ignore, many systems do that
 }
 
 SDL_threadID SDL_ThreadID(void)
@@ -153,26 +212,34 @@ SDL_threadID SDL_ThreadID(void)
 
 void SDL_SYS_WaitThread(SDL_Thread *thread)
 {
-	fprintf(stderr,"amigaos3 sys wait thread %8lx\n",(long)thread);
+#ifdef MYDEBUG
+	fprintf(WHERE,"amigaos3 sys wait thread %8lx\n",(long)thread); fflush(WHERE);
+#endif
 	SetSignal(0L,SIGBREAKF_CTRL_F|SIGBREAKF_CTRL_C);
 	Wait(SIGBREAKF_CTRL_F|SIGBREAKF_CTRL_C);
 }
 
 void SDL_SYS_KillThread(SDL_Thread *thread)
 {
-	fprintf(stderr,"amigaos3 sys kill thread %8lx\n",(long)thread);
+#ifdef MYDEBUG
+	fprintf(WHERE,"amigaos3 sys kill thread %8lx\n",(long)thread); fflush(WHERE);
+#endif
 	Signal((struct Task *)thread->handle,SIGBREAKF_CTRL_C);
 }
 
 void SDL_SYS_DetachThread(SDL_Thread *thread)
 {
-    fprintf(stderr,"amigaos3 detach thread %8lx\n",(long)thread); fflush(stderr);
+#ifdef MYDEBUG
+    fprintf(WHERE,"amigaos3 sys detach thread %8lx\n",(long)thread); fflush(WHERE);
+#endif
     return;
 }
 
 int SDL_SYS_SetThreadPriority(SDL_ThreadPriority priority)
 {
-    fprintf(stderr,"amigaos3 setpriority thread\n"); fflush(stderr);
+#ifdef MYDEBUG
+    fprintf(WHERE,"amigaos3 sys setpriority thread\n"); fflush(WHERE);
+#endif
     return 0;
 }
 

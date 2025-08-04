@@ -13,7 +13,6 @@ int thread_function(void* data) {
 }
 
 int main(int argc, char* argv[]) {
-
     freopen("stdout.txt","w",stdout);
     freopen("stderr.txt","w",stderr);
     fprintf(stderr,"Going to SDL_Init...\n"); fflush(stderr);

@@ -21,13 +21,14 @@
 */
 #include "SDL_config.h"
 
+//#define MYDEBUG 1
+
+#define WHERE stdout
+
 #ifdef SDL_THREAD_AMIGAOS3
 
 #include "SDL_thread.h"
 #include "SDL_systhread_c.h"
-
-
-#define MYDEBUG 1
 
 
 extern void SDL_Delay(int timeout);
@@ -51,7 +52,7 @@ SDL_sem *SDL_CreateSemaphore(Uint32 initial_value)
 	}
 
 #ifdef MYDEBUG
-	fprintf(stderr,"amigaos3 Creating semaphore %lx...\n",(long)sem);
+	fprintf(WHERE,"amigaos3 Creating semaphore %lx...\n",(long)sem); fflush(WHERE);
 #endif
 
 	SDL_memset(sem,0,sizeof(*sem));
@@ -64,7 +65,7 @@ SDL_sem *SDL_CreateSemaphore(Uint32 initial_value)
 void SDL_DestroySemaphore(SDL_sem *sem)
 {
 #ifdef MYDEBUG
-	fprintf(stderr,"amigaos3 Destroying semaphore %lx...\n",(long)sem);
+	fprintf(WHERE,"amigaos3 Destroying semaphore %lx...\n",(long)sem); fflush(WHERE);
 #endif
 
 	if ( sem ) {
@@ -81,7 +82,7 @@ int SDL_SemTryWait(SDL_sem *sem)
 	}
 
 #ifdef MYDEBUG
-	fprintf(stderr,"amigaos3 TryWait semaphore...%lx\n",(long)sem);
+	fprintf(WHERE,"amigaos3 TryWait semaphore...%lx\n",(long)sem); fflush(WHERE);
 #endif
 
 	ObtainSemaphore(&sem->Sem);
@@ -101,7 +102,7 @@ int SDL_SemWaitTimeout(SDL_sem *sem, Uint32 timeout)
 	}
 
 #ifdef MYDEBUG
-	fprintf(stderr,"amigaos3 WaitTimeout (%ld) semaphore...%lx\n",(long)timeout,(long)sem);
+	fprintf(WHERE,"amigaos3 WaitTimeout (%ld) semaphore...%lx\n",(long)timeout,(long)sem); fflush(WHERE);
 #endif
 
 	/* A timeout of 0 is an easy case */
@@ -127,7 +128,7 @@ int SDL_SemWaitTimeout(SDL_sem *sem, Uint32 timeout)
 int SDL_SemWait(SDL_sem *sem)
 {
 #ifdef MYDEBUG
-	fprintf(stderr,"amigaos3 SemWait semaphore...%lx\n",(long)sem);
+	fprintf(WHERE,"amigaos3 SemWait semaphore...%lx\n",(long)sem); fflush(WHERE);
 #endif
 	ObtainSemaphore(&sem->Sem);
 	return 0;
@@ -155,7 +156,7 @@ int SDL_SemPost(SDL_sem *sem)
 		return -1;
 	}
 #ifdef MYDEBUG
-	fprintf(stderr,"amigaos3 SemPost semaphore...%lx\n",(long)sem);
+	fprintf(WHERE,"amigaos3 SemPost semaphore...%lx\n",(long)sem); fflush(WHERE);
 #endif
 
 	ReleaseSemaphore(&sem->Sem);

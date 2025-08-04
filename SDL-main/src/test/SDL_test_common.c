@@ -1424,7 +1424,7 @@ SDL_bool SDLTest_CommonInit(SDLTest_CommonState *state)
                 } else if (state->scale != 0.) {
                     SDL_RenderSetScale(state->renderers[i], state->scale, state->scale);
                 }
-                if (state->verbose & VERBOSE_RENDER) {
+                if (1/*state->verbose & VERBOSE_RENDER*/) {
                     SDL_RendererInfo info;
 
                     SDL_Log("Current renderer:\n");

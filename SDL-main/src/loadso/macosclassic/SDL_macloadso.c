@@ -30,7 +30,15 @@
 #include <string.h>
 #define OLDP2C 1
 #if TARGET_API_MAC_CARBON
+#if TARGET_RT_MAC_MACHO
 #include <Carbon/Carbon.h>
+#else
+#include "../../thread/macosclassic/MacThreads.h"
+#undef SIGHUP
+#undef SIGURG
+#undef SIGPOLL
+#include <Carbon.h>
+#endif
 #else
 #include <Strings.h>
 #include <CodeFragments.h>

@@ -36,11 +36,15 @@
 #include <EGL/egl.h>*/
 
 #if TARGET_API_MAC_CARBON
-// These are needed for Retro68, but should otherwise be fine
+#if TARGET_RT_MAC_MACHO
+#include <Carbon/Carbon.h>
+#else
+#include "../../thread/macosclassic/MacThreads.h"
 #undef SIGHUP
 #undef SIGURG
 #undef SIGPOLL
-#include <Carbon/Carbon.h>
+#include <Carbon.h>
+#endif
 #else
 #include <Quickdraw.h>
 #include <QDOffscreen.h>
@@ -54,11 +58,13 @@
 #define QUICKDRAW_BLIT 1
 //#define USE_GWORLDS 1
 
-
 /* Default window size */
 #define PLATFORM_SCREEN_WIDTH 640 
 #define PLATFORM_SCREEN_HEIGHT 480 
 #define PLATFORM_SCREEN_DEPTH 32 
+
+#define WINDOW_OFFSET_X 4
+#define WINDOW_OFFSET_Y 40
 
 
 /* Globals are evil...these belong in driver data slash impl vars/params! */
@@ -69,6 +75,8 @@ extern CGrafPtr macport;
 extern PixMapPtr thePM;
 /**/
 extern char *mypixels;
+extern int drawWidth;
+extern int drawHeight;
 extern int myWidth;
 extern int myHeight;
 extern int myDepth;

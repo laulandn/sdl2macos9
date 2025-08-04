@@ -23,8 +23,16 @@
 
 #ifdef SDL_TIMER_MACOSCLASSIC
 
-#ifdef TARGET_API_MAC_CARBON
+#if TARGET_API_MAC_CARBON
+#if TARGET_RT_MAC_MACHO
 #include <Carbon/Carbon.h>
+#else
+#include "../../thread/macosclassic/MacThreads.h"
+#undef SIGHUP
+#undef SIGURG
+#undef SIGPOLL
+#include <Carbon.h>
+#endif
 #else
 #include <Types.h>
 #include <Timer.h>
@@ -116,7 +124,7 @@ void SDL_Delay(Uint32 ms)
 	YieldToAnyThread();
 #endif
 	do {
-		/* FIXME: Yield CPU? */ ;
+		/* FIXME: Really should tield CPU here...but confuses thread manager! */ ;
 	} while ( SDL_GetTicks() < end_ms );
 #else
 	UInt32		unused; /* MJS */
@@ -200,6 +208,7 @@ Uint64 SDL_GetPerformanceCounter(void)
 
 Uint64 SDL_GetPerformanceFrequency(void)
 {
+    // NOTE: This is completely arbitrary and made up
     return 1000;
 }
 

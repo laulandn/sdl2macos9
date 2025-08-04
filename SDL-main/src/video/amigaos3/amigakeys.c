@@ -111,7 +111,7 @@ void handleKeyboardEvent(struct IntuiMessage *event)
     SDL_Scancode    scancode=0;
     int keyToReturn=0;
 
-    printf("amigaos3 handleKeyboardEvent...\n");
+    fprintf(stderr,"amigaos3 handleKeyboardEvent...\n"); fflush(stderr);
 
     /* Get the key value.*/
     /*if (screen_get_event_property_iv(event, SCREEN_PROPERTY_SYM, &val) < 0) {
@@ -145,6 +145,13 @@ void handleKeyboardEvent(struct IntuiMessage *event)
           case 29: scancode=SDL_SCANCODE_RIGHT; break;
           case 30: scancode=SDL_SCANCODE_UP; break;
           case 31: scancode=SDL_SCANCODE_DOWN; break;*/
+		   /**/
+	  // TODO: HORRIBLE HACK...these are actualy wasd!
+          case 0x20: scancode=SDL_SCANCODE_LEFT; break;
+          case 0x22: scancode=SDL_SCANCODE_RIGHT; break;
+          case 0x11: scancode=SDL_SCANCODE_UP; break;
+          case 0x21: scancode=SDL_SCANCODE_DOWN; break;
+		   /**/
           case 0x40: scancode=SDL_SCANCODE_SPACE; break;
           case 0x44: scancode=SDL_SCANCODE_RETURN; break;
           case 0x42: scancode=SDL_SCANCODE_TAB; break;

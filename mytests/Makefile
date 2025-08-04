@@ -1,12 +1,14 @@
 
-CC=powerpc-apple-macos-gcc
+CC=powerpc-apple-macos-gcc -carbon
+#CC=powerpc-apple-macos-gcc
 #CC=m68k-apple-macos-gcc
 #CC=m68k-amigaos-gcc -mcrt=nix20
 
 CFLAGS=-I../SDL-main/include
 #CFLAGS=`sdl2-config --cflags`
 
-LD=powerpc-apple-macos-g++
+LD=powerpc-apple-macos-g++ -carbon
+#LD=powerpc-apple-macos-g++
 #LD=m68k-apple-macos-g++
 #LD=m68k-amigaos-g++ -mcrt=nix20
 
@@ -14,7 +16,8 @@ LD=powerpc-apple-macos-g++
 LDFLAGS=-L../SDL-main -lSDL2 -lSDL2main -lThreadsLib
 #LDFLAGS=-L../SDL-main -lSDL2 -lSDL2main
 
-CONV=$(HOME)/sdl2macos9/xcoff2app.sh
+CONV=$(HOME)/sdl2macos9/xcoff2carb.sh
+#CONV=$(HOME)/sdl2macos9/xcoff2app.sh
 #CONV=$(HOME)/sdl2macos9/bin2app.sh
 #CONV=echo
 
@@ -58,4 +61,8 @@ sdlmut: sdlmut.o
 macthread: macthread.o
 	$(LD) -omacthread$(EXT) macthread.o $(LDFLAGS)
 	$(CONV) macthread
+
+NewNewGWorld: NewNewGWorld.o
+	$(LD) -oNewNewGWorld$(EXT) NewNewGWorld.o $(LDFLAGS)
+	$(CONV) NewNewGWorld
 

@@ -176,7 +176,8 @@ typedef unsigned int uintptr_t;
 
 /* Enable the stub timer support (src/timer/dummy/\*.c) */
 /*#define SDL_TIMERS_DISABLED 1*/
-#define SDL_TIMER_DUMMY 1
+//#define SDL_TIMER_DUMMY 1
+#define SDL_TIMER_AMIGAOS3 1
 
 /* Enable the dummy video driver (src/video/dummy/\*.c) */
 /*#define SDL_VIDEO_DRIVER_DUMMY  1*/

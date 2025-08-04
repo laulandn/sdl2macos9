@@ -111,7 +111,7 @@ void handleKeyboardEvent(EventRecord *event, int what)
     SDL_Scancode    scancode=0;
     int keyToReturn=0;
 
-    printf("macosclassic handleKeyboardEvent...\n");
+    fprintf(stderr,"macosclassic handleKeyboardEvent...\n"); fflush(stderr);
 
     /* Get the key value.*/
     /*if (screen_get_event_property_iv(event, SCREEN_PROPERTY_SYM, &val) < 0) {
@@ -135,7 +135,7 @@ void handleKeyboardEvent(EventRecord *event, int what)
     }*/
     
 #ifdef MAC_DEBUG
-    /*fprintf(stderr,"macosclassic key event type %d what %d\n",event->what,what); fflush(stderr);*/
+    fprintf(stderr,"macosclassic key event type %d what %d\n",event->what,what); fflush(stderr);
 #endif
     
 		if(event->modifiers&cmdKey) {

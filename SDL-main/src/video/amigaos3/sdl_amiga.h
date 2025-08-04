@@ -48,10 +48,11 @@
 
 #define AMIGA_DEBUG 1
 
+//#define USE_CUSTOM_SCREEN 1
 
 /* Default window size */
-#define PLATFORM_SCREEN_WIDTH 640 
-#define PLATFORM_SCREEN_HEIGHT 480 
+#define PLATFORM_SCREEN_WIDTH 800 
+#define PLATFORM_SCREEN_HEIGHT 600 
 #define PLATFORM_SCREEN_DEPTH 32 
 
 
@@ -66,6 +67,8 @@ extern char *mypixels;
 extern int myWidth;
 extern int myHeight;
 extern int myDepth;
+extern int drawWidth;
+extern int drawHeight;
 /**/
 extern SDL_VideoDevice *sdlvdev;
 extern SDL_VideoDisplay *sdlvdisp;

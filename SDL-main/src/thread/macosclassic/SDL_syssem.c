@@ -29,7 +29,7 @@
 #include "./ThreadSynch.h"
 
 
-//#define MYDEBUG 1
+#define MYDEBUG 1
 
 
 extern void SDL_Delay(int timeout);
@@ -87,17 +87,16 @@ int SDL_SemTryWait(SDL_sem *sem)
 	fprintf(stderr,"macosclassic TryWait semaphore...%lx\n",(long)sem);
 #endif
 
-	//ObtainSemaphore(&sem->Sem);
-	SemaphoreAcquire(&sem->Sem);
-//	ReleaseSemaphore(&sem->Sem);
-
-	return 1;
+    //if(sem->Sem.value>0) {
+      SemaphoreAcquire(&sem->Sem);
+    //}
+    //else return SDL_MUTEX_TIMEDOUT;
+    return 1;
 }
 
 int SDL_SemWaitTimeout(SDL_sem *sem, Uint32 timeout)
 {
 	int retval=0;
-
 
 	if ( ! sem ) {
 		SDL_SetError("Passed a NULL semaphore");
@@ -105,33 +104,26 @@ int SDL_SemWaitTimeout(SDL_sem *sem, Uint32 timeout)
 	}
 
 #ifdef MYDEBUG
-	fprintf(stderr,"macosclassic WaitTimeout (%ld) semaphore...%lx\n",(long)timeout,(long)sem);
+    fprintf(stderr,"macosclassic WaitTimeout (%ld) semaphore...%lx\n",(long)timeout,(long)sem);
 #endif
 
-	/* A timeout of 0 is an easy case */
-	if ( timeout == 0 ) {
-		//ObtainSemaphore(&sem->Sem);
-		SemaphoreAcquire(&sem->Sem);
-		return 1;
-	}
-	else {
-	  //if(!(retval=AttemptSemaphore(&sem->Sem)))
-	  //{
-	  // TODO: Not sure if this is correct AT ALL!
-	  	SDL_Delay(timeout);
-		//retval=AttemptSemaphore(&sem->Sem);
-		SemaphoreAcquire(&sem->Sem);
-		retval=0;
-
-	  //}
-	  if(retval)
-	  {
-//		ReleaseSemaphore(&sem->Sem);
-		retval=1;
-	  }
-	}
-
-	return retval;
+    /* A timeout of 0 is an easy case */
+    if ( timeout == 0 ) {
+      return SDL_SemTryWait(sem);
+    }
+    // Max wait...
+    if(timeout== -1) {
+    }
+    // TODO: This is NOT right at all...it always waits...
+    if(!(retval=SDL_SemTryWait(sem)))
+    {
+      // We didn't immediately get it so wait the timeout
+      // So do we just wait, try again and then give up?
+      SDL_Delay(timeout);
+      retval=SDL_SemTryWait(sem);
+     }
+     // No release here right?
+     return retval;
 }
 
 int SDL_SemWait(SDL_sem *sem)

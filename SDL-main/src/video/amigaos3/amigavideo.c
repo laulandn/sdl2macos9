@@ -29,7 +29,9 @@
 
 #ifdef SDL_VIDEO_DRIVER_AMIGAOS3
 
-//#define USE_CUSTOM_SCREEN 1
+
+extern void SDL_Amiga_pumpEvents(_THIS);
+
 
 #ifndef SDL_MAIN_NEEDED
 #define STDOUT_FILE	"stdout.txt"
@@ -39,6 +41,7 @@
 #define SIGMASK(w) (1L<<((w)->UserPort->mp_SigBit))
 #define GETIMSG(w) ((struct IntuiMessage *)GetMsg((w)->UserPort))
 
+struct GfxBase *GfxBase=NULL;
 struct IntuitionBase *IntuitionBase=NULL;
 struct Library *CyberGfxBase=NULL;
 
@@ -52,6 +55,7 @@ struct BitMap *theBM=NULL;
 /**/
 char *mypixels=NULL;
 int myWidth,myHeight,myDepth;
+int drawWidth,drawHeight;
 /**/
 SDL_VideoDevice *sdlvdev=NULL;
 SDL_VideoDisplay *sdlvdisp=NULL;
@@ -60,8 +64,10 @@ SDL_Window *sdlw=NULL;
 window_impl_t   *timpl=NULL;
 SDL_VideoDevice *tdevice=NULL;
 
-
 void cleanupAmiga();
+
+/*static screen_context_t context;
+static screen_event_t   event;*/
 
 
 ULONG NextDepth(ULONG Depth)
@@ -77,50 +83,22 @@ ULONG NextDepth(ULONG Depth)
   }
 }
 
-/*static screen_context_t context;
-static screen_event_t   event;*/
-
-/**
- * Initializes the QNX video plugin.
- * Creates the Screen context and event handles used for all window operations
- * by the plugin.
- * @param   _THIS
- * @return  0 if successful, -1 on error
- */
-static int videoInit(_THIS)
+static void openTheWindow(int w,int h)
 {
-    SDL_VideoDisplay display;
     //struct NewWindow nw;
     int iflags,wflags;
-    SDL_DisplayMode m;
 #if USE_CUSTOM_SCREEN
     int DisplayID=0;
     int Depth=0;
 #endif
-
-/*printf("This should show up on the SIOUX console...\n");*/
-
+    int sw,sh,sd;
 
 #ifdef AMIGA_DEBUG
-  fprintf(stderr,"amigaos3 videoInit...\n"); fflush(stderr);
+  fprintf(stderr,"amigaos3 openTheWindow %dx%d\n",w,h);
 #endif
 
-   if ((IntuitionBase=(struct IntuitionBase *)
-                    OpenLibrary("intuition.library",39))==NULL) {
-  fprintf(stderr,"amigaos3 couldn't open intuition...\n"); fflush(stderr);
-  exit(20);
-   }
-
- if ((CyberGfxBase=OpenLibrary(CYBERGFXNAME,41))==NULL)
-  {
-   CloseLibrary (&IntuitionBase->LibNode);
-  fprintf(stderr,"amigaos3 couldn't open cybergfx...\n"); fflush(stderr);
-  exit(20);
-  }
-
-  myWidth=PLATFORM_SCREEN_WIDTH;
-  myHeight=PLATFORM_SCREEN_HEIGHT;
-  myDepth=PLATFORM_SCREEN_DEPTH;
+  // TODO: This isn't right, if custom will ask for crazy things!
+  myWidth=w; myHeight=h;
 
  #if USE_CUSTOM_SCREEN
    Depth=myDepth;
@@ -142,8 +120,8 @@ static int videoInit(_THIS)
    Depth=NextDepth(Depth);
   }
 
-amigascreen=OpenScreenTags(NULL,
-                                 SA_Title,"Amiga SDL screen",
+  amigascreen=OpenScreenTags(NULL,
+                                 SA_Title,(long)"Amiga SDL2 screen",
                                  SA_DisplayID,DisplayID,
                                  SA_Depth,myDepth,
                                  TAG_DONE);
@@ -154,9 +132,35 @@ amigascreen=OpenScreenTags(NULL,
 #ifdef AMIGA_DEBUG
     fprintf(stderr,"amigaos3 amigascreen at %08lx\n",(long)amigascreen); fflush(stderr);
 #endif
+#else
+    amigascreen=malloc(sizeof(struct Screen));
+    GetScreenData(amigascreen,sizeof(struct Screen),WBENCHSCREEN,NULL);
 #endif
 
-  /* Creating window here so I have screen dims...this belongs in in createWindow obs */
+  if(amigascreen) {
+    fprintf(stderr,"amigascreen %d,%d\n",amigascreen->Width,amigascreen->Height); fflush(stderr);
+    fprintf(stderr,"rastport bitmap %d,%d,%d\n",amigascreen->RastPort.BitMap->BytesPerRow,amigascreen->RastPort.BitMap->Rows,amigascreen->RastPort.BitMap->Depth); fflush(stderr);
+    sw=amigascreen->Width;
+    sh=amigascreen->Height;
+    sd=amigascreen->RastPort.BitMap->Depth;
+    if(GetCyberMapAttr(amigascreen->RastPort.BitMap,CYBRMATTR_ISCYBERGFX)) {
+      fprintf(stderr,"screen's rastport's bitmap is cyber!\n");
+      sw=GetCyberMapAttr(amigascreen->RastPort.BitMap,CYBRMATTR_WIDTH);
+      sh=GetCyberMapAttr(amigascreen->RastPort.BitMap,CYBRMATTR_HEIGHT);
+      sd=GetCyberMapAttr(amigascreen->RastPort.BitMap,CYBRMATTR_DEPTH);
+      fprintf(stderr,"pixfmt=%d\n",GetCyberMapAttr(amigascreen->RastPort.BitMap,CYBRMATTR_PIXFMT));
+      fprintf(stderr,"bppix=%d\n",GetCyberMapAttr(amigascreen->RastPort.BitMap,CYBRMATTR_BPPIX));
+    }
+    //
+    if(sw<myWidth) myWidth=sw; 
+    if(sh<myHeight) myHeight=sh; 
+    fprintf(stderr,"actual screen is %dx%dx%d\n",sw,sh,sd); fflush(stderr);
+   }
+
+  drawWidth=myWidth; drawHeight=myHeight;
+
+  fprintf(stderr,"amigaos3 using screen %dx%dx%d\n", myWidth,myHeight,myDepth); fflush(stderr);
+
 #ifdef AMIGA_DEBUG
   fprintf(stderr,"amigaos3 Going to OpenWindowTags...\n"); fflush(stderr);
 #endif
@@ -172,38 +176,39 @@ amigascreen=OpenScreenTags(NULL,
   iflags|=IDCMP_INACTIVEWINDOW;
   iflags|=IDCMP_MOUSEBUTTONS;
   iflags|=IDCMP_MOUSEMOVE;
-  iflags|=IDCMP_DELTAMOVE;
+  //iflags|=IDCMP_DELTAMOVE;
   wflags=SIMPLE_REFRESH;
-  wflags|=WFLG_GIMMEZEROZERO|WFLG_ACTIVATE|WFLG_DRAGBAR|
-  WFLG_DEPTHGADGET|WFLG_RMBTRAP;
+  wflags|=WFLG_GIMMEZEROZERO;
+  wflags|=WFLG_ACTIVATE|WFLG_DRAGBAR|WFLG_DEPTHGADGET;
+  wflags|=WFLG_RMBTRAP;
   //wflags|=(WFLG_BORDERLESS|WFLG_BACKDROP);
   wflags|=WFLG_SIZEGADGET;
   wflags|=WFLG_CLOSEGADGET;
   //nw.Flags=iflags|wflags;
   //nw.Type=WBENCHSCREEN;
   //nw.FirstGadget=NULL;  nw.CheckMark=NULL;
-  //nw.Screen=NULL; /* Is this ok? */
+  //nw.Screen=NULL; * Is this ok? *
   //nw.BitMap=NULL;  nw.MaxWidth=8192;  nw.MaxHeight=8192;
-  //nw.MinWidth=50;  nw.MinHeight=20;     /* WARN: should check big enuff */
+  //nw.MinWidth=50;  nw.MinHeight=20;     * WARN: should check big enuff *
   amigawindow=(struct Window *)OpenWindowTags(NULL/*&nw*/,
-		                 WA_Title,"Amiga SDL Window",
-                                 WA_Flags,
-				 WFLG_SIMPLE_REFRESH|
-				 /*WFLG_BORDERLESS|
+		                 WA_Title,(long)"Amiga SDL Window",
+                                 WA_Flags,wflags,
+				 /*WFLG_SIMPLE_REFRESH|
+				 *WFLG_BORDERLESS|
 				 WFLG_BACKDROP|
-				 WFLG_GIMMEZEROZERO|*/
+				 WFLG_GIMMEZEROZERO|*
                                  WFLG_SIZEGADGET|
 				  WFLG_RMBTRAP|
 				WFLG_DRAGBAR|
                                 WFLG_DEPTHGADGET|
-				  WFLG_CLOSEGADGET,
+				  WFLG_CLOSEGADGET,*/
                                  WA_IDCMP,iflags,
                                  WA_Left,0,
                                  WA_Top,0,
                                  WA_Width,myWidth,
                                  WA_Height,myHeight,
 #if USE_CUSTOM_SCREEN
-				 WA_CustomScreen,amigascreen,
+				 WA_CustomScreen,(long)amigascreen,
 #endif
 		  WA_AutoAdjust,TRUE,
 		  TAG_DONE);
@@ -216,8 +221,53 @@ amigascreen=OpenScreenTags(NULL,
 #ifdef AMIGA_DEBUG
   fprintf(stderr,"amigaos3 Window done\n"); fflush(stderr);
 #endif
+}
 
-    /*if (screen_create_context(&context, 0) < 0) {
+/**
+ * Initializes the QNX video plugin.
+ * Creates the Screen context and event handles used for all window operations
+ * by the plugin.
+ * @param   _THIS
+ * @return  0 if successful, -1 on error
+ */
+static int videoInit(_THIS)
+{
+    SDL_VideoDisplay display;
+    //struct NewWindow nw;
+    SDL_DisplayMode m;
+
+#ifdef AMIGA_DEBUG
+  fprintf(stderr,"amigaos3 videoInit...\n"); fflush(stderr);
+#endif
+
+   if ((GfxBase=(struct GfxBase *)OpenLibrary((CONST_STRPTR)"graphics.library",39))==NULL) {
+    fprintf(stderr,"amigaos3 couldn't open graphics...\n"); fflush(stderr);
+    exit(20);
+   }
+   fprintf(stderr,"amigaos3 got graphics version %d\n",GfxBase->LibNode.lib_Version);
+
+   if ((IntuitionBase=(struct IntuitionBase *)OpenLibrary((CONST_STRPTR)"intuition.library",39))==NULL) {
+     if(GfxBase) CloseLibrary (&GfxBase->LibNode);
+     fprintf(stderr,"amigaos3 couldn't open intuition...\n"); fflush(stderr);
+     exit(20);
+   }
+   fprintf(stderr,"amigaos3 got intuition version %d\n",IntuitionBase->LibNode.lib_Version);
+
+ if ((CyberGfxBase=(struct Library *)OpenLibrary((CONST_STRPTR)CYBERGFXNAME,41))==NULL)
+  {
+    if(GfxBase) CloseLibrary (&GfxBase->LibNode);
+    if(IntuitionBase) CloseLibrary (&IntuitionBase->LibNode);
+    fprintf(stderr,"amigaos3 couldn't open cybergfx...\n"); fflush(stderr);
+    exit(20);
+  }
+   fprintf(stderr,"amigaos3 got cybergfx version %d\n",CyberGfxBase->lib_Version);
+
+  myWidth=PLATFORM_SCREEN_WIDTH;
+  myHeight=PLATFORM_SCREEN_HEIGHT;
+  myDepth=PLATFORM_SCREEN_DEPTH;
+  drawWidth=myWidth;  drawHeight=myHeight;
+
+     /*if (screen_create_context(&context, 0) < 0) {
         return -1;
     }*/
 
@@ -244,7 +294,13 @@ amigascreen=OpenScreenTags(NULL,
     m.w=myWidth;
     m.h=myHeight;
     m.refresh_rate=60;
-    m.format=SDL_PIXELFORMAT_RGB888;    
+    if(myDepth==8) {
+      fprintf(stderr,"8 bit pixels not implemented yet!");
+      exitCleanly(0);
+    }
+    if(myDepth==16) m.format=SDL_PIXELFORMAT_RGB565;
+    if(myDepth==32) m.format=SDL_PIXELFORMAT_RGB888;
+
 
     SDL_AddDisplayMode(sdlvdisp,&m);
     SDL_SetCurrentDisplayMode(sdlvdisp,&m);
@@ -297,6 +353,16 @@ static int createWindow(_THIS, SDL_Window *window)
 #ifdef AMIGA_DEBUG
     fprintf(stderr,"amigaos3 requested win is %dx%d\n",window->w,window->h); fflush(stderr);
 #endif
+
+    if(window->w>myWidth) window->w=myWidth;
+    if(window->h>myHeight) window->h=myHeight;
+
+    if(!amigawindow) openTheWindow(window->w,window->h);
+    
+    ChangeWindowBox(amigawindow,0,0,window->w,window->h);
+
+    drawWidth=window->w; drawHeight=window->h;
+    myWidth=window->w; myHeight=window->h;
 
     /*if (screen_set_window_property_iv(impl->window, SCREEN_PROPERTY_SIZE,
                                       size) < 0) {
@@ -368,9 +434,10 @@ static int createWindowFramebuffer(_THIS, SDL_Window * window, Uint32 * format,
 {
     //window_impl_t   *impl = (window_impl_t *)window->driverdata;
     /*screen_buffer_t buffer;*/
+    int theSize=0;
  
-    struct BitMap *friendbmap=amigaport->BitMap;   
-    int bformat=BMF_MINPLANES|BMF_DISPLAYABLE;
+    //struct BitMap *friendbmap=amigaport->BitMap;   
+    //int bformat=BMF_MINPLANES|BMF_DISPLAYABLE;
   
 #ifdef AMIGA_DEBUG
     fprintf(stderr,"amigaos3 createWindowFramebuffer...\n"); fflush(stderr);
@@ -393,28 +460,37 @@ static int createWindowFramebuffer(_THIS, SDL_Window * window, Uint32 * format,
         return -1;
     }*/
     
-    /* Hand build window sized pixmap */
-    /*
-     r.left=0; r.top=0;
-     r.bottom=myHeight; r.right=myWidth;*/
-    bformat|=BMF_SPECIALFMT | (PIXFMT_RGB16 << 24);
+    if(!amigawindow) openTheWindow(window->w,window->h);
+  
+    fprintf(stderr,"myWidth x myHeight x myDepth: %dx%dx%d\n",myWidth,myHeight,myDepth); fflush(stderr);
+    fprintf(stderr,"drawWidth x drawHeight: %dx%d\n",drawWidth,drawHeight); fflush(stderr);
+ 
+    // PIXF_A8R8G8B8 maybe?
+    // TODO: Don't think this bitmap is even used...
+    /*bformat|=BMF_SPECIALFMT | (PIXFMT_RGB16 << 24);
     theBM=AllocBitMap(myWidth,myHeight,myDepth,bformat,friendbmap);
     if(!theBM) {
       fprintf(stderr,"amigaos3 didn't get theBM \n"); fflush(stderr);
       exitCleanly(0);
     }
 #ifdef AMIGA_DEBUG
-  fprintf(stderr,"amigaos3 theBM at %lx\n",(long)theBM); fflush(stderr);
-#endif
-  /* This is wrong */
-     mypixels=calloc(1,myWidth*myHeight*(myDepth/8));
+  fprintf(stderr,"amigaos3 theBM at %08lx\n",(long)theBM); fflush(stderr);
+#endif*/
+
+     theSize=myWidth*myHeight*(myDepth/8);
+     mypixels=calloc(1,theSize);
 #ifdef AMIGA_DEBUG
-  fprintf(stderr,"amigaos3 mypixels at %lx\n",(long)mypixels); fflush(stderr);
+  fprintf(stderr,"amigaos3 mypixels at %08lx %d bytes\n",(long)mypixels,theSize); fflush(stderr);
 #endif
     *pixels=mypixels;
     *pitch=myWidth*(myDepth/8);
-    *format = SDL_PIXELFORMAT_RGB888;
-    
+    if(myDepth==8) {
+      fprintf(stderr,"8 bit pixels not implemented yet!");
+      exitCleanly(0);
+    }
+    if(myDepth==16) *format = SDL_PIXELFORMAT_RGB565;
+    if(myDepth==32) *format = SDL_PIXELFORMAT_RGB888;
+
     /*sdlw=window;*/
     
     return 0;
@@ -447,76 +523,26 @@ static int updateWindowFramebuffer(_THIS, SDL_Window *window, const SDL_Rect *re
 
     /*screen_post_window(impl->window, buffer, numrects, (int *)rects, 0);
     screen_flush_context(context, 0);*/
-   
-(void)WritePixelArray(mypixels,0,0,
+  
+    // TODO Should I lock anything here?	
+    (void)WritePixelArray(mypixels,0,0,
                        myWidth*(myDepth/8),
                        amigawindow->RPort,
                        0,0,
-                       myWidth,
-                       myHeight,
-                       RECTFMT_ARGB);
+                       drawWidth,
+                       drawHeight,
+                       RECTFMT_ARGB); // NOTE: That's only correct for 32 bit pixels
+    // TODO Should I unlock anything here?	
 
     return 0;
 }
 
-/**
- * Runs the main event loop.
- * @param   _THIS
- */
-static void pumpEvents(_THIS)
+static void setWindowTitle(_THIS, SDL_Window *window)
 {
-  struct IntuiMessage *IntMsg;
-  //int etype,val;
-
 #ifdef AMIGA_DEBUG
-  //fprintf(stderr,"amigaos3 pumpEvents...\n"); fflush(stderr);
+    fprintf(stderr,"amigaos3 setWindowTitle %s...\n",window->title); fflush(stderr);
 #endif
-
-    // (void)Wait(SIGMASK(amigawindow));
-
-   while (IntMsg=GETIMSG(amigawindow))
-    {
-     switch (IntMsg->Class)
-      {
-       case IDCMP_REFRESHWINDOW:
-	     fprintf(stderr,"amigaos3 refresh event\n"); fflush(stderr);
-        BeginRefresh (amigawindow);
-        //RedrawScaleWindow (amigawindow,ImageData);
-        EndRefresh (amigawindow,TRUE);
-        break;
-       case IDCMP_NEWSIZE:
-	     fprintf(stderr,"amigaos3 newsize event\n"); fflush(stderr);
-        //RedrawScaleWindow (amigawindow,ImageData);
-        break;
-       case IDCMP_CLOSEWINDOW:
-	     fprintf(stderr,"amigaos3 close event\n"); fflush(stderr);
-  exitCleanly(0);
-        break;
-       case IDCMP_MOUSEBUTTONS:
-	     fprintf(stderr,"amigaos3 button event\n"); fflush(stderr);
-	     fprintf(stderr,"amigaos3 button MouseX=%d MouseY=%d\n",IntMsg->MouseX,IntMsg->MouseY); fflush(stderr);
-		     if(IntMsg->Code&IECODE_UP_PREFIX) {
-		       SDL_SendMouseButton(sdlw,1,0,SDL_BUTTON_LEFT);
-	     fprintf(stderr,"amigaos3 button up %d,%d\n",IntMsg->MouseX,IntMsg->MouseY); fflush(stderr);
-		     }
-		     else {
-		       SDL_SendMouseButton(sdlw,1,1,SDL_BUTTON_LEFT);
-	     fprintf(stderr,"amigaos3 button down %d,%d\n",IntMsg->MouseX,IntMsg->MouseY); fflush(stderr);
-		     }
-	     break;
-       case IDCMP_VANILLAKEY:
-       case IDCMP_RAWKEY:
-	     fprintf(stderr,"amigaos3 key event\n"); fflush(stderr);
-	     handleKeyboardEvent(IntMsg);
-	     break;
-       default:
-	     fprintf(stderr,"amigaos3 %d event\n",IntMsg->Class); fflush(stderr);
-	break;
-      }
-
-     ReplyMsg (&IntMsg->ExecMessage);
-    }
-
+    SetWindowTitles(amigawindow,window->title,window->title);
 }
 
 /**
@@ -536,6 +562,14 @@ static void setWindowSize(_THIS, SDL_Window *window)
     fprintf(stderr,"amigaos3 setWindowSize to %dx%d...\n",window->w,window->h); fflush(stderr);
 #endif
 
+    if(window->w>myWidth) window->w=myWidth;
+    if(window->h>myHeight) window->h=myHeight;
+
+    ChangeWindowBox(amigawindow,0,0,window->w,window->h);
+
+    drawWidth=window->w; drawHeight=window->h;
+    myWidth=window->w; myHeight=window->h;
+ 
     /*screen_set_window_property_iv(impl->window, SCREEN_PROPERTY_SIZE, size);
     screen_set_window_property_iv(impl->window, SCREEN_PROPERTY_SOURCE_SIZE,
                                   size);*/
@@ -621,10 +655,10 @@ static SDL_VideoDevice *createDevice(int devindex)
 {
     //SDL_VideoDevice *device;
 
-#ifndef SDL_MAIN_NEEDED
+//#ifndef SDL_MAIN_NEEDED
     freopen (STDOUT_FILE, "w", stdout);
     freopen (STDERR_FILE, "w", stderr);
-#endif
+//#endif
 
 #ifdef AMIGA_DEBUG
     fprintf(stderr,"amigaos3 createDevice...\n"); fflush(stderr);
@@ -648,6 +682,7 @@ static SDL_VideoDevice *createDevice(int devindex)
     tdevice->CreateSDLWindow = createWindow;
     /**/
     tdevice->SetWindowSize = setWindowSize;
+    tdevice->SetWindowTitle = setWindowTitle;
     /**/
     tdevice->ShowWindow = showWindow;
     tdevice->HideWindow = hideWindow;
@@ -656,7 +691,7 @@ static SDL_VideoDevice *createDevice(int devindex)
     tdevice->CreateWindowFramebuffer = createWindowFramebuffer;
     tdevice->UpdateWindowFramebuffer = updateWindowFramebuffer;
 
-    tdevice->PumpEvents = pumpEvents;
+    tdevice->PumpEvents = SDL_Amiga_pumpEvents;
 
     tdevice->GL_LoadLibrary = glLoadLibrary;
     tdevice->GL_GetProcAddress = glGetProcAddress;
@@ -680,6 +715,7 @@ void cleanupAmiga()
 #ifdef AMIGA_DEBUG
     fprintf(stderr,"amigaos3 cleanupAmiga...\n"); fflush(stderr);
 #endif
+  // TODO: Cleanup threads if possible here?
   if(timpl) { free(timpl); timpl=NULL; }
   if(tdevice) { free(tdevice); tdevice=NULL; }
   if(amigawindow) { CloseWindow(amigawindow); amigawindow=NULL; }
@@ -688,6 +724,7 @@ void cleanupAmiga()
   if(mypixels) { free(mypixels); mypixels=NULL; }
   if(CyberGfxBase) { CloseLibrary(CyberGfxBase); CyberGfxBase=NULL; }
   if(IntuitionBase) { CloseLibrary(&IntuitionBase->LibNode); IntuitionBase=NULL; }
+  if(GfxBase) { CloseLibrary(&GfxBase->LibNode); GfxBase=NULL; }
 }
 
 void exitCleanly(int result)

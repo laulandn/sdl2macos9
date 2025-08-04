@@ -95,7 +95,7 @@ void SDL_DestroyMutex(SDL_mutex *mutex)
 int SDL_LockMutex(SDL_mutex *mutex) SDL_NO_THREAD_SAFETY_ANALYSIS /* clang doesn't know about NULL mutexes */
 {
 #ifdef SDL_THREADS_DISABLED
-#error foo
+//#error foo
     return 0;
 #else
     SDL_threadID this_thread;
@@ -131,7 +131,7 @@ int SDL_LockMutex(SDL_mutex *mutex) SDL_NO_THREAD_SAFETY_ANALYSIS /* clang doesn
 int SDL_TryLockMutex(SDL_mutex *mutex)
 {
 #ifdef SDL_THREADS_DISABLED
-#error foo
+//#error foo
     return 0;
 #else
     int retval = 0;

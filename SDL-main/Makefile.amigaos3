@@ -56,7 +56,7 @@ SOURCES = \
 	./src/thread/*.c \
 	./src/thread/amigaos3/*.c \
 	./src/timer/*.c \
-	./src/timer/dummy/*.c \
+	./src/timer/amigaos3/*.c \
 	./src/video/*.c \
 	./src/video/amigaos3/*.c \
 	./src/video/offscreen/*.c \

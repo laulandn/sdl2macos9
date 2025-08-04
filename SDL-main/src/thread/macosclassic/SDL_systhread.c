@@ -22,7 +22,7 @@
 
 #ifdef SDL_THREAD_MACOSCLASSIC
 
-//#define MYDEBUG 1
+#define MYDEBUG 1
 
 /* Thread management routines for SDL */
 
@@ -45,6 +45,9 @@ static void *RunThread(void *data)
     else {
       fprintf(stderr,"macosclassic RunThread data is null!"); fflush(stderr);
     }
+#ifdef MYDEBUG
+    fprintf(stderr,"macosclassic RunThread done\n"); fflush(stderr);
+#endif
     return NULL;
 }
 
@@ -58,8 +61,9 @@ int SDL_SYS_CreateThread(SDL_Thread *thread)
 {
     //fprintf(stderr,"macosclassic create thread %08lx\n",(long)thread); fflush(stderr);
     //fprintf(stderr,"macosclassic create thread name=%s\n",thread->name); fflush(stderr);
-    // style entry param stack opt res id
-    if (NewThread(kCooperativeThread, /*thread->userfunc*/RunThread, thread, 0, 0, NULL, &thread->handle) != noErr) {
+    // style entry param stack opts &result &id
+    // NOTE: We don't handle return code
+    if (NewThread(kCooperativeThread, /*thread->userfunc*/RunThread, thread, 65535, 0, NULL, &thread->handle) != noErr) {
       fprintf(stderr,"macosclassic create thread failed!\n"); fflush(stderr);
       return -1;
     }

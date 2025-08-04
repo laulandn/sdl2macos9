@@ -49,3 +49,28 @@ int closedir(DIR *dirp)
   return 0;
 }
 
+
+char *realpath(char *n,char *rn)
+{
+  fprintf(stderr,"realpath()...\n");  fflush(stderr);
+  if(!n) { fprintf(stderr,"n was NULL!\n"); fflush(stderr); }
+  if(!rn) { fprintf(stderr,"n was NULL!\n"); fflush(stderr); }
+  return n;
+}
+
+
+FILE *popen(const char *n,const char *m)
+{
+  fprintf(stderr,"popen()...\n");  fflush(stderr);
+  if(!n) { fprintf(stderr,"n was NULL!\n"); fflush(stderr); }
+  if(!m) { fprintf(stderr,"m was NULL!\n"); fflush(stderr); }
+  return NULL;
+}
+
+
+int pclose(FILE *f)
+{
+  fprintf(stderr,"pclose()...\n");  fflush(stderr);
+  if(!f) { fprintf(stderr,"f was NULL!\n"); fflush(stderr); }
+  return 0;
+}

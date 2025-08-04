@@ -29,6 +29,9 @@
 #ifdef SDL_VIDEO_DRIVER_MACOSCLASSIC
 
 
+extern void SDL_Mac_pumpEvents(_THIS);
+
+
 #ifndef SDL_MAIN_NEEDED
 #define STDOUT_FILE	"stdout.txt"
 #define STDERR_FILE	"stderr.txt"
@@ -40,8 +43,10 @@
 WindowPtr macwindow=NULL;
 CGrafPtr macport=NULL;
 PixMapPtr thePM=NULL;
+GWorldPtr theWorld=NULL;
 /**/
 char *mypixels=NULL;
+int drawWidth,drawHeight;
 int myWidth,myHeight,myDepth;
 /**/
 SDL_VideoDevice *sdlvdev=NULL;
@@ -51,9 +56,46 @@ SDL_Window *sdlw=NULL;
 window_impl_t   *timpl=NULL;
 SDL_VideoDevice *tdevice=NULL;
 
+#if !TARGET_API_MAC_CARBON
+/* Since we don't initialize QuickDraw, we need to get a pointer to qd */
+struct QDGlobals *theQD = NULL;
+#endif
 
 /*static screen_context_t context;
 static screen_event_t   event;*/
+
+static void openTheWindow(int w,int h)
+{
+    struct Rect WindowBox;
+
+#ifdef AMIGA_DEBUG
+  fprintf(stderr,"macosclassic openTheWindow %dx%d\n",w,h);
+#endif
+
+  myWidth=w; myHeight=h;
+
+#ifdef MAC_DEBUG
+  fprintf(stderr,"macosclassic Going to NewCWindow...\n"); fflush(stderr);
+#endif
+  WindowBox.top=WINDOW_OFFSET_Y;  WindowBox.left=WINDOW_OFFSET_X;
+  WindowBox.bottom=myHeight+WINDOW_OFFSET_Y;  WindowBox.right=myWidth+WINDOW_OFFSET_X;
+  macwindow=NewCWindow(NULL,&WindowBox,(ConstStr255Param)"\pMac SDL2 Window",true,noGrowDocProc+8,(WindowPtr)(-1L),true,0L);
+  if(!macwindow) {
+    fprintf(stderr,"macosclassic couldn't NewCWindow!\n");
+    exitCleanly(0);
+  }
+#ifdef __MWERKS__
+  macport=(CGrafPtr)macwindow;
+#else
+  macport=GetWindowPort(macwindow);
+#endif
+  SetPort((GrafPtr)macport);
+  thePM=NULL;
+  ShowWindow((WindowPtr)macwindow);
+#ifdef MAC_DEBUG
+  fprintf(stderr,"macosclassic Window done\n"); fflush(stderr);
+#endif
+}
 
 /**
  * Initializes the QNX video plugin.
@@ -65,10 +107,9 @@ static screen_event_t   event;*/
 static int videoInit(_THIS)
 {
     SDL_VideoDisplay display;
-    struct Rect WindowBox;
     SDL_DisplayMode m;
-
-/*printf("This should show up on the SIOUX console...\n");*/
+    GDHandle gDev;
+    PixMapHandle gdpm;
 
 #ifndef SDL_MAIN_NEEDED
 #if !TARGET_API_MAC_CARBON
@@ -96,25 +137,32 @@ static int videoInit(_THIS)
   myWidth=PLATFORM_SCREEN_WIDTH;
   myHeight=PLATFORM_SCREEN_HEIGHT;
   myDepth=PLATFORM_SCREEN_DEPTH;
-  /* Creating window here so I have screen dims...this belongs in in createWindow obs */
-#ifdef MAC_DEBUG
-  fprintf(stderr,"macosclassic Going to NewCWindow...\n"); fflush(stderr);
-#endif
-  WindowBox.top=40;  WindowBox.left=4;
-  WindowBox.bottom=myHeight+40;  WindowBox.right=myWidth+4;
-  macwindow=NewCWindow(NULL,&WindowBox,(ConstStr255Param)"\pMac SDL2 Window",true,noGrowDocProc+8,(WindowPtr)(-1L),true,0L);
-#ifdef __MWERKS__
-  macport=(CGrafPtr)macwindow;
+
+#if TARGET_API_MAC_CARBON
 #else
-  macport=GetWindowPort(macwindow);
+  myWidth=theQD->screenBits.bounds.right;
+  myHeight=theQD->screenBits.bounds.bottom;
 #endif
-  SetPort((GrafPtr)macport);
-  thePM=NULL;
-  /*macoffworld=macwindow;*/
-  ShowWindow((WindowPtr)macwindow);
-#ifdef MAC_DEBUG
-  fprintf(stderr,"macosclassic Window done\n"); fflush(stderr);
-#endif
+
+  gDev=GetGDevice();
+  if(!gDev) {
+    fprintf(stderr,"Couldn't get gDev!\n"); fflush(stderr);
+    exitCleanly(0);
+  }
+  gdpm=(**gDev).gdPMap;
+  if(!gdpm) {
+    fprintf(stderr,"Couldn't get gdpm!\n"); fflush(stderr);
+    exitCleanly(0);
+  }
+
+  if((**gDev).gdType) { fprintf(stderr,"macosclassic fixed or direct screen\n"); fflush(stderr); }
+  else { fprintf(stderr,"macosclassic indexed screen\n"); fflush(stderr); }
+
+  fprintf(stderr,"macosclassic pixelSize %d\n",(**gdpm).pixelSize); fflush(stderr);
+
+  drawWidth=myWidth;  drawHeight=myHeight;
+
+  fprintf(stderr,"macosclassic using screen %dx%dx%d\n",myWidth,myHeight,myDepth); fflush(stderr);
 
     /*if (screen_create_context(&context, 0) < 0) {
         return -1;
@@ -138,12 +186,15 @@ static int videoInit(_THIS)
     fprintf(stderr,"macosclassic sdlvdisp is %0lx8\n",(long)sdlvdisp); fflush(stderr);
 #endif
 
-/*offPixMapHandle=NULL;*/
-
     m.w=myWidth;
     m.h=myHeight;
     m.refresh_rate=60;
-    m.format=SDL_PIXELFORMAT_RGB888;    
+    if(myDepth==8) {   
+      fprintf(stderr,"8 bit pixels not implemented yet!");
+      exitCleanly(0);  
+    }                  
+    if(myDepth==16) m.format=SDL_PIXELFORMAT_RGB565;    
+    if(myDepth==32) m.format=SDL_PIXELFORMAT_RGB888;    
 
     SDL_AddDisplayMode(sdlvdisp,&m);
     SDL_SetCurrentDisplayMode(sdlvdisp,&m);
@@ -197,6 +248,22 @@ static int createWindow(_THIS, SDL_Window *window)
 #ifdef MAC_DEBUG
     fprintf(stderr,"macosclassic requested win is %dx%d\n",window->w,window->h); fflush(stderr);
 #endif
+   
+    if(window->w>myWidth) window->w=myWidth;
+    if(window->h>myHeight) window->h=myHeight; 
+    
+    //fprintf(stderr,"%d %d\n",myWidth+WINDOW_OFFSET_X,myHeight+WINDOW_OFFSET_Y); fflush(stderr);
+    /*if((window->w>(myWidth+WINDOW_OFFSET_X))||(window->h>(myHeight+WINDOW_OFFSET_Y))) {
+      fprintf(stderr,"macosclassic window too big for screen!  Sorry!\n"); fflush(stderr);
+      return -1;
+    }*/
+
+    if(!macwindow) openTheWindow(window->w,window->h);
+
+    SizeWindow(macwindow,window->w,window->h,TRUE);
+
+    drawWidth=window->w; drawHeight=window->h;
+    myWidth=window->w; myHeight=window->h;
 
     /*if (screen_set_window_property_iv(impl->window, SCREEN_PROPERTY_SIZE,
                                       size) < 0) {
@@ -271,9 +338,10 @@ static int createWindowFramebuffer(_THIS, SDL_Window * window, Uint32 * format,
     //window_impl_t   *impl = (window_impl_t *)window->driverdata;
     /*screen_buffer_t buffer;*/
     
-    Rect r; 
+    //Rect r; 
     //QDErr err;
     //int good;
+    int theSize=0;
   
 #ifdef MAC_DEBUG
     fprintf(stderr,"macosclassic createWindowFramebuffer...\n"); fflush(stderr);
@@ -296,12 +364,28 @@ static int createWindowFramebuffer(_THIS, SDL_Window * window, Uint32 * format,
         return -1;
     }*/
     
-    /* Hand build window sized pixmap */
-     r.left=0; r.top=0;
-     r.bottom=myHeight; r.right=myWidth;
-     mypixels=calloc(1,myWidth*myHeight*(myDepth/8));
+    if(!macwindow) openTheWindow(window->w,window->h);
+
+    fprintf(stderr,"window %d %d\n",window->w,window->h); fflush(stderr);   
+    fprintf(stderr,"myWidth myHeight %d %d\n",myWidth,myHeight); fflush(stderr);   
+ 
+    /*r.left=0; r.top=0;
+    r.bottom=myHeight; r.right=myWidth;
+
+    NewGWorld(&theWorld,myDepth,&r,NULL,NULL,pixelsLocked|keepLocal);
+    fprintf(stderr,"QDError is %d\n",QDError());
+    fprintf(stderr,"macosclassic theWorld at %08lx\n",(long)theWorld); fflush(stderr);
+    thePM=*(GetGWorldPixMap(theWorld));
+    //LockPixels(&thePM);
+    NoPurgePixels(&thePM);*/
+
+    fprintf(stderr,"myWidth x myHeight x myDepth: %dx%dx%d\n",myWidth,myHeight,myDepth); fflush(stderr);
+    fprintf(stderr,"drawWidth x drawHeight: %dx%d\n",drawWidth,drawHeight); fflush(stderr);
+
+    theSize=myWidth*myHeight*(myDepth/8);
+    mypixels=calloc(1,theSize);
 #ifdef MAC_DEBUG
-  fprintf(stderr,"macosclassic mypixels at %lx\n",(long)mypixels); fflush(stderr);
+    fprintf(stderr,"macosclassic mypixels at %08lx %d bytes\n",(long)mypixels,theSize); fflush(stderr);
 #endif
     thePM=(PixMapPtr)calloc(1,sizeof(PixMap));
     thePM->bounds.top=0;  thePM->bounds.bottom=myHeight;
@@ -316,43 +400,32 @@ static int createWindowFramebuffer(_THIS, SDL_Window * window, Uint32 * format,
     thePM->packType=0;  thePM->packSize=0;    
 #if TARGET_API_MAC_CARBON
     thePM->pixelFormat='ABGR';
-    thePM->pmTable=NULL;  /* TODO what goes here? */
+    // TODO what goes here? /
+    thePM->pmTable=NULL; 
     thePM->pmExt=NULL;
 #else
-    thePM->planeBytes=0; /* Offset in bytes to next plane */
+    // Offset in bytes to next plane /
+    thePM->planeBytes=0; 
     thePM->pmTable=(*macport->portPixMap)->pmTable;
     thePM->pmReserved=0;
 #endif
+
 #ifdef MAC_DEBUG
-    fprintf(stderr,"macosclassic thePM at %lx\n",(long)thePM); fflush(stderr);
+    fprintf(stderr,"macosclassic thePM at %08lx\n",(long)thePM); fflush(stderr);
 #endif
-         /*GetGWorld(&origPort, &origDevice);
-  fprintf(stderr,"macosclassic origPort at %lx\n",(long)origPort); fflush(stderr);
-  fprintf(stderr,"macosclassic origDevice at %lx\n",(long)origDevice); fflush(stderr);
-  err=NewGWorld(&macoffworld,8,&r,NULL,NULL,keepLocal);
-  if(err!=noErr) {
-    fprintf(stderr,"QDErr was %d!\n",err); fflush(stderr);
-     exit(0);
-    }
-  fprintf(stderr,"macosclassic new gworld at %lx\n",(long)macoffworld); fflush(stderr);
-  SetGWorld(macoffworld,NULL);
-  offPixMapHandle=GetGWorldPixMap(macoffworld);
-  fprintf(stderr,"macosclassic offPixMapHandle at %lx\n",(long)offPixMapHandle); fflush(stderr);
-  good=LockPixels(offPixMapHandle);
-  if(good) { fprintf(stderr,"DId LockPixels...\n"); fflush(stderr); }
-  else {
-  printf(stderr,"LockPixels failed!\n");  fflush(stderr); exit(0);
-  }
-  */
-  /*mypixels=(*offPixMapHandle)->baseAddr;*/
-  /*SetGWorld(origPort,origDevice);*/
-  /*UnlockPixels(macoffworld);*/
+
+    //*pixels=GetPixBaseAddr(&thePM);
     *pixels=mypixels;
     *pitch=myWidth*(myDepth/8);
-    *format = SDL_PIXELFORMAT_RGB888;
+    if(myDepth==8) {   
+      fprintf(stderr,"8 bit pixels not implemented yet!");
+      exitCleanly(0);  
+    }                  
+    if(myDepth==16) *format = SDL_PIXELFORMAT_RGB565;
+    if(myDepth==32) *format = SDL_PIXELFORMAT_RGB888;
     
     /*sdlw=window;*/
-    
+    fprintf(stderr,"done with thePM\n"); fflush(stderr); 
     return 0;
 }
 
@@ -399,18 +472,21 @@ static int updateWindowFramebuffer(_THIS, SDL_Window *window, const SDL_Rect *re
   /*SetGWorld(macoffworld,NULL);*/
   SetPort((GrafPtr)macport);
   msr.top=0; msr.left=0; 
-  msr.bottom=myHeight;  msr.right=myWidth;
+  msr.bottom=drawHeight;  msr.right=drawWidth;
   mdr.top=0; mdr.left=0; 
-  mdr.bottom=myHeight;  mdr.right=myWidth;
+  mdr.bottom=drawHeight;  mdr.right=drawWidth;
   srcBits=(BitMap *)thePM;
 #if TARGET_API_MAC_CARBON
-  dstBits=GetPortBitMapForCopyBits(macwindow);
+  dstBits=GetPortBitMapForCopyBits((CGrafPtr)macwindow);
 #else
   dstBits=(BitMap *)&((GrafPtr)macwindow)->portBits;
 #endif
+  // TODO Should I lock anything here?	
   CopyBits(srcBits,dstBits,&msr,&mdr,srcCopy,NULL);
+  // TODO Should I unlock anything here?	
   //fprintf(stderr,"QDError is %d\n",QDError());
 #else
+  // TODO...
   src=mypixels;
   dest=
   bytesToCopy=myWidth*myHeight*(myDepth/8);
@@ -421,67 +497,18 @@ static int updateWindowFramebuffer(_THIS, SDL_Window *window, const SDL_Rect *re
     return 0;
 }
 
-/**
- * Runs the main event loop.
- * @param   _THIS
- */
-static void pumpEvents(_THIS)
+
+static void setWindowTitle(_THIS, SDL_Window *window)
 {
-  EventRecord event;
-  int etype,val;
-
 #ifdef MAC_DEBUG
-  /*fprintf(stderr,"macosclassic pumpEvents...\n"); fflush(stderr);*/
+    fprintf(stderr,"macosclassic setWindowTitle %s...\n",window->title); fflush(stderr);
 #endif
-
-  val=EventAvail(everyEvent,&event);
-  if(val) {
-	GetNextEvent(everyEvent,&event);
-    etype=event.what;
-    /*fprintf(stderr,"macosclassic what=%d\n",event.what); fflush(stderr);*/
-    switch(etype) {
-      case nullEvent: break;
-      case kHighLevelEvent:
-        /* Handle this eventually... */
-        break;
-      case activateEvt:
-        /* Just skip for now */
-        break;
-      case updateEvt:
-        SetPort((GrafPtr)GetWindowPort((WindowPtr)event.message));
-        BeginUpdate((WindowPtr)event.message);
-        EndUpdate((WindowPtr)event.message);
-        DrawGrowIcon((WindowPtr)event.message);
-        break;
-      case mouseDown:
-        fprintf(stderr,"macosclassic mouseDown!\n"); fflush(stderr);
-        SDL_SendMouseButton(sdlw,1,1,SDL_BUTTON_LEFT);
-        break;
-      case mouseUp:
-        fprintf(stderr,"macosclassic mouseUp!\n"); fflush(stderr);
-        SDL_SendMouseButton(sdlw,1,0,SDL_BUTTON_LEFT);
-        break;
-      case autoKey:
-        /*fprintf(stderr,"macosclassic autoKey!\n"); fflush(stderr);*/
-        handleKeyboardEvent(&event,etype);
-        break;
-	  case keyDown:
-        /*fprintf(stderr,"macosclassic keyDown!\n"); fflush(stderr);*/
-        handleKeyboardEvent(&event,etype);
-        break;
-	  case keyUp:
-        /*fprintf(stderr,"macosclassic keyUp!\n"); fflush(stderr);*/
-        handleKeyboardEvent(&event,etype);
-	    break;
-	  default:
-#ifdef MAC_DEBUG
-	    fprintf(stderr,"macosclassic mac event.what=%d skipped!\n",etype); fflush(stderr);
-#endif
-	    break;
-	}
-  }
-
-
+        /* Don't convert C to P string in place, because it may be read-only */
+        Str255          ptitle; /* MJS */
+        ptitle[0] = strlen (window->title);
+        SDL_memcpy(ptitle+1, window->title, ptitle[0]); /* MJS */
+        if (macwindow)
+                SetWTitle(macwindow, ptitle); /* MJS */
 }
 
 /**
@@ -492,14 +519,26 @@ static void pumpEvents(_THIS)
 static void setWindowSize(_THIS, SDL_Window *window)
 {
     //window_impl_t   *impl = (window_impl_t *)window->driverdata;
-    int             size[2];
+    //int             size[2];
 
-    size[0] = window->w;
-    size[1] = window->h;
+    //size[0] = window->w;
+    //size[1] = window->h;
 
 #ifdef MAC_DEBUG
     fprintf(stderr,"macosclassic setWindowSize to %dx%d...\n",window->w,window->h); fflush(stderr);
 #endif
+
+    if(window->w>myWidth) window->w=myWidth;
+    if(window->h>myHeight) window->h=myHeight; 
+    /*if((window->w>(myWidth+WINDOW_OFFSET_X))||(window->h>myHeight+WINDOW_OFFSET_Y)) {
+      fprintf(stderr,"macosclassic window too big for screen!  Sorry!\n"); fflush(stderr);
+      return;
+    }*/
+
+    SizeWindow(macwindow,window->w,window->h,TRUE);
+
+    drawWidth=window->w; drawHeight=window->h;
+    myWidth=window->w; myHeight=window->h;
 
     /*screen_set_window_property_iv(impl->window, SCREEN_PROPERTY_SIZE, size);
     screen_set_window_property_iv(impl->window, SCREEN_PROPERTY_SOURCE_SIZE,
@@ -572,7 +611,7 @@ static void destroyWindow(_THIS, SDL_Window *window)
  */
 static void deleteDevice(SDL_VideoDevice *device)
 {
-    fprintf(stderr,"macosclassic deleteDevice device is %lx...\n",(long)device); fflush(stderr);
+    fprintf(stderr,"macosclassic deleteDevice device is %08lx...\n",(long)device); fflush(stderr);
     if(device) SDL_free(device);
     /* TODO cleanup here */
     fprintf(stderr,"macosclassic more cleanup would go here...\n"); fflush(stderr);
@@ -614,6 +653,7 @@ static SDL_VideoDevice *createDevice(int devindex)
     tdevice->CreateSDLWindow = createWindow;
     /**/
     tdevice->SetWindowSize = setWindowSize;
+    tdevice->SetWindowTitle = setWindowTitle;
     /**/
     tdevice->ShowWindow = showWindow;
     tdevice->HideWindow = hideWindow;
@@ -622,7 +662,7 @@ static SDL_VideoDevice *createDevice(int devindex)
     tdevice->CreateWindowFramebuffer = createWindowFramebuffer;
     tdevice->UpdateWindowFramebuffer = updateWindowFramebuffer;
 
-    tdevice->PumpEvents = pumpEvents;
+    tdevice->PumpEvents = SDL_Mac_pumpEvents;
 
     tdevice->GL_LoadLibrary = glLoadLibrary;
     tdevice->GL_GetProcAddress = glGetProcAddress;
@@ -639,11 +679,6 @@ static SDL_VideoDevice *createDevice(int devindex)
     tdevice->free = deleteDevice;
     return tdevice;
 }
-
-#if !TARGET_API_MAC_CARBON
-/* Since we don't initialize QuickDraw, we need to get a pointer to qd */
-struct QDGlobals *theQD = NULL;
-#endif
 
 /* Exported to the macmain code */
 void SDL_InitQuickDraw(struct QDGlobals *the_qd)

@@ -34,6 +34,7 @@
 #include <exec/execbase.h>
 #include <proto/exec.h>
 #include <proto/dos.h>
+#include <clib/alib_protos.h>
 
 #define RESTART_CAPTURE_THRESHOLD 	 500
 
@@ -233,7 +234,7 @@ static int AHI_OpenDevice(_THIS, const char *devname)
 	this->hidden = hidden;
 
 	fprintf(stderr,"Going to OpenDevice %s...\n",AHINAME);	
-	if (OpenDevice(AHINAME, 0, (struct IORequest *)&hidden->req[0].ahir_Std, 0) != 0) {
+	if (OpenDevice((CONST_STRPTR)AHINAME, 0, (struct IORequest *)&hidden->req[0].ahir_Std, 0) != 0) {
 		SDL_SetError("Unable to open ahi.device unit 0! Error code %d.\n", hidden->req[0].ahir_Std.io_Error);
 		return -1;
 	}

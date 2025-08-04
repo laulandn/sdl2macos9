@@ -22,7 +22,7 @@
 #include "../../SDL_internal.h"
 #include "../SDL_thread_c.h"
 
-//#define MYDEBUG 1
+#define MYDEBUG 1
 
 void SDL_SYS_InitTLSData(void)
 {
