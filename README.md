@@ -13,8 +13,8 @@ Works well enough to port 2d games (several attempts at various stages are inclu
 I'm pausing active development, and consider it about 2/3 done. If anyone is interested in finishing, or using this to port a game, leave a note or contact me, and we'll talk.
 
 What remains to be done:
-OpenGL: Hooks in video driver are present and called, but no driver exists for either MacOS or Amiga.
-Audio: Non-functional skeleton driver for MacOS (disabled SDL 1.2 driver source is in tree ready to be ported). Seems fully functional on Amiga.
-Joystick: Non-functional skeleton driver for MacOS (disabled SDL 1.2 driver source is in tree ready to be ported). No support on Amiga.
-Threads: Some "wait" functions are not implemented correctly on MacOS, works as well as cooperative can be expected. There seem to be a few bugs on Amiga.
-Misc: Timers not fully tested. Loadso never tested. Some file funcs could be better.
+*OpenGL: Hooks in video driver are present and called, but no driver exists for either MacOS or Amiga.
+*Audio: Non-functional skeleton driver for MacOS (disabled SDL 1.2 driver source is in tree ready to be ported). Seems fully functional on Amiga.
+*Joystick: Non-functional skeleton driver for MacOS (disabled SDL 1.2 driver source is in tree ready to be ported). No support on Amiga.
+*Threads: Some "wait" functions are not implemented correctly on MacOS, works as well as cooperative can be expected. There seem to be a few bugs on Amiga.
+*Misc: Timers not fully tested. Loadso never tested. Some file funcs could be better.
