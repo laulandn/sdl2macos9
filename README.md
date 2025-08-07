@@ -1,18 +1,20 @@
-This is a "rough draft" of SDL2 for MacOS 9 (also working on System 7.6 68k), using CodeWarrior Pro 6 and 7. Enough was done to get it building in CW, and the start of a "macosclassic" video driver was created. It DOES seem to basically work, but much still needs to be done. Event handling is just started, there is no audio etc. etc. etc.
+This is SDL2, an extremely popular library used for building multimedia apps and games.
 
-NOTE: This is obvious in flux, and active development. So if something is broken, try again tomorrow...next week...maybe? I'm including a known working (but old) "_prev" version that will NOT be updated, for archival reasons.
+For classic MacOS 7/8/9 m68k and ppc, using Retro68. CodeWarrior support is broken but could be fixed "relatively" easily. Also includes AmigaOS 3 for m68k support, and should work on related systems.
 
-----
+https://github.com/laulandn/sdl2macos9
+(Obviously Mac Finder file creators and types and resource forks are lost there.)
 
-Dev notes: Getting just SDL2 itself building, did take a lot of effort, but it was mostly "mechanical", dealing with the foibles of CodeWarrior, creating project files from scratch, things it couldn't handle, "simple" things like headers missing that are standard on more modern systems, etc. The first step was doing that with all "dummy" drivers. Was a bit shocked I got even that far. The results did absolutely NOTHING in the test programs. With a dummy video driver, they don't even try to set up textures, etc.
+I discussed what I worked on and kept a running commentary over at System7Today for a while:
+SDL2 for PPC MacOS 9 efforts...
 
-The key missing part was a Classic Mac OS "video" driver, which also includes event handling. I determined it was not possible to "port" the SDL1 driver due to too many changes in paradigms of SDL itself. Once I'd sketched a new one out, and got it hooked into the proper places, the debug output showed the test programs actually working. I then started adding basic Mac OS implementations. This effort is in src/video/macosclassic. (I used the QNX driver as a skeleton as it was the smallest and easier to understand.)
+Works well enough to port 2d games (several attempts at various stages are included as separate downloads), and speed is comparable to SDL 1.2.
 
-Mini-FAQ:
-"What is SDL?": Like DirectX, a library for multimedia games/apps, but runs on many many platforms.
-"Why is this interesting?": Games, potentially...
-"Why not SDL3?": Because you have to learn to walk before you can fly.
-"Why not Retro68?": Because CodeWarrior is a heck of a lot more user friendly for casual hacking.
-"Why MacOS 7/8/9 in 2025?": Because it looked like it was possible, and nobody else bothered.
-"Why CW6/7?": Because I was already hacking on SDL 1.2 with those and they were handy.
-"Where are the games?!?": There's a terrible one included that (mostly) works, but this is very early days...maybe try a port yourself and see what works?
+I'm pausing active development, and consider it about 2/3 done. If anyone is interested in finishing, or using this to port a game, leave a note or contact me, and we'll talk.
+
+What remains to be done:
+OpenGL: Hooks in video driver are present and called, but no driver exists for either MacOS or Amiga.
+Audio: Non-functional skeleton driver for MacOS (disabled SDL 1.2 driver source is in tree ready to be ported). Seems fully functional on Amiga.
+Joystick: Non-functional skeleton driver for MacOS (disabled SDL 1.2 driver source is in tree ready to be ported). No support on Amiga.
+Threads: Some "wait" functions are not implemented correctly on MacOS, works as well as cooperative can be expected. There seem to be a few bugs on Amiga.
+Misc: Timers not fully tested. Loadso never tested. Some file funcs could be better.
