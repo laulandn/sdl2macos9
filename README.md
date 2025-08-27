@@ -17,4 +17,5 @@ What remains to be done:
 * Audio: Non-functional skeleton driver for MacOS (disabled SDL 1.2 driver source is in tree ready to be ported). Seems fully functional on Amiga.
 * Joystick: Non-functional skeleton driver for MacOS (disabled SDL 1.2 driver source is in tree ready to be ported). No support on Amiga.
 * Threads: Some "wait" functions are not implemented correctly on MacOS, works as well as cooperative can be expected. There seem to be a few bugs on Amiga.
+* Keymap decoding: On both Mac and Amiga I never finished this properly, and just hard coded the barest minimum to get games working.
 * Misc: Timers not fully tested. Loadso never tested. Some file funcs could be better.
