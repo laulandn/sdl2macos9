@@ -4,25 +4,34 @@
 
 #ifdef SDL_VIDEO_DRIVER_MACOSCLASSIC
 #ifdef SDL_VIDEO_OPENGL
-#ifdef SDL_VIDEO_OPENGL_AGL
+#ifndef SDL_MACOSCLASSIC_AGL
 
+#ifdef SDL_MACOSCLASSIC_AGL
 #include "SDL_agl.h"
 #include <CodeFragments.h>
+#else
+#include "SDL_opengl.h"
+#endif
 
 typedef struct MacGLContext
 {
+#ifdef SDL_MACOSCLASSIC_AGL
     AGLContext agl;
+#endif
     SDL_Window *window;
     int drawable_attached;
     int double_buffered;
     struct MacGLContext *next;
 } MacGLContext;
 
+#ifdef SDL_MACOSCLASSIC_AGL
 static CFragConnectionID gl_library;
+static int Mac_AGLError(const char *operation);
+#endif
+
 static SDL_bool gl_library_open;
 static MacGLContext *mac_current_context;
 static MacGLContext *mac_contexts;
-static int Mac_AGLError(const char *operation);
 
 int Mac_GL_SetDrawableActive(int active)
 {
@@ -34,6 +43,7 @@ int Mac_GL_SetDrawableActive(int active)
         if (context->drawable_attached == active)
             continue;
 
+#ifdef SDL_MACOSCLASSIC_AGL
         if (active) {
             if (!macport || !aglSetDrawable(context->agl, macport)) {
                 Mac_AGLError("aglSetDrawable(window)");
@@ -45,6 +55,7 @@ int Mac_GL_SetDrawableActive(int active)
             result = -1;
             continue;
         }
+#endif
 
         context->drawable_attached = active;
     }
@@ -57,6 +68,7 @@ void Mac_GL_Update(void)
 
     if (!mac_window_active)
         return;
+#ifdef SDL_MACOSCLASSIC_AGL
     for (context = mac_contexts; context; context = context->next) {
         if (context->drawable_attached && !aglUpdateContext(context->agl)) {
             SDL_LogWarn(SDL_LOG_CATEGORY_VIDEO,
@@ -64,8 +76,10 @@ void Mac_GL_Update(void)
                         (unsigned)aglGetError());
         }
     }
+#endif
 }
 
+#ifdef SDL_MACOSCLASSIC_AGL
 static int Mac_AGLError(const char *operation)
 {
     GLenum code = aglGetError();
@@ -73,6 +87,7 @@ static int Mac_AGLError(const char *operation)
     return SDL_SetError("%s failed (AGL %u: %s)", operation, (unsigned)code,
                         description ? (const char *)description : "unknown error");
 }
+#endif
 
 static void Mac_CToPascal(const char *source, Str255 destination)
 {
@@ -90,6 +105,7 @@ int glLoadLibrary(_THIS, const char *name)
     OSErr error;
 
     if (gl_library_open) return 0;
+#ifdef SDL_MACOSCLASSIC_AGL
     if (name && *name && SDL_strcmp(name, "OpenGLLibrary") != 0) {
         return SDL_SetError("Classic Mac OS supports only OpenGLLibrary");
     }
@@ -106,6 +122,7 @@ int glLoadLibrary(_THIS, const char *name)
     SDL_strlcpy(_this->gl_config.driver_path, "OpenGLLibrary",
                 sizeof(_this->gl_config.driver_path));
     _this->gl_config.dll_handle = (void *)gl_library;
+#endif
     return 0;
 }
 
@@ -120,6 +137,7 @@ void *glGetProcAddress(_THIS, const char *proc)
     if (!proc || !*proc) return NULL;
     if (!gl_library_open && glLoadLibrary(_this, NULL) < 0) return NULL;
     Mac_CToPascal(proc, symbol_name);
+#ifdef SDL_MACOSCLASSIC_AGL
     error = FindSymbol(gl_library, symbol_name, &symbol, &symbol_class);
     if (error != noErr ||
         (symbol_class != kCodeCFragSymbol &&
@@ -127,6 +145,7 @@ void *glGetProcAddress(_THIS, const char *proc)
          symbol_class != kGlueCFragSymbol)) {
         return NULL;
     }
+#endif
     return (void *)symbol;
 }
 
@@ -143,9 +162,6 @@ SDL_GLContext glCreateContext(_THIS, SDL_Window *window)
     int count = 0;
     int double_buffer_attribute = -1;
     int i;
-    AGLDevice device;
-    AGLPixelFormat pixel_format;
-    AGLContext share = NULL;
     MacGLContext *context;
     GLint accelerated = 0;
     GLint renderer_id = 0;
@@ -153,6 +169,11 @@ SDL_GLContext glCreateContext(_THIS, SDL_Window *window)
     GLint depth_size = 0;
     GLint stencil_size = 0;
     GLint double_buffer = 0;
+#ifdef SDL_MACOSCLASSIC_AGL
+    AGLDevice device;
+    AGLPixelFormat pixel_format;
+    AGLContext share = NULL;
+#endif
 
     if (!window || !macwindow) {
         SDL_SetError("OpenGL context requires a native Classic window");
@@ -170,6 +191,7 @@ SDL_GLContext glCreateContext(_THIS, SDL_Window *window)
     }
     if (!gl_library_open && glLoadLibrary(_this, NULL) < 0) return NULL;
 
+#ifdef SDL_MACOSCLASSIC_AGL
     device = GetMainDevice();
     Mac_AddGLAttribute(attributes, &count, AGL_RGBA, -1);
     Mac_AddGLAttribute(attributes, &count, AGL_PIXEL_SIZE, myDepth);
@@ -249,16 +271,22 @@ SDL_GLContext glCreateContext(_THIS, SDL_Window *window)
                      (long)pixel_size, myDepth);
         return NULL;
     }
+#endif
 
+#ifdef SDL_MACOSCLASSIC_AGL
     if (_this->gl_config.share_with_current_context && _this->current_glctx) {
         share = ((MacGLContext *)_this->current_glctx)->agl;
     }
+#endif
     context = (MacGLContext *)SDL_calloc(1, sizeof(*context));
     if (!context) {
+#ifdef SDL_MACOSCLASSIC_AGL
         aglDestroyPixelFormat(pixel_format);
+#endif
         SDL_OutOfMemory();
         return NULL;
     }
+#ifdef SDL_MACOSCLASSIC_AGL
     context->agl = aglCreateContext(pixel_format, share);
     context->double_buffered = double_buffer ? 1 : 0;
     aglDestroyPixelFormat(pixel_format);
@@ -276,6 +304,7 @@ SDL_GLContext glCreateContext(_THIS, SDL_Window *window)
         Mac_AGLError("attaching the AGL drawable");
         return NULL;
     }
+#endif
     context->drawable_attached = 1;
     context->next = mac_contexts;
     mac_contexts = context;
@@ -292,9 +321,11 @@ int glSetSwapInterval(_THIS, int interval)
     /* There is no back-buffer presentation point to synchronize. Accept the
        application's preference while leaving front-buffer delivery alone. */
     if (!context->double_buffered) return 0;
-    if (!aglSetInteger(context->agl, AGL_SWAP_INTERVAL, &value)) {
+ #ifdef SDL_MACOSCLASSIC_AGL
+   if (!aglSetInteger(context->agl, AGL_SWAP_INTERVAL, &value)) {
         return Mac_AGLError("aglSetInteger(AGL_SWAP_INTERVAL)");
     }
+#endif
     return 0;
 }
 
@@ -306,7 +337,11 @@ int glSwapWindow(_THIS, SDL_Window *window)
     }
     if (mac_window_active && context->drawable_attached) {
         if (context->double_buffered)
+#ifdef SDL_MACOSCLASSIC_AGL
             aglSwapBuffers(context->agl);
+#else
+            ;
+#endif
         else
             glFlush();
     }
@@ -318,14 +353,18 @@ int glMakeCurrent(_THIS, SDL_Window *window, SDL_GLContext sdl_context)
     MacGLContext *context = (MacGLContext *)sdl_context;
     (void)_this;
     if (!context) {
+#ifdef SDL_MACOSCLASSIC_AGL
         if (!aglSetCurrentContext(NULL)) return Mac_AGLError("aglSetCurrentContext(NULL)");
+#endif
         mac_current_context = NULL;
         return 0;
     }
     if (window && context->window != window) {
         context->window = window;
     }
-    if (!aglSetCurrentContext(context->agl)) return Mac_AGLError("aglSetCurrentContext");
+ #ifdef SDL_MACOSCLASSIC_AGL
+   if (!aglSetCurrentContext(context->agl)) return Mac_AGLError("aglSetCurrentContext");
+#endif
     mac_current_context = context;
     return 0;
 }
@@ -338,12 +377,14 @@ void glUpdateWindow(_THIS, SDL_Window *window)
     if (!mac_window_active)
         return;
     for (context = mac_contexts; context; context = context->next) {
+#ifdef SDL_MACOSCLASSIC_AGL
         if (context->window == window && context->drawable_attached &&
             !aglUpdateContext(context->agl)) {
             SDL_LogWarn(SDL_LOG_CATEGORY_VIDEO,
                         "macosclassic: aglUpdateContext failed (AGL %u)",
                         (unsigned)aglGetError());
         }
+#endif
     }
 }
 
@@ -360,17 +401,23 @@ void glDeleteContext(_THIS, SDL_GLContext sdl_context)
             break;
         }
     }
+#ifdef SDL_MACOSCLASSIC_AGL
     if (aglGetCurrentContext() == context->agl) aglSetCurrentContext(NULL);
     aglSetDrawable(context->agl, NULL);
+#endif
     if (mac_current_context == context) mac_current_context = NULL;
+#ifdef SDL_MACOSCLASSIC_AGL
     aglDestroyContext(context->agl);
+#endif
     SDL_free(context);
 }
 
 void glUnloadLibrary(_THIS)
 {
     if (gl_library_open) {
+#ifdef SDL_MACOSCLASSIC_AGL
         CloseConnection(&gl_library);
+#endif
         gl_library_open = SDL_FALSE;
     }
     mac_current_context = NULL;

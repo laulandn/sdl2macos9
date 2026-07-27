@@ -251,11 +251,13 @@ void Mac_SetWindowActive( int active )
   active = active ? 1 : 0;
 
   if (!active) {
+#ifdef SDL_VIDEO_OPENGL
     if (Mac_GL_SetDrawableActive(0) < 0) {
       SDL_LogDebug(SDL_LOG_CATEGORY_VIDEO,
                    "macosclassic: could not detach the suspended AGL drawable: %s",
                    SDL_GetError());
     }
+#endif
   }
 
   if (mac_window_active == active)
@@ -276,11 +278,13 @@ void Mac_SetWindowActive( int active )
   if (active) {
     if (SDL_GetKeyboardFocus() != sdlw)
       SDL_SetKeyboardFocus(sdlw);
+#ifdef SDL_VIDEO_OPENGL
     if (Mac_GL_SetDrawableActive(1) < 0) {
       SDL_LogDebug(SDL_LOG_CATEGORY_VIDEO,
                    "macosclassic: could not attach the active AGL drawable: %s",
                    SDL_GetError());
     }
+#endif
     Mac_InputSprocketSetForeground(1);
     if (Mac_IsRelativeMouseMode()) {
       SDL_SetMouseFocus(sdlw);
@@ -432,7 +436,11 @@ void SDL_Mac_pumpEvents(_THIS)
             DragWindow(target, event.where, &drag_bounds);
           }
           if (target == macwindow)
+#ifdef SDL_VIDEO_OPENGL
             Mac_GL_Update();
+#else
+            ;
+#endif
         } else if (target && part == inGoAway && TrackGoAway(target, event.where)) {
           if (target == macwindow && sdlw)
             SDL_SendWindowEvent(sdlw, SDL_WINDOWEVENT_CLOSE, 0, 0);
@@ -465,7 +473,9 @@ void SDL_Mac_pumpEvents(_THIS)
              before scheduling AGL and input reattachment. */
           if (!resuming)
             Mac_SetWindowActive(0);
+#ifdef SDL_MACOSCLASSIC_DRAWSPROCKET
           Mac_ProcessDrawSprocketEvent(&event);
+#endif
           if (resuming)
             Mac_SetWindowActive(1);
         }

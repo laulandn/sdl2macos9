@@ -44,12 +44,12 @@ static int quitting = 0;
 typedef struct
 {
     float x, y;
-} Point;
+} Point1;
 
 typedef struct
 {
     float ang, r;
-    Point p;
+    Point1 p;
 } Knob;
 
 static Knob knob = { 0.0f, 0.1f, { 0.0f, 0.0f } };

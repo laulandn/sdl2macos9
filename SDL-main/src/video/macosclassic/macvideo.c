@@ -25,8 +25,10 @@
 #include "../../events/SDL_windowevents_c.h"
 #include "sdl_mac.h"
 #include <Displays.h>
-#include <DrawSprocket.h>
 #include <Processes.h>
+#ifdef SDL_MACOSCLASSIC_DRAWSPROCKET
+#include <DrawSprocket.h>
+#endif
 
 #ifdef SDL_VIDEO_DRIVER_MACOSCLASSIC
 
@@ -53,6 +55,7 @@ static SDL_VideoDevice *tdevice=NULL;
    DrawSprocket page. */
 static GDHandle mac_display_device;
 static DisplayIDType mac_display_id;
+#ifdef SDL_MACOSCLASSIC_DRAWSPROCKET
 static DSpContextReference mac_dsp_context;
 static int mac_dsp_started;
 static int mac_dsp_active;
@@ -60,6 +63,7 @@ static CGrafPtr mac_dsp_back_buffer;
 static PixMapHandle mac_dsp_back_pixmap;
 static int mac_dsp_software_buffer;
 static int mac_dsp_page_flipping;
+#endif
 static int mac_fullscreen_window;
 static int macwindow_visible;
 static int mac_gl_reattach_pending;
@@ -126,11 +130,13 @@ static int Mac_ReplaceNativeWindow(SDL_Window *window, const Rect *bounds,
                                    window ? window->title : NULL);
   if (!new_window) return SDL_SetError("Unable to create Classic fullscreen window");
 
+#ifdef SDL_VIDEO_OPENGL
   if (Mac_GL_SetDrawableActive(0) < 0) {
     Mac_GL_SetDrawableActive(1);
     DisposeWindow(new_window);
     return -1;
   }
+#endif
 
   macwindow = new_window;
 #ifdef __MWERKS__
@@ -147,20 +153,25 @@ static int Mac_ReplaceNativeWindow(SDL_Window *window, const Rect *bounds,
   drawHeight = myHeight;
   mac_fullscreen_window = fullscreen ? 1 : 0;
 
+#ifdef SDL_MACOSCLASSIC_DRAWSPROCKET
   if (fullscreen && mac_dsp_active) {
     ShowWindow(macwindow);
     SelectWindow(macwindow);
     macwindow_visible = 1;
-  } else if (was_visible) {
+  } else 
+#endif
+  if (was_visible) {
     ShowWindow(macwindow);
     if (was_active) SelectWindow(macwindow);
   }
   if (was_active) {
+#ifdef SDL_VIDEO_OPENGL
     if (Mac_GL_SetDrawableActive(1) < 0) {
       mac_gl_reattach_pending = 1;
       return -1;
     }
     mac_gl_reattach_pending = 0;
+#endif
   }
   return 0;
 }
@@ -180,6 +191,7 @@ static void Mac_UpdateDisplayMetrics(void)
   myDepth = (**pixmap).pixelSize;
 }
 
+#ifdef SDL_MACOSCLASSIC_DRAWSPROCKET
 static void Mac_InitDSpAttributes(DSpContextAttributes *attributes,
                                   int width, int height, int depth)
 {
@@ -195,7 +207,9 @@ static void Mac_InitDSpAttributes(DSpContextAttributes *attributes,
   attributes->backBufferBestDepth = (UInt32)depth;
   attributes->pageCount = 1;
 }
+#endif
 
+#ifdef SDL_MACOSCLASSIC_DRAWSPROCKET
 static int Mac_FindDSpMode(int width, int height, int depth, int *refresh_rate)
 {
   DSpContextReference context;
@@ -220,7 +234,9 @@ static int Mac_FindDSpMode(int width, int height, int depth, int *refresh_rate)
   }
   return 0;
 }
+#endif
 
+#ifdef SDL_MACOSCLASSIC_DRAWSPROCKET
 static void Mac_AddDSpModes(SDL_VideoDisplay *display)
 {
   DSpContextReference context;
@@ -250,7 +266,9 @@ static void Mac_AddDSpModes(SDL_VideoDisplay *display)
     error = DSpGetNextContext(context, &context);
   }
 }
+#endif
 
+#ifdef SDL_MACOSCLASSIC_DRAWSPROCKET
 static void Mac_ReleaseSoftwareBackBuffer(void)
 {
   if (mac_dsp_back_pixmap) UnlockPixels(mac_dsp_back_pixmap);
@@ -259,7 +277,9 @@ static void Mac_ReleaseSoftwareBackBuffer(void)
   mac_dsp_back_buffer = NULL;
   mac_dsp_software_buffer = 0;
 }
+#endif
 
+#ifdef SDL_MACOSCLASSIC_DRAWSPROCKET
 static OSStatus Mac_ReleaseDSpContext(void)
 {
     OSStatus first_error = noErr;
@@ -287,7 +307,9 @@ static OSStatus Mac_ReleaseDSpContext(void)
     Mac_UpdateDisplayMetrics();
     return first_error;
 }
+#endif
 
+#ifdef SDL_MACOSCLASSIC_DRAWSPROCKET
 void Mac_ProcessDrawSprocketEvent(EventRecord *event)
 {
     Boolean processed = false;
@@ -308,7 +330,9 @@ void Mac_ProcessDrawSprocketEvent(EventRecord *event)
                     (long)error);
     }
 }
+#endif
 
+#ifdef SDL_MACOSCLASSIC_DRAWSPROCKET
 static void Mac_ShutdownDrawSprocket(void)
 {
     OSStatus error;
@@ -333,6 +357,7 @@ static void Mac_ShutdownDrawSprocket(void)
   mac_dsp_page_flipping = 0;
   mac_display_id = 0;
 }
+#endif
 
 int Mac_IsFrontProcess(void)
 {
@@ -393,8 +418,10 @@ static int videoInit(_THIS)
     SDL_DisplayMode m;
     GDHandle gDev;
     PixMapHandle gdpm;
+#ifdef SDL_MACOSCLASSIC_DRAWSPROCKET
     OSStatus dsp_error;
     NumVersion dsp_version;
+#endif
 
 #ifdef MAC_DEBUG
   fprintf(stderr,"macosclassic videoInit...\n"); fflush(stderr);
@@ -432,6 +459,7 @@ static int videoInit(_THIS)
   myWidth = (**gDev).gdRect.right - (**gDev).gdRect.left;
   myHeight = (**gDev).gdRect.bottom - (**gDev).gdRect.top;
 
+#ifdef SDL_MACOSCLASSIC_DRAWSPROCKET
   /* DSpFindBestContextOnDisplayID arrived in DrawSprocket 1.7, but Apple
      documents a context-reservation bug before 1.7.3. Older installations
      keep the existing windowed desktop path without fullscreen modes. */
@@ -461,6 +489,7 @@ static int videoInit(_THIS)
                 "macosclassic: DSpStartup failed (%ld); fullscreen disabled",
                 (long)dsp_error);
   }
+#endif
 
   drawWidth=myWidth;  drawHeight=myHeight;
   screenWidth=myWidth; screenHeight=myHeight;
@@ -476,7 +505,9 @@ static int videoInit(_THIS)
     m.h=myHeight;    
 
     if (SDL_AddVideoDisplay(&display, SDL_FALSE) < 0) {
+#ifdef SDL_MACOSCLASSIC_DRAWSPROCKET
         Mac_ShutdownDrawSprocket();
+#endif
         return -1;
     }
     
@@ -495,18 +526,23 @@ static int videoInit(_THIS)
     SDL_SetCurrentDisplayMode(sdlvdisp,&m);
     SDL_SetDesktopDisplayMode(sdlvdisp,&m);
 
+#ifdef SDL_MACOSCLASSIC_DRAWSPROCKET
     Mac_AddDSpModes(sdlvdisp);
+#endif
 
     _this->num_displays = 1;
     Mac_InitAppleEvents();
     if (Mac_InitMouse() < 0) {
         Mac_QuitAppleEvents();
+#ifdef SDL_MACOSCLASSIC_DRAWSPROCKET
         Mac_ShutdownDrawSprocket();
+#endif
         return -1;
     }
     return 0;
 }
 
+#ifdef SDL_MACOSCLASSIC_DRAWSPROCKET
 static int setDisplayMode(_THIS, SDL_VideoDisplay *display,
                           SDL_DisplayMode *mode)
 {
@@ -528,16 +564,20 @@ static int setDisplayMode(_THIS, SDL_VideoDisplay *display,
         mode->format == display->desktop_mode.format;
 
     if (restoring_desktop) {
+#ifdef SDL_VIDEO_OPENGL
         if (Mac_GL_SetDrawableActive(0) < 0) {
             Mac_GL_SetDrawableActive(1);
             return -1;
         }
+#endif
         error = Mac_ReleaseDSpContext();
+#ifdef SDL_VIDEO_OPENGL
         if (error != noErr) {
             if (was_active) Mac_GL_SetDrawableActive(1);
             return SDL_SetError("Unable to restore Classic display mode (%ld)",
                                 (long)error);
         }
+#endif
         mac_gl_reattach_pending = was_active ? 1 : 0;
         SDL_LogDebug(SDL_LOG_CATEGORY_VIDEO,
                      "macosclassic: restored the desktop display mode");
@@ -557,16 +597,20 @@ static int setDisplayMode(_THIS, SDL_VideoDisplay *display,
                             (int)SDL_BITSPERPIXEL(mode->format));
     }
 
+#ifdef SDL_VIDEO_OPENGL
     if (Mac_GL_SetDrawableActive(0) < 0) {
         Mac_GL_SetDrawableActive(1);
         return -1;
     }
+#endif
     error = Mac_ReleaseDSpContext();
+#ifdef SDL_VIDEO_OPENGL
     if (error != noErr) {
         if (was_active) Mac_GL_SetDrawableActive(1);
         return SDL_SetError("Unable to release the previous DrawSprocket mode (%ld)",
                             (long)error);
     }
+#endif
 
     software_pages = sdlw && !(sdlw->flags & SDL_WINDOW_OPENGL);
 
@@ -579,7 +623,9 @@ static int setDisplayMode(_THIS, SDL_VideoDisplay *display,
        DrawSprocket can support with software buffering. */
     error = DSpFindBestContext(&attributes, &context);
     if (error != noErr || !context) {
+#ifdef SDL_VIDEO_OPENGL
         if (was_active) Mac_GL_SetDrawableActive(1);
+#endif
         return SDL_SetError("DSpFindBestContext failed (%ld)", (long)error);
     }
 
@@ -588,7 +634,9 @@ static int setDisplayMode(_THIS, SDL_VideoDisplay *display,
     if (error != noErr || actual.displayWidth != (UInt32)mode->w ||
         actual.displayHeight != (UInt32)mode->h ||
         actual.displayBestDepth != (UInt32)requested_depth) {
+#ifdef SDL_VIDEO_OPENGL
         if (was_active) Mac_GL_SetDrawableActive(1);
+#endif
         return SDL_SetError("DrawSprocket context is not exact %dx%dx%d mode",
                             mode->w, mode->h, requested_depth);
     }
@@ -610,7 +658,9 @@ static int setDisplayMode(_THIS, SDL_VideoDisplay *display,
                             (long)release_error);
             }
         }
+#ifdef SDL_VIDEO_OPENGL
         if (was_active) Mac_GL_SetDrawableActive(1);
+#endif
         if (error == kDSpConfirmSwitchWarning)
             return SDL_SetError("DrawSprocket mode switch requires confirmation");
         return SDL_SetError("DSpContext_Reserve failed (%ld)", (long)error);
@@ -631,7 +681,9 @@ static int setDisplayMode(_THIS, SDL_VideoDisplay *display,
                         "macosclassic: failed to release inactive context (%ld)",
                         (long)release_error);
         }
+#ifdef SDL_VIDEO_OPENGL
         if (was_active) Mac_GL_SetDrawableActive(1);
+#endif
         if (error == kDSpConfirmSwitchWarning)
             return SDL_SetError("DrawSprocket mode switch requires confirmation");
         return SDL_SetError("DSpContext_SetState(active) failed (%ld)",
@@ -650,7 +702,9 @@ static int setDisplayMode(_THIS, SDL_VideoDisplay *display,
     if (screenWidth != mode->w || screenHeight != mode->h ||
         myDepth != requested_depth) {
         Mac_ReleaseDSpContext();
+#ifdef SDL_VIDEO_OPENGL
         if (was_active) Mac_GL_SetDrawableActive(1);
+#endif
         return SDL_SetError("DrawSprocket activated %dx%dx%d, expected %dx%dx%d",
                             screenWidth, screenHeight, myDepth,
                             mode->w, mode->h, requested_depth);
@@ -664,6 +718,7 @@ static int setDisplayMode(_THIS, SDL_VideoDisplay *display,
                  mode->w, mode->h, requested_depth);
     return 0;
 }
+#endif
 
 static void setWindowFullscreen(_THIS, SDL_Window *window,
                                 SDL_VideoDisplay *display,
@@ -725,10 +780,12 @@ static void destroyWindowFramebuffer(_THIS, SDL_Window *window)
 {
     (void)_this;
     (void)window;
+#ifdef SDL_MACOSCLASSIC_DRAWSPROCKET
     if (mac_dsp_software_buffer) {
         Mac_ReleaseSoftwareBackBuffer();
         mypixels = NULL;
     }
+#endif
     if (thePM) {
         SDL_free(thePM);
         thePM = NULL;
@@ -767,7 +824,9 @@ static int createWindow(_THIS, SDL_Window *window)
 
     drawWidth=window->w; drawHeight=window->h;
     myWidth=window->w; myHeight=window->h;
+#ifdef SDL_VIDEO_OPENGL
     glUpdateWindow(_this, window);
+#endif
     Mac_GetWindowGlobalBounds(&mac_windowed_bounds);
     mac_windowed_bounds_valid = 1;
 
@@ -794,9 +853,11 @@ static int createWindowFramebuffer(_THIS, SDL_Window * window, Uint32 * format,
                         void ** pixels, int *pitch)
 {
     size_t buffer_size;
+    int framebuffer_pitch;
+#ifdef SDL_MACOSCLASSIC_DRAWSPROCKET
     OSStatus dsp_error;
     PixMapPtr dsp_pixmap;
-    int framebuffer_pitch;
+#endif
 
     if (!window || !format || !pixels || !pitch)
       return SDL_SetError("Invalid Classic framebuffer request");
@@ -811,6 +872,7 @@ static int createWindowFramebuffer(_THIS, SDL_Window * window, Uint32 * format,
     drawWidth = myWidth;
     drawHeight = myHeight;
 
+#ifdef SDL_MACOSCLASSIC_DRAWSPROCKET
     if (mac_dsp_active && mac_fullscreen_window && mac_dsp_page_flipping &&
         !(window->flags & SDL_WINDOW_OPENGL)) {
       dsp_error = DSpContext_GetBackBuffer(mac_dsp_context,
@@ -843,6 +905,7 @@ static int createWindowFramebuffer(_THIS, SDL_Window * window, Uint32 * format,
       mac_dsp_software_buffer = 1;
       return 0;
     }
+#endif
 
     framebuffer_pitch = (myWidth * (myDepth / 8) + 3) & ~3;
     if (framebuffer_pitch <= 0 || framebuffer_pitch >= 0x4000)
@@ -918,6 +981,7 @@ static int updateWindowFramebuffer(_THIS, SDL_Window *window, const SDL_Rect *re
     if (!window || !macport)
       return SDL_SetError("Classic framebuffer has no native window");
 
+#ifdef SDL_MACOSCLASSIC_DRAWSPROCKET
     if (mac_dsp_software_buffer) {
       OSStatus error;
       PixMapPtr pixmap;
@@ -956,6 +1020,7 @@ static int updateWindowFramebuffer(_THIS, SDL_Window *window, const SDL_Rect *re
       }
       return 0;
     }
+#endif
 
     if (!thePM)
       return SDL_SetError("Classic framebuffer is not initialized");
@@ -1026,15 +1091,19 @@ static void setWindowSize(_THIS, SDL_Window *window)
 
     drawWidth=window->w; drawHeight=window->h;
     myWidth=window->w; myHeight=window->h;
+#ifdef SDL_VIDEO_OPENGL
     glUpdateWindow(_this, window);
+#endif
 
     if (!mac_fullscreen_window) {
         Mac_GetWindowGlobalBounds(&mac_windowed_bounds);
         mac_windowed_bounds_valid = 1;
     }
     if (mac_gl_reattach_pending && mac_window_active) {
+#ifdef SDL_VIDEO_OPENGL
         if (Mac_GL_SetDrawableActive(1) == 0)
             mac_gl_reattach_pending = 0;
+#endif
     }
 
     /* SDL_OnWindowResized invalidates the surface. The next
@@ -1093,10 +1162,12 @@ static void destroyWindow(_THIS, SDL_Window *window)
 #endif
 
     Mac_SetWindowActive(0);
+#ifdef SDL_MACOSCLASSIC_DRAWSPROCKET
     if (Mac_ReleaseDSpContext() != noErr) {
         SDL_LogWarn(SDL_LOG_CATEGORY_VIDEO,
                     "macosclassic: failed to restore DrawSprocket during window destruction");
     }
+#endif
     window->driverdata = NULL;
     destroyWindowFramebuffer(_this, window);
     if (macwindow) {
@@ -1148,7 +1219,9 @@ static SDL_VideoDevice *createDevice(int devindex)
     
     tdevice->VideoInit = videoInit;
     tdevice->VideoQuit = videoQuit;
+#ifdef SDL_MACOSCLASSIC_DRAWSPROCKET
     tdevice->SetDisplayMode = setDisplayMode;
+#endif
     /**/
     tdevice->CreateSDLWindow = createWindow;
     /**/
@@ -1166,6 +1239,7 @@ static SDL_VideoDevice *createDevice(int devindex)
 
     tdevice->PumpEvents = SDL_Mac_pumpEvents;
 
+#ifdef SDL_VIDEO_OPENGL
     tdevice->GL_LoadLibrary = glLoadLibrary;
     tdevice->GL_GetProcAddress = glGetProcAddress;
     tdevice->GL_UnloadLibrary = glUnloadLibrary;
@@ -1177,6 +1251,7 @@ static SDL_VideoDevice *createDevice(int devindex)
     tdevice->GL_SwapWindow = glSwapWindow;
     tdevice->GL_DeleteContext = glDeleteContext;
     /**/
+#endif
 
     tdevice->free = deleteDevice;
     return tdevice;
@@ -1196,7 +1271,9 @@ static void cleanupMac(void)
     fprintf(stderr,"macosclassic cleanupMac...\n"); fflush(stderr);
 #endif 
   if(sdlw) Mac_SetWindowActive(0);
+#ifdef SDL_MACOSCLASSIC_DRAWSPROCKET
   Mac_ShutdownDrawSprocket();
+#endif
   Mac_QuitMouse();
   Mac_QuitAppleEvents();
   if(thePM) { SDL_free(thePM); thePM=NULL; }
@@ -1207,10 +1284,12 @@ static void cleanupMac(void)
   mac_window_active=0;
   mac_display_device=NULL;
   mac_display_id=0;
+#ifdef SDL_MACOSCLASSIC_DRAWSPROCKET
   mac_dsp_back_buffer=NULL;
   mac_dsp_back_pixmap=NULL;
   mac_dsp_software_buffer=0;
   mac_dsp_page_flipping=0;
+#endif
   macwindow_visible=0;
   mac_fullscreen_window=0;
   mac_windowed_bounds_valid=0;

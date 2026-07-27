@@ -10,7 +10,8 @@ INCPATH+= -I"../include"
 LIBPATH = -L..
 #LIBS    = -lSDL2_test -lSDL2 -lm -lRetroConsole
 #LIBS    = -lSDL2_test -lSDL2 -lm
-LIBS    = -lSDL2_test -lSDL2 -lm -lThreadsLib
+#LIBS    = -lSDL2_test -lSDL2 -lm -lThreadsLib
+LIBS    = -lSDL2_test -lSDL2 -lm -lThreadsLib -lInputSprocketLib -lDrawSprocketLib
 
 #CFLAGS+= -DHAVE_SDL_TTF
 #TTFLIBS = SDL2ttf.lib
