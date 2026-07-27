@@ -33,6 +33,116 @@
 #ifdef SDL_VIDEO_DRIVER_MACOSCLASSIC
 
 int macmoddown=0;
+static Uint8 mac_key_state[128];
+
+static SDL_Scancode MacKeyCodeToSDL( int keycode )
+{
+    switch (keycode) {
+    case 0x00: return SDL_SCANCODE_A;
+    case 0x01: return SDL_SCANCODE_S;
+    case 0x02: return SDL_SCANCODE_D;
+    case 0x03: return SDL_SCANCODE_F;
+    case 0x04: return SDL_SCANCODE_H;
+    case 0x05: return SDL_SCANCODE_G;
+    case 0x06: return SDL_SCANCODE_Z;
+    case 0x07: return SDL_SCANCODE_X;
+    case 0x08: return SDL_SCANCODE_C;
+    case 0x09: return SDL_SCANCODE_V;
+    case 0x0B: return SDL_SCANCODE_B;
+    case 0x0C: return SDL_SCANCODE_Q;
+    case 0x0D: return SDL_SCANCODE_W;
+    case 0x0E: return SDL_SCANCODE_E;
+    case 0x0F: return SDL_SCANCODE_R;
+    case 0x10: return SDL_SCANCODE_Y;
+    case 0x11: return SDL_SCANCODE_T;
+    case 0x12: return SDL_SCANCODE_1;
+    case 0x13: return SDL_SCANCODE_2;
+    case 0x14: return SDL_SCANCODE_3;
+    case 0x15: return SDL_SCANCODE_4;
+    case 0x16: return SDL_SCANCODE_6;
+    case 0x17: return SDL_SCANCODE_5;
+    case 0x18: return SDL_SCANCODE_EQUALS;
+    case 0x19: return SDL_SCANCODE_9;
+    case 0x1A: return SDL_SCANCODE_7;
+    case 0x1B: return SDL_SCANCODE_MINUS;
+    case 0x1C: return SDL_SCANCODE_8;
+    case 0x1D: return SDL_SCANCODE_0;
+    case 0x1E: return SDL_SCANCODE_RIGHTBRACKET;
+    case 0x1F: return SDL_SCANCODE_O;
+    case 0x20: return SDL_SCANCODE_U;
+    case 0x21: return SDL_SCANCODE_LEFTBRACKET;
+    case 0x22: return SDL_SCANCODE_I;
+    case 0x23: return SDL_SCANCODE_P;
+    case 0x24: return SDL_SCANCODE_RETURN;
+    case 0x25: return SDL_SCANCODE_L;
+    case 0x26: return SDL_SCANCODE_J;
+    case 0x27: return SDL_SCANCODE_APOSTROPHE;
+    case 0x28: return SDL_SCANCODE_K;
+    case 0x29: return SDL_SCANCODE_SEMICOLON;
+    case 0x2A: return SDL_SCANCODE_BACKSLASH;
+    case 0x2B: return SDL_SCANCODE_COMMA;
+    case 0x2C: return SDL_SCANCODE_SLASH;
+    case 0x2D: return SDL_SCANCODE_N;
+    case 0x2E: return SDL_SCANCODE_M;
+    case 0x2F: return SDL_SCANCODE_PERIOD;
+    case 0x30: return SDL_SCANCODE_TAB;
+    case 0x31: return SDL_SCANCODE_SPACE;
+    case 0x32: return SDL_SCANCODE_GRAVE;
+    case 0x33: return SDL_SCANCODE_BACKSPACE;
+    case 0x35: return SDL_SCANCODE_ESCAPE;
+    case 0x38: return SDL_SCANCODE_LSHIFT;
+    case 0x39: return SDL_SCANCODE_CAPSLOCK;
+    case 0x3A: return SDL_SCANCODE_LALT;
+    case 0x3B: return SDL_SCANCODE_LCTRL;
+    case 0x3C: return SDL_SCANCODE_RSHIFT;
+    case 0x3D: return SDL_SCANCODE_RALT;
+    case 0x3E: return SDL_SCANCODE_RCTRL;
+    case 0x7B: return SDL_SCANCODE_LEFT;
+    case 0x7C: return SDL_SCANCODE_RIGHT;
+    case 0x7D: return SDL_SCANCODE_DOWN;
+    case 0x7E: return SDL_SCANCODE_UP;
+    default: return SDL_SCANCODE_UNKNOWN;
+    }
+}
+
+void Mac_ResetKeyboardState(void)
+{
+    int keycode;
+
+    for (keycode = 0; keycode < SDL_arraysize(mac_key_state); ++keycode) {
+        SDL_Scancode scancode;
+
+        if (!mac_key_state[keycode])
+            continue;
+        scancode = MacKeyCodeToSDL(keycode);
+        if (scancode != SDL_SCANCODE_UNKNOWN)
+            SDL_SendKeyboardKey(SDL_RELEASED, scancode);
+    }
+    SDL_zeroa(mac_key_state);
+}
+
+void Mac_PollKeyboard(void)
+{
+    KeyMap key_map;
+    const Uint8 *key_bits = (const Uint8 *)key_map;
+    int keycode;
+
+    GetKeys(key_map);
+    for (keycode = 0; keycode < SDL_arraysize(mac_key_state); ++keycode) {
+        const Uint8 pressed =
+            (key_bits[keycode >> 3] & (1u << (keycode & 7))) != 0;
+        SDL_Scancode scancode;
+
+        if (pressed == mac_key_state[keycode])
+            continue;
+        mac_key_state[keycode] = pressed;
+        scancode = MacKeyCodeToSDL(keycode);
+        if (scancode != SDL_SCANCODE_UNKNOWN) {
+            SDL_SendKeyboardKey(pressed ? SDL_PRESSED : SDL_RELEASED,
+                                scancode);
+        }
+    }
+}
 
 /**
  * A map thta translates Screen key names to SDL scan codes.
@@ -107,11 +217,12 @@ static int key_to_sdl[] = {
  */
 void handleKeyboardEvent(EventRecord *event, int what)
 {
-    /*int             val;*/
-    SDL_Scancode    scancode=0;
-    int keyToReturn=0;
+    SDL_Event quit_event;
+    int character = event->message & 0xff;
 
-    fprintf(stderr,"macosclassic handleKeyboardEvent...\n"); fflush(stderr);
+#ifndef MAC_DEBUG
+    (void)what;
+#endif
 
     /* Get the key value.*/
     /*if (screen_get_event_property_iv(event, SCREEN_PROPERTY_SYM, &val) < 0) {
@@ -139,55 +250,40 @@ void handleKeyboardEvent(EventRecord *event, int what)
 #endif
     
 		if(event->modifiers&cmdKey) {
-          int mchoice=MenuKey(event->message&0xff);
 #ifdef MAC_DEBUG
+          int mchoice=MenuKey(event->message&0xff);
           fprintf(stderr,"macosclassic mac menu '%c' mchoice=%d\n",(char)event->message&0xff,mchoice); fflush(stderr);
 #endif
           /* TODO: Possibly handle other command menus here... */
-          if((event->message&0xff)=='q') {
+          if(event->what == keyDown && (event->message&0xff)=='q') {
 #ifdef MAC_DEBUG
             fprintf(stderr,"macosclassic Command-Q...quiting...\n"); fflush(stderr);
 #endif
-            ExitToShell();
+            SDL_zero(quit_event);
+            quit_event.type = SDL_QUIT;
+            SDL_PushEvent(&quit_event);
           }
         }
-        else {
-	      keyToReturn=event->message&0xff;
+		else {
 #ifdef MAC_DEBUG
-   		  fprintf(stderr,"macosclassic mac keypress '%c' (%d)\n",keyToReturn,keyToReturn); fflush(stderr);
-   		  fprintf(stderr,"macosclassic event->modifiers %d\n",event->modifiers); fflush(stderr);
+		  fprintf(stderr,"macosclassic mac keypress '%c' (%d)\n",character,character); fflush(stderr);
+		  fprintf(stderr,"macosclassic event->modifiers %d\n",event->modifiers); fflush(stderr);
 #endif
         }
-        
-        /* This code is just a hack to get bare minimum done for now... */
-        switch(keyToReturn) {
-          case 28: scancode=SDL_SCANCODE_LEFT; break;
-          case 29: scancode=SDL_SCANCODE_RIGHT; break;
-          case 30: scancode=SDL_SCANCODE_UP; break;
-          case 31: scancode=SDL_SCANCODE_DOWN; break;
-          case 32: scancode=SDL_SCANCODE_SPACE; break;
-          case 13: scancode=SDL_SCANCODE_RETURN; break;
-          case 9: scancode=SDL_SCANCODE_TAB; break;
-          case 27: scancode=SDL_SCANCODE_ESCAPE; break;
-          default:
-            scancode=keyToReturn;
-            if(scancode>92) scancode=scancode-93;  /* alphas...at least... */
-            break;
-        }
-        
-     	/*scancode=scancode<<16;*/
 
-#ifdef MAC_DEBUG
-     	fprintf(stderr,"macosclassic SDL scancode is 0x%x\n",scancode); fflush(stderr);
-#endif
-      
-    /* Propagate the event to SDL.
-    // FIXME:
-    // Need to handle more key states (such as key combinations).*/
-    if (event->what==keyDown) {
-        SDL_SendKeyboardKey(SDL_PRESSED, scancode);
-    } else {
-        SDL_SendKeyboardKey(SDL_RELEASED, scancode);
+    if (event->modifiers & cmdKey)
+        return;
+
+    /* Key state comes from GetKeys so simultaneous keys cannot be lost when
+       the Event Manager coalesces or delays individual transitions. */
+    if (event->what == keyDown || event->what == autoKey) {
+        if (!(event->modifiers & (controlKey | optionKey)) &&
+            character >= 32 && character <= 126) {
+            char text[2];
+            text[0] = (char)character;
+            text[1] = '\0';
+            SDL_SendKeyboardText(text);
+        }
     }
 }
 

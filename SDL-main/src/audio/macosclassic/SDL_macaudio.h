@@ -24,13 +24,21 @@
 #define SDL_macaudio_h_
 
 #include "../SDL_sysaudio.h"
+#include <Sound.h>
 
 /* Hidden "this" pointer for the audio functions */
 #define _THIS SDL_AudioDevice *this
 
 struct SDL_PrivateAudioData
 {
-    int unused;
+    SndChannelPtr channel;
+    SndDoubleBufferHeader2 header;
+    SndDoubleBufferPtr buffers[2];
+    SndDoubleBackUPP callback;
+    SDL_mutex *mixer_lock;
+    volatile SInt32 callback_lock_count;
+    volatile SInt32 callback_active;
+    volatile SDL_bool shutting_down;
 };
 
 void MACOSAUDIO_ResumeDevices(void);

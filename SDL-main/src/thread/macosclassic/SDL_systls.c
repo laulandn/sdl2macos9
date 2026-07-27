@@ -22,7 +22,7 @@
 #include "../../SDL_internal.h"
 #include "../SDL_thread_c.h"
 
-#define MYDEBUG 1
+/* Define MYDEBUG locally when diagnosing the Classic TLS backend. */
 
 void SDL_SYS_InitTLSData(void)
 {

@@ -154,9 +154,10 @@ typedef unsigned int uintptr_t;
 #endif
 #endif
 
-/* Enable the dummy audio driver (src/audio/dummy/\*.c) */
+#if !defined(TARGET_CARBON) || !TARGET_CARBON
 #define SDL_AUDIO_DRIVER_MACOSCLASSIC  1
-/*#define SDL_AUDIO_DRIVER_DUMMY  1*/
+#endif
+#define SDL_AUDIO_DRIVER_DUMMY  1
 #define SDL_AUDIO_DRIVER_DISK  1
 
 /* Enable the stub joystick driver (src/joystick/dummy/\*.c) */

@@ -22,6 +22,7 @@
 #include "SDL_config.h"
 
 #include "SDL_thread.h"
+#include "SDL_timer.h"
 #include "SDL_systhread_c.h"
 
 #ifdef SDL_THREAD_MACOSCLASSIC
@@ -29,10 +30,6 @@
 #include "./ThreadSynch.h"
 
 
-#define MYDEBUG 1
-
-
-extern void SDL_Delay(int timeout);
 
 
 struct SDL_semaphore
@@ -87,16 +84,12 @@ int SDL_SemTryWait(SDL_sem *sem)
 	fprintf(stderr,"macosclassic TryWait semaphore...%lx\n",(long)sem);
 #endif
 
-    //if(sem->Sem.value>0) {
-      SemaphoreAcquire(&sem->Sem);
-    //}
-    //else return SDL_MUTEX_TIMEDOUT;
-    return 1;
+    return SemaphoreTryP(&sem->Sem) ? 0 : SDL_MUTEX_TIMEDOUT;
 }
 
 int SDL_SemWaitTimeout(SDL_sem *sem, Uint32 timeout)
 {
-	int retval=0;
+	Uint64 deadline;
 
 	if ( ! sem ) {
 		SDL_SetError("Passed a NULL semaphore");
@@ -111,19 +104,20 @@ int SDL_SemWaitTimeout(SDL_sem *sem, Uint32 timeout)
     if ( timeout == 0 ) {
       return SDL_SemTryWait(sem);
     }
-    // Max wait...
-    if(timeout== -1) {
+    if (timeout == SDL_MUTEX_MAXWAIT) {
+        return SDL_SemWait(sem);
     }
-    // TODO: This is NOT right at all...it always waits...
-    if(!(retval=SDL_SemTryWait(sem)))
-    {
-      // We didn't immediately get it so wait the timeout
-      // So do we just wait, try again and then give up?
-      SDL_Delay(timeout);
-      retval=SDL_SemTryWait(sem);
-     }
-     // No release here right?
-     return retval;
+
+    deadline = SDL_GetTicks64() + timeout;
+    do {
+        if (SemaphoreTryP(&sem->Sem)) {
+            return 0;
+        }
+        YieldToAnyThread();
+    } while (SDL_GetTicks64() < deadline);
+
+    /* Check once more at the boundary so a simultaneous post wins. */
+    return SemaphoreTryP(&sem->Sem) ? 0 : SDL_MUTEX_TIMEDOUT;
 }
 
 int SDL_SemWait(SDL_sem *sem)

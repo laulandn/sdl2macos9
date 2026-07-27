@@ -37,6 +37,19 @@ void SemaphoreP(Semaphore *s)
 		}
 	}
 
+int SemaphoreTryP(Semaphore *s)
+	{
+	int acquired = 0;
+	ThreadBeginCritical();
+	if (s->value > 0)
+		{
+		s->value--;
+		acquired = 1;
+		}
+	ThreadEndCritical();
+	return acquired;
+	}
+
 void SemaphoreV(Semaphore *s)
 	{
 	ThreadBeginCritical();
@@ -69,7 +82,7 @@ void MutexLockAcquire(MutexLock *m)
 	ThreadID currentThread;
 	GetCurrentThread(&currentThread);
 	if (m->lockholder == currentThread)
-		DebugStr("\pError: Deadlock: Attempt to reaquire lock already held");
+		DebugStr((ConstStr255Param)"\pError: Deadlock: Attempt to reaquire lock already held");
 	SemaphoreP(&m->sem);
 	m->lockholder = currentThread;
 	}
@@ -79,7 +92,7 @@ void MutexLockRelease(MutexLock *m)
 	ThreadID currentThread;
 	GetCurrentThread(&currentThread);
 	if (m->lockholder != currentThread)
-		DebugStr("\pError: Thread releasing lock does not hold it");
+		DebugStr((ConstStr255Param)"\pError: Thread releasing lock does not hold it");
 	m->lockholder = kNoThreadID;
 	SemaphoreV(&m->sem);
 	}
@@ -101,7 +114,7 @@ void ConditionVarWait(ConditionVar *c)
 	ThreadID currentThread;
 	GetCurrentThread(&currentThread);
 	if (c->lock->lockholder != currentThread)
-		DebugStr("\pError: Thread waiting on condition variable does not hold correct lock");
+		DebugStr((ConstStr255Param)"\pError: Thread waiting on condition variable does not hold correct lock");
 
 	me.next = NULL;
 	SemaphoreInit(&me.sem, 0);
@@ -117,7 +130,7 @@ void ConditionVarSignal(ConditionVar *c)
 	ThreadID currentThread;
 	GetCurrentThread(&currentThread);
 	if (c->lock->lockholder != currentThread)
-		DebugStr("\pError: Thread signalling condition variable does not hold correct lock");
+		DebugStr((ConstStr255Param)"\pError: Thread signalling condition variable does not hold correct lock");
 	if (c->head)					// If there is someone waiting
 		{
 		SemaphoreV(&c->head->sem);	// Wake them up
@@ -131,7 +144,7 @@ void ConditionVarBroadcast(ConditionVar *c)
 	ThreadID currentThread;
 	GetCurrentThread(&currentThread);
 	if (c->lock->lockholder != currentThread)
-		DebugStr("\pError: Thread signalling condition variable does not hold correct lock");
+		DebugStr((ConstStr255Param)"\pError: Thread signalling condition variable does not hold correct lock");
 	while (c->head)					// For every waiter in list
 		{
 		SemaphoreV(&c->head->sem);	// Wake them up

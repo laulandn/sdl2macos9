@@ -1,6 +1,4 @@
-/* MacOS9 Note: This code was based on the QNX driver
-   solely because it was the smallest and easiest to understand.
-   Below is the original copyright message */
+/* Shared declarations for the Classic Mac OS video driver. */
 
 /*
   Simple DirectMedia Layer
@@ -32,9 +30,6 @@
 
 #include "../../events/SDL_mouse_c.h"
 
-/*#include <screen/screen.h>
-#include <EGL/egl.h>*/
-
 #if TARGET_API_MAC_CARBON
 #if TARGET_RT_MAC_MACHO
 #include <Carbon/Carbon.h>
@@ -46,6 +41,10 @@
 #include <Carbon.h>
 #endif
 #else
+#include "../../thread/macosclassic/MacThreads.h"
+#undef SIGHUP
+#undef SIGURG
+#undef SIGPOLL
 #include <Quickdraw.h>
 #include <QDOffscreen.h>
 #include <MacWindows.h>
@@ -53,10 +52,9 @@
 #endif
 
 
-#define MAC_DEBUG 1
+/* Define MAC_DEBUG locally when diagnosing the Toolbox backend. */
 
 #define QUICKDRAW_BLIT 1
-//#define USE_GWORLDS 1
 
 /* Default window size */
 #define PLATFORM_SCREEN_WIDTH 640 
@@ -67,53 +65,46 @@
 #define WINDOW_OFFSET_Y 40
 
 
-/* Globals are evil...these belong in driver data slash impl vars/params! */
-// TODO: Move all these into the "impl" things
+/* State shared by the video, event, mouse, and OpenGL modules. */
 extern int macmoddown;
 extern WindowPtr macwindow;
 extern CGrafPtr macport;
-extern PixMapPtr thePM;
-/**/
-extern char *mypixels;
-extern int drawWidth;
-extern int drawHeight;
-extern int myWidth;
-extern int myHeight;
 extern int myDepth;
-/**/
-extern SDL_VideoDevice *sdlvdev;
-extern SDL_VideoDisplay *sdlvdisp;
 extern SDL_Window *sdlw;
+extern int mac_window_active;
+#if !TARGET_API_MAC_CARBON
+extern QDGlobals *theQD;
+#endif
 
-
-typedef struct
-{
-    /*screen_window_t window;
-    EGLSurface      surface;
-    EGLConfig       conf;*/
-    void *nothing;
-} window_impl_t;
-
-
-/* Not even sure yet if this is needed... */
-typedef struct
-{
-  void *foo;  /* nothing real yet */
-} mac_gl_context;
-
-
-extern void exitCleanly(int result);
 
 extern void handleKeyboardEvent(EventRecord *event,int what);
+extern void Mac_PollKeyboard(void);
+extern void Mac_ResetKeyboardState(void);
+extern void Mac_InitAppleEvents(void);
+extern void Mac_QuitAppleEvents(void);
+extern int Mac_InitMouse(void);
+extern void Mac_QuitMouse(void);
+extern int Mac_InputSprocketPoll(int *dx, int *dy);
+extern int Mac_InputSprocketIsActive(void);
+extern void Mac_InputSprocketSetCapture(int enabled);
+extern void Mac_InputSprocketSetForeground(int active);
+extern int Mac_IsRelativeMouseMode(void);
+extern void Mac_CenterMouse(void);
+extern void Mac_ResetMouseTracking(void);
+extern void Mac_ForceShowCursor(void);
+extern void Mac_SetWindowActive(int active);
+extern int Mac_IsFrontProcess(void);
+extern void Mac_ProcessDrawSprocketEvent(EventRecord *event);
+extern int Mac_GL_SetDrawableActive(int active);
+extern void Mac_GL_Update(void);
 
-extern int chooseFormat(/*EGLConfig egl_conf*/);
-extern int glGetConfig(void /*EGLConfig*/ *pconf, int *pformat);
 extern int glLoadLibrary(_THIS, const char *name);
 void *glGetProcAddress(_THIS, const char *proc);
 extern SDL_GLContext glCreateContext(_THIS, SDL_Window *window);
 extern int glSetSwapInterval(_THIS, int interval);
 extern int glSwapWindow(_THIS, SDL_Window *window);
 extern int glMakeCurrent(_THIS, SDL_Window * window, SDL_GLContext context);
+extern void glUpdateWindow(_THIS, SDL_Window *window);
 extern void glDeleteContext(_THIS, SDL_GLContext context);
 extern void glUnloadLibrary(_THIS);
 

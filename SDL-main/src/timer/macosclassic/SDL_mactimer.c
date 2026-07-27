@@ -61,7 +61,11 @@ SDL_TimerCallback SDL_alarm_callback;
  *       For a good implementation, see FastTimes.[ch], by Matt Slot.
  */
 #define USE_MICROSECONDS
-#define WideTo64bit(w)	(*(UInt64 *) &(w))
+
+static Uint64 Mac_WideToUint64(const UnsignedWide *value)
+{
+	return ((Uint64)value->hi << 32) | (Uint64)value->lo;
+}
 
 UInt64 start;
 
@@ -69,17 +73,17 @@ static SDL_bool ticks_started = SDL_FALSE;
 
 void SDL_TicksInit(void)
 {
+    if (ticks_started) {
+        return;
+    }
 #ifdef USE_MICROSECONDS
 	UnsignedWide now;
 	
 	Microseconds(&now);
-	start = WideTo64bit(now);
+	start = Mac_WideToUint64(&now);
 #else
 	/* FIXME: Should we implement a wrapping algorithm, like Win32? */
 #endif
-    if (ticks_started) {
-        return;
-    }
     ticks_started = SDL_TRUE;
 }
 
@@ -95,7 +99,7 @@ Uint32 SDL_GetTicks(void)
 	UnsignedWide now;
 	
 	Microseconds(&now);
-	return (Uint32)((WideTo64bit(now)-start)/1000);
+	return (Uint32)((Mac_WideToUint64(&now)-start)/1000);
 #else
 	return(LMGetTicks()*MS_PER_TICK);
 #endif
@@ -108,7 +112,7 @@ Uint64 SDL_GetTicks64(void)
 	UnsignedWide now;
 	
 	Microseconds(&now);
-	return ((WideTo64bit(now)-start)/1000);
+	return ((Mac_WideToUint64(&now)-start)/1000);
 #else
 	return(LMGetTicks()*MS_PER_TICK);
 #endif
@@ -118,14 +122,19 @@ void SDL_Delay(Uint32 ms)
 {
 #ifdef USE_MICROSECONDS
 	Uint32 end_ms;
+	UInt32 unused;
 	
 	end_ms = SDL_GetTicks() + ms;
-#ifdef SDL_THREAD_MACOSCLASSIC
-	YieldToAnyThread();
-#endif
-	do {
-		/* FIXME: Really should tield CPU here...but confuses thread manager! */ ;
-	} while ( SDL_GetTicks() < end_ms );
+	if (ms >= MS_PER_TICK) {
+		/* Long sleeps may cooperatively yield at the native 60 Hz tick rate. */
+		Delay((ms + MS_PER_TICK - 1) / MS_PER_TICK, &unused);
+	} else {
+		/* YieldToAnyThread can hand control to SDL's waiting audio thread for
+		 * several seconds.  Sub-tick frame pacing must remain on this thread. */
+		while (SDL_GetTicks() < end_ms) {
+			/* spin for less than one Classic tick */
+		}
+	}
 #else
 	UInt32		unused; /* MJS */
 #ifdef SDL_THREAD_MACOSCLASSIC
@@ -203,13 +212,22 @@ void SDL_SYS_StopTimer(void)
 
 Uint64 SDL_GetPerformanceCounter(void)
 {
-    return SDL_GetTicks();
+#ifdef USE_MICROSECONDS
+    UnsignedWide now;
+    Microseconds(&now);
+    return Mac_WideToUint64(&now);
+#else
+    return (Uint64)LMGetTicks();
+#endif
 }
 
 Uint64 SDL_GetPerformanceFrequency(void)
 {
-    // NOTE: This is completely arbitrary and made up
-    return 1000;
+#ifdef USE_MICROSECONDS
+    return 1000000;
+#else
+    return 60;
+#endif
 }
 
 #endif /* SDL_TIMER_MACOSCLASSIC */

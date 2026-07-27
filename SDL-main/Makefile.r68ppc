@@ -15,7 +15,10 @@ CATCOMP = catcomp # TODO: is there a cross-compiler version?
 #MACDATE = $(shell date +"%-d.%m.%Y")
 
 #CFLAGS  = -mcrt=$(CRT) -gstabs -O3 -Wall -Werror -Wshadow -fPIC -fcommon -I./include -D__MACDATE__=\"$(MACDATE)\"
-CFLAGS  = -Wall -Wshadow -I./include -D__MACOSCLASSIC__
+RETRO68_ROOT ?= $(abspath $(dir $(shell command -v $(CC)))/..)
+CURSOR_DEVICES_GLUE ?= $(RETRO68_ROOT)/universal/libppc/CursorDevicesGlue.o
+CFLAGS ?= -O2 -Wall -Wshadow
+CPPFLAGS += -I./include -D__MACOSCLASSIC__ -DSDL_MACOSCLASSIC_INPUTSPROCKET=1
 
 TARGET_STATIC  = libSDL2.a
 #TARGET_SHARED  = libSDL2-2.31.so
@@ -28,6 +31,7 @@ SOURCES = \
 	./src/audio/*.c \
 	./src/audio/macosclassic/*.c \
 	./src/audio/disk/*.c \
+	./src/audio/dummy/*.c \
 	./src/cpuinfo/*.c \
 	./src/events/*.c \
 	./src/file/*.c \
@@ -74,7 +78,7 @@ all: info $(TARGET_STATIC) $(TARGET_SHARED) $(TESTLIB_STATIC) $(PREFS_PROGRAM)
 	@echo All done
 
 info:
-	@echo Compiler flags: $(CFLAGS)
+	@echo Compiler flags: $(CPPFLAGS) $(CFLAGS)
 
 debug: CFLAGS += -DDEBUG
 
@@ -85,7 +89,7 @@ $(TESTLIB_STATIC): $(TESTLIB_OBJECTS)
 	@$(AR) crv $@ $^
 	@$(RANLIB) $@
 
-$(TARGET_STATIC): $(OBJECTS)
+$(TARGET_STATIC): $(OBJECTS) $(CURSOR_DEVICES_GLUE)
 	@echo Creating $@
 	@$(AR) crv $@ $^
 	@$(RANLIB) $@
@@ -103,16 +107,18 @@ clean:
 
 install:
 	mkdir -p $(PATH_TO_RETRO68)/include/SDL2
+	mkdir -p $(PATH_TO_RETRO68)/lib
+	cp include/* $(PATH_TO_RETRO68)/include
 	cp include/* $(PATH_TO_RETRO68)/include/SDL2
 	cp libSDL*.a $(PATH_TO_RETRO68)/lib
 
 %.o : %.c
 	@echo Compiling $<
-	@$(CC) -o $@ -c $< $(CFLAGS)
+	@$(CC) -o $@ -c $< $(CPPFLAGS) $(CFLAGS)
 
 %.d : %.c
 	@echo Making dependencies for $<
-	@$(CC) -MM -MP -MT $(@:.d=.o) -o $@ $< $(CFLAGS)
+	@$(CC) -MM -MP -MT $(@:.d=.o) -o $@ $< $(CPPFLAGS) $(CFLAGS)
 
 # Load .d files
 ifneq ($(MAKECMDGOALS),clean)

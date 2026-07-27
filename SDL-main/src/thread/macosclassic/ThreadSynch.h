@@ -160,6 +160,7 @@ typedef struct
 extern void SemaphoreInit(Semaphore *s, long initialvalue);
 extern void SemaphoreP(Semaphore *s);
 extern void SemaphoreV(Semaphore *s);
+extern int SemaphoreTryP(Semaphore *s);
 
 #define SemaphoreAcquire SemaphoreP
 #define SemaphoreRelease SemaphoreV
