@@ -3,3 +3,18 @@
 ._.DS_Store
 **/.DS_Store
 **/._.DS_Store
+
+# In-tree Retro68/Classic Mac OS build products
+*.o
+*.d
+*.a
+*.lib
+*.pef
+*.APPL
+*.bin
+*.dsk
+**/.finf/
+**/.rsrc/
+
+# Extensionless binaries produced by the legacy sample Makefiles
+/mytests/sdlthread2
