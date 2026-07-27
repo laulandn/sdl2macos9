@@ -1,6 +1,6 @@
 This is SDL2, an extremely popular library used for building multimedia apps and games.
 
-For classic MacOS 7/8/9 m68k and ppc, using Retro68. CodeWarrior support is broken but could be fixed "relatively" easily. Also includes AmigaOS 3 for m68k support, and should work on related systems.
+For classic MacOS 7/8/9 m68k and ppc, using Retro68. CodeWarrior support is broken but could be fixed "relatively" easily. Also includes AmigaOS 3 for m68k support, and should work on related systems (but don't use it, there's a better SDL2 out there).
 
 https://github.com/laulandn/sdl2macos9
 (Obviously Mac Finder file creators and types and resource forks are lost there.)
@@ -8,11 +8,12 @@ https://github.com/laulandn/sdl2macos9
 I discussed what I worked on and kept a running commentary over at System7Today for a while:
 SDL2 for PPC MacOS 9 efforts...
 
-Works well enough to port 2d games (several attempts at various stages are included as separate downloads), and speed is comparable to SDL 1.2.
+This now includes a lot of work done by doctashay, which enabled the xash3d Half-life port for MacOS 9.  
+https://github.com/doctashay/sdl2macos9/tree/os9-fixes
 
-I'm pausing active development, and consider it about 2/3 done. If anyone is interested in finishing, or using this to port a game, leave a note or contact me, and we'll talk.
 
-Remaining limitations:
+## Remaining limitations:
+
 * OpenGL: Mac OS uses AGL and `OpenGLLibrary`; the Amiga backend is still unimplemented.
 * Audio: Mac OS playback uses Sound Manager double buffers. Capture is not implemented.
 * Joystick: Non-functional skeleton driver for MacOS (disabled SDL 1.2 driver source is in tree ready to be ported). No support on Amiga.
