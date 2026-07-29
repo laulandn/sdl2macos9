@@ -261,6 +261,9 @@ static void Mac_AddDSpModes(SDL_VideoDisplay *display)
       mode.format = attributes.displayBestDepth == 16
                         ? SDL_PIXELFORMAT_RGB555
                         : SDL_PIXELFORMAT_RGB888;
+#ifdef MAC_DEBUG
+      fprintf(stderr,"Adding mode %d by %d rate %d format %d\n",mode.w,mode.h,mode.refresh_rate,mode.format); fflush(stderr);
+#endif
       SDL_AddDisplayMode(display, &mode);
     }
     error = DSpGetNextContext(context, &context);
@@ -460,6 +463,9 @@ static int videoInit(_THIS)
   myHeight = (**gDev).gdRect.bottom - (**gDev).gdRect.top;
 
 #ifdef SDL_MACOSCLASSIC_DRAWSPROCKET
+#ifdef MAC_DEBUG
+  fprintf(stderr,"Starting DrawSprocket...\n"); fflush(stderr);
+#endif
   /* DSpFindBestContextOnDisplayID arrived in DrawSprocket 1.7, but Apple
      documents a context-reservation bug before 1.7.3. Older installations
      keep the existing windowed desktop path without fullscreen modes. */
@@ -489,6 +495,9 @@ static int videoInit(_THIS)
                 "macosclassic: DSpStartup failed (%ld); fullscreen disabled",
                 (long)dsp_error);
   }
+#ifdef MAC_DEBUG
+  fprintf(stderr,"DrawSprocket ready\n"); fflush(stderr);
+#endif
 #endif
 
   drawWidth=myWidth;  drawHeight=myHeight;
@@ -527,6 +536,9 @@ static int videoInit(_THIS)
     SDL_SetDesktopDisplayMode(sdlvdisp,&m);
 
 #ifdef SDL_MACOSCLASSIC_DRAWSPROCKET
+#ifdef MAC_DEBUG
+    fprintf(stderr,"Adding DrawSprocket modes...\n"); fflush(stderr);
+#endif
     Mac_AddDSpModes(sdlvdisp);
 #endif
 
@@ -557,6 +569,10 @@ static int setDisplayMode(_THIS, SDL_VideoDisplay *display,
 
     (void)_this;
     if (!display || !mode) return SDL_SetError("Invalid Classic display mode");
+
+#ifdef MAC_DEBUG
+    fprintf(stderr,"setDisplayMode...\n"); fflush(stderr);
+#endif
 
     restoring_desktop =
         mode->w == display->desktop_mode.w &&

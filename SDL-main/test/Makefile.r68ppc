@@ -11,12 +11,12 @@ LIBPATH = -L..
 #LIBS    = -lSDL2_test -lSDL2 -lm -lRetroConsole
 #LIBS    = -lSDL2_test -lSDL2 -lm
 #LIBS    = -lSDL2_test -lSDL2 -lm -lThreadsLib
-LIBS    = -lSDL2_test -lSDL2 -lm -lThreadsLib -lInputSprocketLib -lDrawSprocketLib
+LIBS    = -lSDL2_test -lSDL2 -lm -lThreadsLib -lInputSprocketLib -lDrawSprocketLib -L../../opengl -lOpenGLLibrary
 
 #CFLAGS+= -DHAVE_SDL_TTF
 #TTFLIBS = SDL2ttf.lib
 
-CFLAGS+= $(INCPATH) -D__MACOSCLASSIC__
+CFLAGS+= $(INCPATH) -D__MACOSCLASSIC__ -DHAVE_OPENGL=1
 
 TARGETS = testatomic.xcoff testdisplayinfo.xcoff testbounds.xcoff testdraw2.xcoff \
           testdrawchessboard.xcoff testdropfile.xcoff testerror.xcoff testfile.xcoff \

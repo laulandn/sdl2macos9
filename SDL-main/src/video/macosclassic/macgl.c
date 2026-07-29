@@ -4,7 +4,7 @@
 
 #ifdef SDL_VIDEO_DRIVER_MACOSCLASSIC
 #ifdef SDL_VIDEO_OPENGL
-#ifdef SDL_VIDEO_OPENGL_AGL
+#ifdef SDL_MACOSCLASSIC_AGL
 
 #include "SDL_agl.h"
 #include <CodeFragments.h>
@@ -118,6 +118,9 @@ void *glGetProcAddress(_THIS, const char *proc)
     (void)_this;
 
     if (!proc || !*proc) return NULL;
+#ifdef MAC_DEBUG
+        fprintf(stderr,"glGetProcAddress %s\n",proc); fflush(stderr);
+#endif
     if (!gl_library_open && glLoadLibrary(_this, NULL) < 0) return NULL;
     Mac_CToPascal(proc, symbol_name);
     error = FindSymbol(gl_library, symbol_name, &symbol, &symbol_class);
@@ -127,6 +130,9 @@ void *glGetProcAddress(_THIS, const char *proc)
          symbol_class != kGlueCFragSymbol)) {
         return NULL;
     }
+#ifdef MAC_DEBUG
+        fprintf(stderr,"Got it.\n"); fflush(stderr);
+#endif
     return (void *)symbol;
 }
 
@@ -165,6 +171,9 @@ SDL_GLContext glCreateContext(_THIS, SDL_Window *window)
     }
     if (_this->gl_config.major_version > 1 ||
         (_this->gl_config.major_version == 1 && _this->gl_config.minor_version > 5)) {
+#ifdef MAC_DEBUG
+        fprintf(stderr,"Asked for OpenGL %d.%d\n",_this->gl_config.major_version,_this->gl_config.minor_version); fflush(stderr);
+#endif
         SDL_SetError("Classic OpenGL runtime provides OpenGL 1.5");
         return NULL;
     }
@@ -244,10 +253,11 @@ SDL_GLContext glCreateContext(_THIS, SDL_Window *window)
         return NULL;
     }
     if (pixel_size != myDepth) {
-        aglDestroyPixelFormat(pixel_format);
-        SDL_SetError("AGL returned a %ld-bit color buffer for the exact %d-bit display request",
-                     (long)pixel_size, myDepth);
-        return NULL;
+        /* A 32-bit display may have only a 16-bit accelerated AGL format. */
+        SDL_LogWarn(SDL_LOG_CATEGORY_VIDEO,
+                    "macosclassic: display is %d-bit but AGL will render to "
+                    "a %ld-bit color buffer",
+                    myDepth, (long)pixel_size);
     }
 
     if (_this->gl_config.share_with_current_context && _this->current_glctx) {
