@@ -1,4 +1,4 @@
-# Makefile to build the classic MacOS SDL library
+# Makefile to build the classic MacOS SDL library for m68k
 # (Based on AmigaOS4 Makefile)
 
 PATH_TO_RETRO68=$(HOME)/Retro68-build/toolchain/m68k-apple-macos
@@ -19,7 +19,7 @@ RETRO68_ROOT ?= $(abspath $(dir $(shell command -v $(CC)))/..)
 ifeq ($(RETRO68_ROOT),)
 RETRO68_ROOT = $(PATH_TO_RETRO68)/..
 endif
-#CURSOR_DEVICES_GLUE ?= $(RETRO68_ROOT)/universal/libppc/CursorDevicesGlue.o
+CURSOR_DEVICES_GLUE =
 CFLAGS ?= -O2 -Wall -Wshadow
 #CPPFLAGS += -I./include -D__MACOSCLASSIC__ -DSDL_MACOSCLASSIC_INPUTSPROCKET=1 -DSDL_MACOSCLASSIC_DRAWSPROCKET=1 -DSDL_MACOSCLASSIC_AGL=1
 #CPPFLAGS += -I./include -D__MACOSCLASSIC__ -DMAC_DEBUG=1
@@ -36,6 +36,7 @@ SOURCES = \
 	./src/audio/*.c \
 	./src/audio/macosclassic/*.c \
 	./src/audio/disk/*.c \
+	./src/audio/dummy/*.c \
 	./src/cpuinfo/*.c \
 	./src/events/*.c \
 	./src/file/*.c \
@@ -82,7 +83,7 @@ all: info $(TARGET_STATIC) $(TARGET_SHARED) $(TESTLIB_STATIC) $(PREFS_PROGRAM)
 	@echo All done
 
 info:
-	@echo Compiler flags: $(CFLAGS)
+	@echo Compiler flags: $(CPPFLAGS) $(CFLAGS)
 
 debug: CFLAGS += -DDEBUG
 
@@ -93,7 +94,7 @@ $(TESTLIB_STATIC): $(TESTLIB_OBJECTS)
 	@$(AR) crv $@ $^
 	@$(RANLIB) $@
 
-$(TARGET_STATIC): $(OBJECTS)
+$(TARGET_STATIC): $(OBJECTS) $(CURSOR_DEVICES_GLUE)
 	@echo Creating $@
 	@$(AR) crv $@ $^
 	@$(RANLIB) $@
@@ -111,16 +112,18 @@ clean:
 
 install:
 	mkdir -p $(PATH_TO_RETRO68)/include/SDL2
+	mkdir -p $(PATH_TO_RETRO68)/lib
+	cp include/* $(PATH_TO_RETRO68)/include
 	cp include/* $(PATH_TO_RETRO68)/include/SDL2
 	cp libSDL*.a $(PATH_TO_RETRO68)/lib
 
 %.o : %.c
 	@echo Compiling $<
-	@$(CC) -o $@ -c $< $(CFLAGS)
+	@$(CC) -o $@ -c $< $(CPPFLAGS) $(CFLAGS)
 
 %.d : %.c
 	@echo Making dependencies for $<
-	@$(CC) -MM -MP -MT $(@:.d=.o) -o $@ $< $(CFLAGS)
+	@$(CC) -MM -MP -MT $(@:.d=.o) -o $@ $< $(CPPFLAGS) $(CFLAGS)
 
 # Load .d files
 ifneq ($(MAKECMDGOALS),clean)

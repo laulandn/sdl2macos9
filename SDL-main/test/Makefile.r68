@@ -8,8 +8,10 @@ CXX=m68k-apple-macos-g++
 INCPATH+= -I"../include"
 
 LIBPATH = -L..
-LIBS    = -lSDL2_test -lSDL2 -lm -lRetroConsole
-#LIBS    = -lSDL2_test -lSDL2 -lm
+#LIBS    = -lSDL2_test -lSDL2 -lm -lRetroConsole
+LIBS    = -lSDL2_test -lSDL2 -lm ../../dummy_atomic/atomic_dummy.o
+#LIBS    = -lSDL2_test -lSDL2 -lm -lThreadsLib
+#LIBS    = -lSDL2_test -lSDL2 -lm -lThreadsLib -lInputSprocketLib -lDrawSprocketLib -L../../opengl -lOpenGLLibrary
 
 #CFLAGS+= -DHAVE_SDL_TTF
 #TTFLIBS = SDL2ttf.lib
@@ -121,4 +123,3 @@ clean:
 
 distclean: clean
 	rm -f *.xcoff *.lib
-

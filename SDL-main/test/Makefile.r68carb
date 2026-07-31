@@ -14,7 +14,7 @@ LIBS    = -lSDL2_test -lSDL2 -lm
 #CFLAGS+= -DHAVE_SDL_TTF
 #TTFLIBS = SDL2ttf.lib
 
-CFLAGS+= $(INCPATH) -D__MACOSCLASSIC__
+CFLAGS+= $(INCPATH) -D__MACOSCLASSIC__ -DHAVE_OPENGL=1
 
 TARGETS = testatomic.xcoff testdisplayinfo.xcoff testbounds.xcoff testdraw2.xcoff \
           testdrawchessboard.xcoff testdropfile.xcoff testerror.xcoff testfile.xcoff \

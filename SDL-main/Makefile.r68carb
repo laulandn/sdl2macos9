@@ -36,6 +36,7 @@ SOURCES = \
 	./src/audio/*.c \
 	./src/audio/macosclassic/*.c \
 	./src/audio/disk/*.c \
+	./src/audio/dummy/*.c \
 	./src/cpuinfo/*.c \
 	./src/events/*.c \
 	./src/file/*.c \
@@ -93,7 +94,7 @@ $(TESTLIB_STATIC): $(TESTLIB_OBJECTS)
 	@$(AR) crv $@ $^
 	@$(RANLIB) $@
 
-$(TARGET_STATIC): $(OBJECTS)
+$(TARGET_STATIC): $(OBJECTS) $(CURSOR_DEVICES_GLUE)
 	@echo Creating $@
 	@$(AR) crv $@ $^
 	@$(RANLIB) $@
@@ -111,16 +112,18 @@ clean:
 
 install:
 	mkdir -p $(PATH_TO_RETRO68)/include/SDL2
+	mkdir -p $(PATH_TO_RETRO68)/lib
+	cp include/* $(PATH_TO_RETRO68)/include
 	cp include/* $(PATH_TO_RETRO68)/include/SDL2
 	cp libSDL*.a $(PATH_TO_RETRO68)/lib
 
 %.o : %.c
 	@echo Compiling $<
-	@$(CC) -o $@ -c $< $(CFLAGS)
+	@$(CC) -o $@ -c $< $(CPPFLAGS) $(CFLAGS)
 
 %.d : %.c
 	@echo Making dependencies for $<
-	@$(CC) -MM -MP -MT $(@:.d=.o) -o $@ $< $(CFLAGS)
+	@$(CC) -MM -MP -MT $(@:.d=.o) -o $@ $< $(CPPFLAGS) $(CFLAGS)
 
 # Load .d files
 ifneq ($(MAKECMDGOALS),clean)

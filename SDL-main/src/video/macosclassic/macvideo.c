@@ -262,7 +262,7 @@ static void Mac_AddDSpModes(SDL_VideoDisplay *display)
                         ? SDL_PIXELFORMAT_RGB555
                         : SDL_PIXELFORMAT_RGB888;
 #ifdef MAC_DEBUG
-      fprintf(stderr,"Adding mode %d by %d rate %d format %d\n",mode.w,mode.h,mode.refresh_rate,mode.format); fflush(stderr);
+      fprintf(stderr,"Adding mode %d by %d rate %d format %ld\n",mode.w,mode.h,mode.refresh_rate,mode.format); fflush(stderr);
 #endif
       SDL_AddDisplayMode(display, &mode);
     }
