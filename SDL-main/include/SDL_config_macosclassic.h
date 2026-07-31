@@ -202,7 +202,9 @@ typedef unsigned int uintptr_t;
 #define SDL_VIDEO_DRIVER_MACOSCLASSIC  1
 
 /* Enable OpenGL support */
+#ifdef powerc
 #define SDL_VIDEO_OPENGL 1
+#endif
 #define SDL_VIDEO_RENDER_OGL 1
 
 /* Enable the dummy filesystem driver (src/filesystem/dummy/\*.c) */

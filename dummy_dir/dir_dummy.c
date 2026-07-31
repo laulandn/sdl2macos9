@@ -2,9 +2,24 @@
 #include <dirent.h>
 
 
+char *getcwd(char *buf, size_t size)
+{
+  fprintf(stderr,"getcwd()...\n");  fflush(stderr);
+  if(!buf) { fprintf(stderr,"buf was NULL!\n"); fflush(stderr); }
+  return NULL;
+}
+
+char *getwd(char *buf)
+{
+  fprintf(stderr,"getwd()...\n");  fflush(stderr);
+  if(!buf) { fprintf(stderr,"buf was NULL!\n"); fflush(stderr); }
+  return NULL;
+}
+
+
 int access(const char *path, int mode)
 {
-  fprintf(stderr,"access(%s,%d)...\n",path,mode);  fflush(stderr);
+  fprintf(stderr,"access()...\n");  fflush(stderr);
   if(!path) { fprintf(stderr,"path was NULL!\n"); fflush(stderr); }
   return -1;
 }

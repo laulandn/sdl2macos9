@@ -136,9 +136,16 @@ static SDL_bool MACOSAUDIO_Available(void)
     NumVersion version = SndSoundManagerVersion();
     long attributes = 0;
 
+    /* On m68k this seems to always return zero! */
+#ifdef powerc
     if (version.majorRev < 3) {
+#ifdef MAC_DEBUG
+        fprintf(stderr,"sound manager version 3 not avail, only %d!\n",version.majorRev); fflush(stderr);
+#endif
         return SDL_FALSE;
     }
+#endif
+
     if (Gestalt(gestaltSoundAttr, &attributes) != noErr) {
         return SDL_FALSE;
     }
@@ -324,6 +331,9 @@ static void MACOSAUDIO_CloseDevice(_THIS)
 static SDL_bool MACOSAUDIO_Init(SDL_AudioDriverImpl *impl)
 {
     if (!MACOSAUDIO_Available()) {
+#ifdef MAC_DEBUG
+        fprintf(stderr,"MACOSAUDIO_Available is false!\n"); fflush(stderr);
+#endif
         return SDL_FALSE;
     }
 
