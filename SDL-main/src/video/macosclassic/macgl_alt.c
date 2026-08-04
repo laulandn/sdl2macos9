@@ -33,7 +33,7 @@ int Mac_GL_SetDrawableActive(int active)
     for (context = mac_contexts; context; context = context->next) {
         if (context->drawable_attached == active)
             continue;
-
+/*
         if (active) {
             if (!macport || !aglSetDrawable(context->agl, macport)) {
                 Mac_AGLError("aglSetDrawable(window)");
@@ -45,7 +45,7 @@ int Mac_GL_SetDrawableActive(int active)
             result = -1;
             continue;
         }
-
+*/
         context->drawable_attached = active;
     }
     return result;
@@ -57,19 +57,20 @@ void Mac_GL_Update(void)
 
     if (!mac_window_active)
         return;
-    for (context = mac_contexts; context; context = context->next) {
+    /*for (context = mac_contexts; context; context = context->next) {
         if (context->drawable_attached && !aglUpdateContext(context->agl)) {
             SDL_LogWarn(SDL_LOG_CATEGORY_VIDEO,
                         "macosclassic: aglUpdateContext failed (AGL %u)",
                         (unsigned)aglGetError());
         }
-    }
+    }*/
+  aglUpdateCurrent();
 }
 
 static int Mac_AGLError(const char *operation)
 {
     GLenum code = aglGetError();
-    const GLubyte *description = aglErrorString(code);
+  const GLubyte *description = "who knows"; //aglErrorString(code);
     return SDL_SetError("%s failed (AGL %u: %s)", operation, (unsigned)code,
                         description ? (const char *)description : "unknown error");
 }
@@ -84,6 +85,7 @@ static void Mac_CToPascal(const char *source, Str255 destination)
 
 int glLoadLibrary(_THIS, const char *name)
 {
+  /*
     Str255 library_name;
     Str255 error_name;
     Ptr main_address = NULL;
@@ -106,6 +108,7 @@ int glLoadLibrary(_THIS, const char *name)
     SDL_strlcpy(_this->gl_config.driver_path, "OpenGLLibrary",
                 sizeof(_this->gl_config.driver_path));
     _this->gl_config.dll_handle = (void *)gl_library;
+   */
     return 0;
 }
 
@@ -208,10 +211,20 @@ SDL_GLContext glCreateContext(_THIS, SDL_Window *window)
     }
     attributes[count++] = AGL_NONE;
 
-    pixel_format = aglChoosePixelFormat(&device, 1, attributes);
+    pixel_format = aglChoosePixelFmt(&device, 1, attributes);
+#ifdef MAC_DEBUG
+  fprintf(stderr,"pixel_format=%d double_buffer_attribute=%d accerlated=%d\n",pixel_format,double_buffer_attribute,_this->gl_config.accelerated); fflush(stderr);
+#endif
+  pixel_format=1;
     if (!pixel_format && double_buffer_attribute >= 0 &&
         _this->gl_config.accelerated > 0) {
+#ifdef MAC_DEBUG
+  fprintf(stderr,"About to call aglGetError()...\n"); fflush(stderr);
+#endif
         GLenum first_error = aglGetError();
+#ifdef MAC_DEBUG
+  fprintf(stderr,"Call aglGetError().\n"); fflush(stderr);
+#endif
 
         /* Retry without double buffering while preserving the requested
            acceleration attributes. */
@@ -222,13 +235,18 @@ SDL_GLContext glCreateContext(_THIS, SDL_Window *window)
                      "macosclassic: hardware double buffering unavailable "
                      "(0x%lx); retrying with a single buffer",
                      (unsigned long)first_error);
-        pixel_format = aglChoosePixelFormat(&device, 1, attributes);
+        pixel_format = aglChoosePixelFmt(&device, 1, attributes);
+          pixel_format=1;
     }
+#ifdef MAC_DEBUG
+  fprintf(stderr,"After try.\n"); fflush(stderr);
+#endif
     if (!pixel_format) {
         Mac_AGLError("aglChoosePixelFormat");
         return NULL;
     }
 
+/*
     if (!aglDescribePixelFormat(pixel_format, AGL_PIXEL_SIZE, &pixel_size)) {
         Mac_AGLError("aglDescribePixelFormat(AGL_PIXEL_SIZE)");
         aglDestroyPixelFormat(pixel_format);
@@ -240,6 +258,13 @@ SDL_GLContext glCreateContext(_THIS, SDL_Window *window)
     aglDescribePixelFormat(pixel_format, AGL_STENCIL_SIZE, &stencil_size);
     aglDescribePixelFormat(pixel_format, AGL_DOUBLEBUFFER, &double_buffer);
     (void)aglGetError();
+    */
+    pixel_size=32;
+    accelerated=0;
+    renderer_id=0;
+    depth_size=3;
+    stencil_size=3;
+    double_buffer=0;
     SDL_LogDebug(SDL_LOG_CATEGORY_VIDEO,
                  "macosclassic: AGL format accelerated=%ld renderer=0x%lx "
                  "color=%ld depth=%ld stencil=%ld double=%ld",
@@ -247,11 +272,12 @@ SDL_GLContext glCreateContext(_THIS, SDL_Window *window)
                  (long)pixel_size, (long)depth_size, (long)stencil_size,
                  (long)double_buffer);
 
-    if (_this->gl_config.accelerated > 0 && !accelerated) {
+/*    if (_this->gl_config.accelerated > 0 && !accelerated) {
         aglDestroyPixelFormat(pixel_format);
         SDL_SetError("AGL returned a software format for a hardware-only request");
         return NULL;
     }
+    */
     if (pixel_size != myDepth) {
         /* A 32-bit display may have only a 16-bit accelerated AGL format. */
         SDL_LogWarn(SDL_LOG_CATEGORY_VIDEO,
@@ -265,19 +291,20 @@ SDL_GLContext glCreateContext(_THIS, SDL_Window *window)
     }
     context = (MacGLContext *)SDL_calloc(1, sizeof(*context));
     if (!context) {
-        aglDestroyPixelFormat(pixel_format);
+        //aglDestroyPixelFormat(pixel_format);
         SDL_OutOfMemory();
         return NULL;
     }
     context->agl = aglCreateContext(pixel_format, share);
     context->double_buffered = double_buffer ? 1 : 0;
-    aglDestroyPixelFormat(pixel_format);
+    //aglDestroyPixelFormat(pixel_format);
     if (!context->agl) {
         SDL_free(context);
         Mac_AGLError("aglCreateContext");
         return NULL;
     }
     context->window = window;
+    /*
     if (!aglSetDrawable(context->agl, macport) ||
         !aglSetCurrentContext(context->agl)) {
         aglSetDrawable(context->agl, NULL);
@@ -285,7 +312,7 @@ SDL_GLContext glCreateContext(_THIS, SDL_Window *window)
         SDL_free(context);
         Mac_AGLError("attaching the AGL drawable");
         return NULL;
-    }
+    }*/
     context->drawable_attached = 1;
     context->next = mac_contexts;
     mac_contexts = context;
@@ -302,9 +329,9 @@ int glSetSwapInterval(_THIS, int interval)
     /* There is no back-buffer presentation point to synchronize. Accept the
        application's preference while leaving front-buffer delivery alone. */
     if (!context->double_buffered) return 0;
-    if (!aglSetInteger(context->agl, AGL_SWAP_INTERVAL, &value)) {
+    /*if (!Seger(context->agl, AGL_SWAP_INTERVAL, &value)) {
         return Mac_AGLError("aglSetInteger(AGL_SWAP_INTERVAL)");
-    }
+    }*/
     return 0;
 }
 
@@ -327,15 +354,17 @@ int glMakeCurrent(_THIS, SDL_Window *window, SDL_GLContext sdl_context)
 {
     MacGLContext *context = (MacGLContext *)sdl_context;
     (void)_this;
+    /*
     if (!context) {
         if (!aglSetCurrentContext(NULL)) return Mac_AGLError("aglSetCurrentContext(NULL)");
         mac_current_context = NULL;
         return 0;
     }
+    */
     if (window && context->window != window) {
         context->window = window;
     }
-    if (!aglSetCurrentContext(context->agl)) return Mac_AGLError("aglSetCurrentContext");
+    //if (!aglSetCurrentContext(context->agl)) return Mac_AGLError("aglSetCurrentContext");
     mac_current_context = context;
     return 0;
 }
@@ -347,6 +376,7 @@ void glUpdateWindow(_THIS, SDL_Window *window)
 
     if (!mac_window_active)
         return;
+  /*
     for (context = mac_contexts; context; context = context->next) {
         if (context->window == window && context->drawable_attached &&
             !aglUpdateContext(context->agl)) {
@@ -354,7 +384,8 @@ void glUpdateWindow(_THIS, SDL_Window *window)
                         "macosclassic: aglUpdateContext failed (AGL %u)",
                         (unsigned)aglGetError());
         }
-    }
+    }*/
+  aglUpdateCurrent();
 }
 
 void glDeleteContext(_THIS, SDL_GLContext sdl_context)
@@ -370,8 +401,8 @@ void glDeleteContext(_THIS, SDL_GLContext sdl_context)
             break;
         }
     }
-    if (aglGetCurrentContext() == context->agl) aglSetCurrentContext(NULL);
-    aglSetDrawable(context->agl, NULL);
+    //if (aglGetCurrentContext() == context->agl) aglSetCurrentContext(NULL);
+    //aglSetDrawable(context->agl, NULL);
     if (mac_current_context == context) mac_current_context = NULL;
     aglDestroyContext(context->agl);
     SDL_free(context);
@@ -379,6 +410,7 @@ void glDeleteContext(_THIS, SDL_GLContext sdl_context)
 
 void glUnloadLibrary(_THIS)
 {
+  /*
     if (gl_library_open) {
         CloseConnection(&gl_library);
         gl_library_open = SDL_FALSE;
@@ -387,6 +419,7 @@ void glUnloadLibrary(_THIS)
     _this->gl_config.driver_loaded = 0;
     _this->gl_config.dll_handle = NULL;
     _this->gl_config.driver_path[0] = '\0';
+   */
 }
 
 #endif
