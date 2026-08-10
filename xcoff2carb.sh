@@ -11,13 +11,14 @@ MakePEF -o $1.pef $1
 # Apple's Rez, just for reference, doesn't actually work
 #cmd="/Developer/Tools/Rez $RES -s $RINC -a -t APPL -c '????' -o $1.pef"
 
-# Uncomment on Linux or modern MacOS
+# This only exists on ancient MacOS X
+if [[ -d "/Developer" ]]; then
+  cp $1.pef $1.APPL
+  cp $PATH_TO_SDL2/resforkcarb.raw $1.APPL/rsrc
+  cmd="/Developer/Tools/Setfile -t APPL -c '????' $1.APPL"
+else
 cmd="$PATH_TO_RETRO68/../bin/Rez -I$RINC $RES --data $1.pef -t APPL -c 1234 -o $1.bin --cc $1.APPL --cc $1.dsk"
-
-# Uncomment on Tiger
-#cp $1.pef $1.APPL
-#cp $PATH_TO_SDL2/resforkcarb.raw $1.APPL/rsrc
-#cmd="/Developer/Tools/Setfile -t APPL -c '????' $1.APPL"
+fi
 
 echo $cmd
 $cmd

@@ -5,8 +5,8 @@ PATH_TO_RETRO68=$(HOME)/Retro68-build/toolchain/powerpc-apple-macos
 
 AR = ar
 RANLIB = ranlib
-CC = gcc -DTARGET_API_MAC_CARBON=1
-CXX = g++ -DTARGET_API_MAC_CARBON=1
+CC = gcc -DTARGET_API_MAC_CARBON=1 -DTARGET_CARBON=1 -DTARGET_OS_OSX=1
+CXX = g++ -DTARGET_API_MAC_CARBON=1 -DTARGET_CARBON=1 -DTARGET_OS_OSX=1
 STRIP = strip
 #CRT ?= newlib
 INSTALL_PATH ?=
@@ -15,7 +15,17 @@ CATCOMP = catcomp # TODO: is there a cross-compiler version?
 #MACDATE = $(shell date +"%-d.%m.%Y")
 
 #CFLAGS  = -mcrt=$(CRT) -gstabs -O3 -Wall -Werror -Wshadow -fPIC -fcommon -I./include -D__MACDATE__=\"$(MACDATE)\"
-CFLAGS  = -g -Wall -Wshadow -I./include -D__MACOSCLASSIC__
+RETRO68_ROOT ?= $(abspath $(dir $(shell command -v $(CC)))/..)
+ifeq ($(RETRO68_ROOT),)
+RETRO68_ROOT = $(PATH_TO_RETRO68)/..
+endif
+CURSOR_DEVICES_GLUE =
+CFLAGS ?= -g -Wall
+#CFLAGS ?= -g -Wall -Wshadow
+#CPPFLAGS += -I./include -D__MACOSCLASSIC__ -DSDL_MACOSCLASSIC_INPUTSPROCKET=1 -DSDL_MACOSCLASSIC_DRAWSPROCKET=1 -DSDL_MACOSCLASSIC_AGL=1
+#CPPFLAGS += -I./include -D__MACOSCLASSIC__ -DMAC_DEBUG=1
+CPPFLAGS += -I./include -D__MACOSCLASSIC__ -DMAC_DEBUG=1
+
 
 TARGET_STATIC  = libSDL2.a
 #TARGET_SHARED  = libSDL2-2.31.so
@@ -28,6 +38,7 @@ SOURCES = \
 	./src/audio/*.c \
 	./src/audio/macosclassic/*.c \
 	./src/audio/disk/*.c \
+	./src/audio/dummy/*.c \
 	./src/cpuinfo/*.c \
 	./src/events/*.c \
 	./src/file/*.c \
@@ -85,7 +96,7 @@ $(TESTLIB_STATIC): $(TESTLIB_OBJECTS)
 	@$(AR) crv $@ $^
 	@$(RANLIB) $@
 
-$(TARGET_STATIC): $(OBJECTS)
+$(TARGET_STATIC): $(OBJECTS) $(CURSOR_DEVICES_GLUE)
 	@echo Creating $@
 	@$(AR) crv $@ $^
 	@$(RANLIB) $@
@@ -102,17 +113,17 @@ clean:
 	make -C test -fMakefile.carbon clean
 
 install:
-	mkdir -p $(PATH_TO_RETRO68)/include/SDL2
-	cp include/* $(PATH_TO_RETRO68)/include/SDL2
-	cp libSDL*.a $(PATH_TO_RETRO68)/lib
+#	mkdir -p $(PATH_TO_RETRO68)/include/SDL2
+#	cp include/* $(PATH_TO_RETRO68)/include/SDL2
+#	cp libSDL*.a $(PATH_TO_RETRO68)/lib
 
 %.o : %.c
 	@echo Compiling $<
-	@$(CC) -o $@ -c $< $(CFLAGS)
+	@$(CC) -o $@ -c $< $(CPPFLAGS) $(CFLAGS)
 
 %.d : %.c
 	@echo Making dependencies for $<
-	@$(CC) -MM -MP -MT $(@:.d=.o) -o $@ $< $(CFLAGS)
+	@$(CC) -MM -MP -MT $(@:.d=.o) -o $@ $< $(CPPFLAGS) $(CFLAGS)
 
 # Load .d files
 ifneq ($(MAKECMDGOALS),clean)

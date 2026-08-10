@@ -7,7 +7,10 @@
 #ifndef SDL_MACOSCLASSIC_AGL
 
 #include "SDL_agl.h"
+#ifdef TARGET_OS_OSX
+#else
 #include <CodeFragments.h>
+#endif
 
 typedef struct MacGLContext
 {

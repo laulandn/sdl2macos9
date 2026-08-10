@@ -24,8 +24,11 @@
 #include "../SDL_sysvideo.h"
 #include "../../events/SDL_windowevents_c.h"
 #include "sdl_mac.h"
+#ifdef TARGET_OS_OSX
+#else
 #include <Displays.h>
 #include <Processes.h>
+#endif
 #ifdef SDL_MACOSCLASSIC_DRAWSPROCKET
 #include <DrawSprocket.h>
 #endif

@@ -30,7 +30,7 @@ CONV=$(HOME)/sdl2macos9/xcoff2carb.sh
 	$(CC) $(CFLAGS) -c -o$*.o $*.cpp
 
 
-all: test
+all:
 
 clean:
 	rm -f test *.o *.pef *.dsk *.APPL *.bin *.gdb
@@ -65,4 +65,8 @@ macthread: macthread.o
 NewNewGWorld: NewNewGWorld.o
 	$(LD) -oNewNewGWorld$(EXT) NewNewGWorld.o $(LDFLAGS)
 	$(CONV) NewNewGWorld
+
+sdl2gl: sdl2gl.o
+	$(LD) -osdl2gl$(EXT) sdl2gl.o $(LDFLAGS)
+	$(CONV) sdl2gl
 

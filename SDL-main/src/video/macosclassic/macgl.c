@@ -7,7 +7,10 @@
 #ifdef SDL_MACOSCLASSIC_AGL
 
 #include "SDL_agl.h"
+#ifdef TARGET_OS_OSX
+#else
 #include <CodeFragments.h>
+#endif
 
 typedef struct MacGLContext
 {
@@ -209,6 +212,9 @@ SDL_GLContext glCreateContext(_THIS, SDL_Window *window)
     attributes[count++] = AGL_NONE;
 
     pixel_format = aglChoosePixelFormat(&device, 1, attributes);
+#ifdef MAC_DEBUG
+  fprintf(stderr,"pixel_format=%d double_buffer_attribute=%d accerlated=%d\n",pixel_format,double_buffer_attribute,_this->gl_config.accelerated); fflush(stderr);
+#endif
     if (!pixel_format && double_buffer_attribute >= 0 &&
         _this->gl_config.accelerated > 0) {
         GLenum first_error = aglGetError();

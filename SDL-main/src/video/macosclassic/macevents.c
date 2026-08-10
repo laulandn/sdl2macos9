@@ -26,8 +26,11 @@
 #include "../../events/SDL_windowevents_c.h"
 #include "SDL_events.h"
 #include "sdl_mac.h"
+#ifdef TARGET_OS_OSX
+#else
 #include <AppleEvents.h>
 #include <Gestalt.h>
+#endif
 
 #ifdef SDL_VIDEO_DRIVER_MACOSCLASSIC
 

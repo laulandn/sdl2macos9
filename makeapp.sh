@@ -12,4 +12,6 @@ mkdir $1.app/Contents/Resources
 mv $1 $1.app/Contents/MacOS
 
 cp $PATH_TO_SDL2/PkgInfo $1.app/Contents
+
+# NOTE: This is a TOTAL GOOFY HACK, but works for now...
 sed s/ClockView/$1/g $PATH_TO_SDL2/Info.plist >$1.app/Contents/Info.plist

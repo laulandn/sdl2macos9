@@ -23,7 +23,10 @@
 #define SDL_agl_h_
 
 #include "SDL_opengl.h"
+#ifdef TARGET_OS_OSX
+#else
 #include <Quickdraw.h>
+#endif
 
 #ifdef __cplusplus
 extern "C" {

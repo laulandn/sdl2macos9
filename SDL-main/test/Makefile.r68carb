@@ -2,14 +2,14 @@ PATH_TO_RETRO68=$(HOME)/Retro68-build/toolchain/powerpc-apple-macos
 
 .SUFFIXES:	.xcoff
 
-CC=powerpc-apple-macos-gcc -carbon -DTARGET_API_MAC_CARBON=1
-CXX=powerpc-apple-macos-g++ -carbon -DTARGET_API_MAC_CARBON=1
+CC=powerpc-apple-macos-gcc -carbon -DTARGET_API_MAC_CARBON=1 -DTARGET_CARBON=1
+CXX=powerpc-apple-macos-g++ -carbon -DTARGET_API_MAC_CARBON=1 -DTARGET_CARBON=1
 
 INCPATH+= -I"../include"
 
 LIBPATH = -L..
 #LIBS    = -lSDL2_test -lSDL2 -lm -lRetroConsole
-LIBS    = -lSDL2_test -lSDL2 -lm
+LIBS    = -lSDL2_test -lSDL2 -lm -lOpenGLLibrary -lDrawSprocketLib
 
 #CFLAGS+= -DHAVE_SDL_TTF
 #TTFLIBS = SDL2ttf.lib
