@@ -22,7 +22,6 @@
 
 #ifdef SDL_THREAD_MACOSCLASSIC
 
-#define MYDEBUG 1
 
 /* Thread management routines for SDL */
 
@@ -51,6 +50,10 @@ static void *RunThread(void *data)
     return NULL;
 }
 
+#if defined(TARGET_API_MAC_CARBON) && TARGET_API_MAC_CARBON
+static ThreadEntryUPP run_thread_upp;
+#endif
+
 #ifdef SDL_PASSED_BEGINTHREAD_ENDTHREAD
 int SDL_SYS_CreateThread(SDL_Thread *thread,
                          pfnSDL_CurrentBeginThread pfnBeginThread,
@@ -63,7 +66,13 @@ int SDL_SYS_CreateThread(SDL_Thread *thread)
     //fprintf(stderr,"macosclassic create thread name=%s\n",thread->name); fflush(stderr);
     // style entry param stack opts &result &id
     // NOTE: We don't handle return code
-    if (NewThread(kCooperativeThread, /*thread->userfunc*/RunThread, thread, 65535, 0, NULL, &thread->handle) != noErr) {
+#if defined(TARGET_API_MAC_CARBON) && TARGET_API_MAC_CARBON
+    if (!run_thread_upp)
+      run_thread_upp = NewThreadEntryUPP(RunThread);
+    if (NewThread(kCooperativeThread, run_thread_upp, thread, 65535, 0, NULL, &thread->handle) != noErr) {
+#else
+    if (NewThread(kCooperativeThread, RunThread, thread, 65535, 0, NULL, &thread->handle) != noErr) {
+#endif
       fprintf(stderr,"macosclassic create thread failed!\n"); fflush(stderr);
       return -1;
     }
@@ -105,32 +114,22 @@ int SDL_SYS_SetThreadPriority(SDL_ThreadPriority priority)
 
 void SDL_SYS_WaitThread(SDL_Thread *thread)
 {
-    int wait=true; 
-    ThreadState tstate;
+    ThreadState tstate = kStoppedThreadState;
     //fprintf(stderr,"macosclassic wait thread=%08lx\n",(long)thread); fflush(stderr);
 #ifdef MYDEBUG
     fprintf(stderr,"macosclassic wait thread %08lx handle=%08lx\n",(long)thread,(long)thread->handle); fflush(stderr);
 #endif
-    GetThreadState(thread->handle,&tstate);
+    while (GetThreadState(thread->handle, &tstate) == noErr &&
+           tstate != kStoppedThreadState) {
+        YieldToAnyThread();
+    }
 #ifdef MYDEBUG
     fprintf(stderr,"tstate=%d state=%08lx status=%08lx\n",tstate,(long)thread->state.value,(long)thread->status);
 #endif
-    if(thread->state.value) { 
-#ifdef MYDEBUG
-      fprintf(stderr,"NOT WAITING!\n"); 
-#endif
-      wait=false; 
-    }
-    else { 
-#ifdef MYDEBUG
-      fprintf(stderr,"WILL WAIT!\n"); 
-#endif
-    }
-    /*if(tstate) { fprintf(stderr,"NOT WAITING2!\n"); wait=false; }
-    else { fprintf(stderr,"WOULD WAIT2!\n"); }*/
-    // TODO: Actually wait for the thread to complete, while yielding, here...
-    if(wait) for(int i=0;i<1000;i++) { YieldToAnyThread();}
-    return;
+    /* Returning from the entry point makes Thread Manager dispose the
+       native thread automatically. GetThreadState reports that transition;
+       an explicit DisposeThread here would only target an expired ID. */
+    thread->handle = kNoThreadID;
 }
 
 void SDL_SYS_DetachThread(SDL_Thread *thread)
@@ -139,6 +138,9 @@ void SDL_SYS_DetachThread(SDL_Thread *thread)
     fprintf(stderr,"macosclassic detach thread=%08lx\n",(long)thread); fflush(stderr);
     fprintf(stderr,"macosclassic detach thread handle=%08lx\n",(long)thread->handle); fflush(stderr);
 #endif
+    /* Thread Manager also disposes a detached native thread when its entry
+       point returns; SDL_RunThread owns the detached SDL wrapper lifetime. */
+    (void)thread;
     return;
 }
 

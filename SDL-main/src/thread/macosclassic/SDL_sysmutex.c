@@ -153,7 +153,7 @@ int SDL_TryLockMutex(SDL_mutex *mutex)
          so unlocks from other threads will fail.
          */
 #ifndef FAKE
-        retval = SDL_SemWait(mutex->sem);
+        retval = SDL_SemTryWait(mutex->sem);
         if (retval == 0) {
             mutex->owner = this_thread;
             mutex->recursive = 0;

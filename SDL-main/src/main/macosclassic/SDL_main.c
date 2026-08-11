@@ -38,6 +38,7 @@
 #include <Dialogs.h>
 #include <Fonts.h>
 #include <Events.h>
+#include <TextEdit.h>
 #include <Resources.h>
 #include <Folders.h>
 #include <Gestalt.h>
@@ -53,6 +54,42 @@
 #endif
 
 #ifdef SDL_MAIN_NEEDED
+
+#if !TARGET_API_MAC_CARBON
+/* Classic's default Color QuickDraw application stack is only 24 KiB.
+   Modern SDL games routinely have individual automatic frames larger than
+   that, so reserve a real main stack before MaxApplZone grows the heap up to
+   the application limit. */
+#ifndef SDL_MACOSCLASSIC_MAIN_STACK_RESERVE
+#define SDL_MACOSCLASSIC_MAIN_STACK_RESERVE (4L * 1024L * 1024L)
+#endif
+#ifndef SDL_MACOSCLASSIC_MIN_HEAP_RESERVE
+#define SDL_MACOSCLASSIC_MIN_HEAP_RESERVE (4L * 1024L * 1024L)
+#endif
+
+static void Mac_ReserveMainStack(void)
+{
+	THz application_zone = ApplicationZone();
+	Ptr application_limit = GetApplLimit();
+	long expandable_heap;
+	long stack_reserve = SDL_MACOSCLASSIC_MAIN_STACK_RESERVE;
+
+	if (!application_zone || !application_limit)
+		return;
+
+	/* The unallocated space between the current heap boundary and the
+	   application limit is shared by future heap growth and the main stack.
+	   Never consume the heap reserve merely because the application's SIZE
+	   resource is smaller than SDL's preferred partition. */
+	expandable_heap = (long)application_limit - (long)application_zone->bkLim;
+	if (expandable_heap <= SDL_MACOSCLASSIC_MIN_HEAP_RESERVE)
+		return;
+	if (stack_reserve > expandable_heap - SDL_MACOSCLASSIC_MIN_HEAP_RESERVE)
+		stack_reserve = expandable_heap - SDL_MACOSCLASSIC_MIN_HEAP_RESERVE;
+	if (stack_reserve > 0)
+		SetApplLimit(application_limit - stack_reserve);
+}
+#endif
 
 #if !(defined(__APPLE__) && defined(__MACH__))
 /* The standard output files */
@@ -525,25 +562,45 @@ static int readPrefsResource (PrefsRecord *prefs) {
     prefs_handle = Get1Resource( 'CLne', 128 );
 
 	if (prefs_handle != NULL) {
+		Size prefs_size;
 		int offset = 0;
-//		int j      = 0;
+		int command_length;
+		int video_length;
 		
 		HLock(prefs_handle);
+		prefs_size = GetHandleSize(prefs_handle);
+		if (prefs_size < 4)
+			goto invalid_resource;
 		
+		/* Validate both Pascal strings before copying. Old builds could write a
+		   malformed CLne resource; never let it overrun the fixed Str255 fields. */
+		command_length = (unsigned char)(*prefs_handle)[0];
+		offset = command_length + 1;
+		if (offset >= prefs_size)
+			goto invalid_resource;
+		video_length = (unsigned char)(*prefs_handle)[offset];
+		if (offset + video_length + 3 > prefs_size)
+			goto invalid_resource;
+
 		/* Get command line string */	
-		SDL_memcpy(prefs->command_line, *prefs_handle, (*prefs_handle)[0]+1);
+		SDL_memcpy(prefs->command_line, *prefs_handle, command_length + 1);
 
 		/* Get video driver name */
-		offset += (*prefs_handle)[0] + 1;	
-		SDL_memcpy(prefs->video_driver_name, *prefs_handle + offset, (*prefs_handle)[offset] + 1);		
+		SDL_memcpy(prefs->video_driver_name, *prefs_handle + offset, video_length + 1);
 		
 		/* Get save-to-file option (1 or 0) */
-		offset += (*prefs_handle)[offset] + 1;
-		prefs->output_to_file = (*prefs_handle)[offset];
+		offset += video_length + 1;
+		prefs->output_to_file = (*prefs_handle)[offset] ? 1 : 0;
 		
+		HUnlock(prefs_handle);
 		ReleaseResource( prefs_handle );
     
         return ResError() == noErr;
+
+invalid_resource:
+		HUnlock(prefs_handle);
+		ReleaseResource(prefs_handle);
+		return 0;
     }
 
     return 0;
@@ -556,8 +613,12 @@ static int writePrefsResource (PrefsRecord *prefs, short resource_file) {
     UseResFile (resource_file);
     
     prefs_handle = Get1Resource ( 'CLne', 128 );
-    if (prefs_handle != NULL)
+    if (prefs_handle != NULL) {
         RemoveResource (prefs_handle);
+        if (ResError() != noErr)
+            return 0;
+        DisposeHandle(prefs_handle);
+    }
     
     prefs_handle = NewHandle ( prefs->command_line[0] + prefs->video_driver_name[0] + 4 );
     if (prefs_handle != NULL) {
@@ -576,15 +637,25 @@ static int writePrefsResource (PrefsRecord *prefs, short resource_file) {
         
         /* Output-to-file option */
         offset += prefs->video_driver_name[0] + 1;
-        *( *((char**)prefs_handle) + offset)     = (char)prefs->output_to_file;
-        *( *((char**)prefs_handle) + offset + 1) = 0;
+        (*prefs_handle)[offset]     = (char)prefs->output_to_file;
+        (*prefs_handle)[offset + 1] = 0;
+
+        HUnlock(prefs_handle);
               
-        AddResource   (prefs_handle, 'CLne', 128, "\pCommand Line");
+        AddResource(prefs_handle, 'CLne', 128,
+                    (ConstStr255Param)"\pCommand Line");
+        if (ResError() != noErr) {
+            DisposeHandle(prefs_handle);
+            return 0;
+        }
         WriteResource (prefs_handle);
-        UpdateResFile (resource_file);
-        DisposeHandle (prefs_handle);
-        
-        return ResError() == noErr;
+        if (ResError() == noErr)
+            UpdateResFile (resource_file);
+        {
+            int no_error = ResError() == noErr;
+            ReleaseResource(prefs_handle);
+            return no_error;
+        }
     }
     
     return 0;
@@ -653,7 +724,9 @@ int main(int argc, char *argv[])
 #define VIDEO_ID_TOOLBOX      2
 
     // TODODODODODOD: There is something very wrong in the next line
-    PrefsRecord prefs = { (unsigned char *)DEFAULT_ARGS, DEFAULT_VIDEO_DRIVER, DEFAULT_OUTPUT_TO_FILE }; 
+    PrefsRecord prefs = { { 0 }, { 0 }, DEFAULT_OUTPUT_TO_FILE };
+    memcpy(prefs.command_line, DEFAULT_ARGS, sizeof(DEFAULT_ARGS));
+    memcpy(prefs.video_driver_name, DEFAULT_VIDEO_DRIVER, sizeof(DEFAULT_VIDEO_DRIVER));
 	
 #if !(defined(__APPLE__) && defined(__MACH__))
 	int     nargs;
@@ -681,23 +754,27 @@ int main(int argc, char *argv[])
 
 #endif
 
-	/* Kyle's SDL command-line dialog code ... */
+	/* Grow the application heap and allocate master-pointer blocks before
+	   initializing Toolbox managers, in the documented Classic startup
+	   order. */
 #if !TARGET_API_MAC_CARBON
+	Mac_ReserveMainStack();
+	MaxApplZone ();
+	MoreMasters ();
+	MoreMasters ();
+
+	/* Kyle's SDL command-line dialog code ... */
 	InitGraf    (&qd.thePort);
 	InitFonts   ();
 	InitWindows ();
 	InitMenus   ();
+	TEInit      ();
 	InitDialogs (nil);
 #endif
 	InitCursor ();
 
 	FlushEvents(everyEvent,0);
 	SetEventMask(everyEvent&~autoKeyMask);
-#if !TARGET_API_MAC_CARBON
-	MaxApplZone ();
-#endif
-	MoreMasters ();
-	MoreMasters ();
 
         fprintf(stderr,"Top of main...toolbox init'd...\n"); fflush(stderr);
 

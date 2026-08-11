@@ -17,6 +17,9 @@
 #ifndef __THREADS__
 #define __THREADS__
 
+#ifndef __MACTYPES__
+#include <MacTypes.h>
+#endif
 
 #ifndef __ERRORS__
 #include <Errors.h>

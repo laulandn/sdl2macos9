@@ -56,8 +56,6 @@ typedef struct SDL_cond_generic
 SDL_cond *SDL_CreateCond_generic(void)
 {
     SDL_cond_generic *cond;
-    fprintf(stderr,"generic create cond\n"); fflush(stderr);
-
     cond = (SDL_cond_generic *)SDL_malloc(sizeof(SDL_cond_generic));
     if (cond) {
         cond->lock = SDL_CreateMutex();
@@ -71,7 +69,6 @@ SDL_cond *SDL_CreateCond_generic(void)
     } else {
         SDL_OutOfMemory();
     }
-    fprintf(stderr,"generic created cond %08lx\n",(long)cond); fflush(stderr);
     return (SDL_cond *)cond;
 }
 
@@ -79,7 +76,6 @@ SDL_cond *SDL_CreateCond_generic(void)
 void SDL_DestroyCond_generic(SDL_cond *_cond)
 {
     SDL_cond_generic *cond = (SDL_cond_generic *)_cond;
-    fprintf(stderr,"generic destroy cond %08lx\n",(long)_cond); fflush(stderr);
     if (cond) {
         if (cond->wait_sem) {
             SDL_DestroySemaphore(cond->wait_sem);
@@ -92,14 +88,12 @@ void SDL_DestroyCond_generic(SDL_cond *_cond)
         }
         SDL_free(cond);
     }
-    fprintf(stderr,"generic destory cond done!\n"); fflush(stderr);
 }
 
 /* Restart one of the threads that are waiting on the condition variable */
 int SDL_CondSignal_generic(SDL_cond *_cond)
 {
     SDL_cond_generic *cond = (SDL_cond_generic *)_cond;
-    fprintf(stderr,"generic signal cond %08lx\n",(long)_cond); fflush(stderr);
     if (!cond) {
         return SDL_InvalidParamError("cond");
     }
@@ -117,7 +111,6 @@ int SDL_CondSignal_generic(SDL_cond *_cond)
         SDL_UnlockMutex(cond->lock);
     }
 
-    fprintf(stderr,"generic signal cond done!\n"); fflush(stderr);
     return 0;
 }
 
@@ -125,7 +118,6 @@ int SDL_CondSignal_generic(SDL_cond *_cond)
 int SDL_CondBroadcast_generic(SDL_cond *_cond)
 {
     SDL_cond_generic *cond = (SDL_cond_generic *)_cond;
-    fprintf(stderr,"generic broadcast cond %08lx\n",(long)_cond); fflush(stderr);
     if (!cond) {
         return SDL_InvalidParamError("cond");
     }
@@ -153,7 +145,6 @@ int SDL_CondBroadcast_generic(SDL_cond *_cond)
         SDL_UnlockMutex(cond->lock);
     }
 
-    fprintf(stderr,"generic broadcast cond done!\n"); fflush(stderr);
     return 0;
 }
 
@@ -182,8 +173,6 @@ int SDL_CondWaitTimeout_generic(SDL_cond *_cond, SDL_mutex *mutex, Uint32 ms)
 {
     SDL_cond_generic *cond = (SDL_cond_generic *)_cond;
     int retval;
-    fprintf(stderr,"generic waittimeout cond %08lx %08lx %d\n",(long)_cond,(long)mutex,(int)ms); fflush(stderr);
-
     if (!cond) {
         return SDL_InvalidParamError("cond");
     }
@@ -230,15 +219,12 @@ int SDL_CondWaitTimeout_generic(SDL_cond *_cond, SDL_mutex *mutex, Uint32 ms)
     /* Lock the mutex, as is required by condition variable semantics */
     SDL_LockMutex(mutex);
 
-    fprintf(stderr,"generic waittimeout cond done!\n"); fflush(stderr);
     return retval;
 }
 
 /* Wait on the condition variable forever */
 int SDL_CondWait_generic(SDL_cond *cond, SDL_mutex *mutex)
 {
-    fprintf(stderr,"generic wait cond %08lx %08lx\n",(long)cond,(long)mutex); fflush(stderr);
-    // TODO: Yield here?
     return SDL_CondWaitTimeout_generic(cond, mutex, SDL_MUTEX_MAXWAIT);
 }
 

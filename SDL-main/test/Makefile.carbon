@@ -2,8 +2,8 @@ PATH_TO_RETRO68=$(HOME)/Retro68-build/toolchain/powerpc-apple-macos
 
 .SUFFIXES:	.xcoff
 
-CC=gcc -DTARGET_API_MAC_CARBON=1 -g
-CXX=g++ -DTARGET_API_MAC_CARBON=1 -g
+CC=gcc -DTARGET_API_MAC_CARBON=1 -DTARGET_CARBON=1 -DTARGET_OS_MACOSX=1
+CXX=g++ -DTARGET_API_MAC_CARBON=1 -DTARGET_CARBON=1 -DTARGET_OS_MACOSX=1
 
 INCPATH+= -I"../include"
 
@@ -14,7 +14,7 @@ LIBS    = -lSDL2main -lSDL2_test -lSDL2 -lm -framework Carbon
 #CFLAGS+= -DHAVE_SDL_TTF
 #TTFLIBS = SDL2ttf.lib
 
-CFLAGS+= $(INCPATH) -D__MACOSCLASSIC__
+CFLAGS+= $(INCPATH) -D__MACOSCLASSIC__ -g
 
 TARGETS = testatomic.xcoff testdisplayinfo.xcoff testbounds.xcoff testdraw2.xcoff \
           testdrawchessboard.xcoff testdropfile.xcoff testerror.xcoff testfile.xcoff \

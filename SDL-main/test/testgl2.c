@@ -224,6 +224,7 @@ int main(int argc, char *argv[])
 
     /* Enable standard application logging */
     SDL_LogSetPriority(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_INFO);
+SDL_LogSetAllPriority(SDL_LOG_PRIORITY_DEBUG);
 
     /* Initialize parameters */
     fsaa = 0;
@@ -271,10 +272,15 @@ int main(int argc, char *argv[])
     if (accel >= 0) {
         state->gl_accelerated = accel;
     }
+    state->gl_major_version=1;
+    state->gl_minor_version=2;
 
     if (!SDLTest_CommonInit(state)) {
         quit(2);
     }
+
+		SDL_MinimizeWindow(state->windows[0]);
+		SDL_SetWindowFullscreen(state->windows[0], 0 );
 
     /* Create OpenGL context */
     context = SDL_GL_CreateContext(state->windows[0]);

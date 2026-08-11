@@ -122,6 +122,8 @@ int main(int argc, char *argv[])
     /* Enable standard application logging */
     SDL_LogSetPriority(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_INFO);
 
+SDL_LogSetAllPriority(SDL_LOG_PRIORITY_DEBUG);
+
     fprintf(stderr,"Going to SDL_Init...\n");
     /* Load the SDL library */
     if (SDL_Init(SDL_INIT_AUDIO | SDL_INIT_EVENTS) < 0) {

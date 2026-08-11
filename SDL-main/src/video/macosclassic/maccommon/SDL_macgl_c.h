@@ -27,7 +27,7 @@
 #if SDL_VIDEO_OPENGL
 #include "SDL_opengl.h"
 #if __MACOSX__
-#include <AGL/agl.h>   /* AGL.framework */
+#include "../SDL_agl.h"
 #else
 #include <agl.h>
 #endif
@@ -44,4 +44,3 @@ extern int Mac_GL_LoadLibrary(_THIS, const char *location);
 extern void Mac_GL_UnloadLibrary(_THIS);
 extern void* Mac_GL_GetProcAddress(_THIS, const char *proc);
 #endif
-
