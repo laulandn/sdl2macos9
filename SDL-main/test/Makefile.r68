@@ -9,14 +9,14 @@ INCPATH+= -I"../include"
 
 LIBPATH = -L..
 #LIBS    = -lSDL2_test -lSDL2 -lm -lRetroConsole
-LIBS    = -lSDL2_test -lSDL2 -lm ../../dummy_atomic/atomic_dummy.o -lOpenGLLibrary
-#LIBS    = -lSDL2_test -lSDL2 -lm -lThreadsLib
+LIBS    = -lSDL2_test -lSDL2 -lm ../../macos8addons/libmacos8addons.a -lOpenGLLibrary
+#LIBS    = -lSDL2_test -lSDL2 -lm -lThreadsLib 
 #LIBS    = -lSDL2_test -lSDL2 -lm -lThreadsLib -lInputSprocketLib -lDrawSprocketLib -lOpenGLLibrary
 
 #CFLAGS+= -DHAVE_SDL_TTF
 #TTFLIBS = SDL2ttf.lib
 
-CFLAGS+= $(INCPATH) -D__MACOSCLASSIC__ -DHAVE_OPENGL
+CFLAGS+= $(INCPATH) -D__MACOSCLASSIC__ -DSDL_MACOSCLASSIC_INPUTSPROCKET=1 -DSDL_MACOSCLASSIC_AGL=1 -DHAVE_OPENGL=1
 
 TARGETS = testatomic.xcoff testdisplayinfo.xcoff testbounds.xcoff testdraw2.xcoff \
           testdrawchessboard.xcoff testdropfile.xcoff testerror.xcoff testfile.xcoff \

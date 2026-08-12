@@ -20,6 +20,7 @@ MakePEF -o $1.pef $1
 # This only exists on ancient MacOS X
 if [[ -d "/Developer" ]]; then
   cp $1.pef $1.APPL
+#xattr -w com.apple.ResourceFork $.APPL $PATH_TO_SDL2/resforkppc.raw
   cp $PATH_TO_SDL2/resforkppc.raw $1.APPL/rsrc
   cmd="/Developer/Tools/Setfile -t APPL -c '????' $1.APPL"
 else

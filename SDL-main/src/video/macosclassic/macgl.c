@@ -12,6 +12,13 @@
 #include <CodeFragments.h>
 #endif
 
+
+#ifndef powerc
+extern void glBlendFuncSeparate(GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha);
+extern void glBlendEquation(GLenum mode);
+#endif
+
+
 typedef struct MacGLContext
 {
     AGLContext agl;
@@ -93,6 +100,7 @@ int glLoadLibrary(_THIS, const char *name)
     OSErr error;
 
     if (gl_library_open) return 0;
+#ifdef powerc
     if (name && *name && SDL_strcmp(name, "OpenGLLibrary") != 0) {
         return SDL_SetError("Classic Mac OS supports only OpenGLLibrary");
     }
@@ -103,6 +111,11 @@ int glLoadLibrary(_THIS, const char *name)
     if (error != noErr) {
         return SDL_SetError("Unable to load OpenGLLibrary (CFM error %d)", (int)error);
     }
+#else
+#ifdef MAC_DEBUG
+        fprintf(stderr,"macosclassic using static opengl...\n"); fflush(stderr);
+#endif
+#endif
 
     gl_library_open = SDL_TRUE;
     _this->gl_config.driver_loaded = 1;
@@ -125,6 +138,7 @@ void *glGetProcAddress(_THIS, const char *proc)
         fprintf(stderr,"glGetProcAddress %s\n",proc); fflush(stderr);
 #endif
     if (!gl_library_open && glLoadLibrary(_this, NULL) < 0) return NULL;
+#ifdef powerc
     Mac_CToPascal(proc, symbol_name);
     error = FindSymbol(gl_library, symbol_name, &symbol, &symbol_class);
     if (error != noErr ||
@@ -135,6 +149,67 @@ void *glGetProcAddress(_THIS, const char *proc)
     }
 #ifdef MAC_DEBUG
         fprintf(stderr,"Got it.\n"); fflush(stderr);
+#endif
+#else
+    /* There's a better way to do this...but this works for now... */
+    if(!strcmp("glBegin",proc)) symbol=(void *)glBegin;
+    if(!strcmp("glBindTexture",proc)) symbol=(void *)glBindTexture;
+    if(!strcmp("glBlendEquation",proc)) symbol=(void *)glBlendEquation;
+    if(!strcmp("glBlendFuncSeparate",proc)) symbol=(void *)glBlendFuncSeparate;
+    if(!strcmp("glClear",proc)) symbol=(void *)glClear;
+    if(!strcmp("glClearColor",proc)) symbol=(void *)glClear;
+    if(!strcmp("glColor3fv",proc)) symbol=(void *)glColor3fv;
+    if(!strcmp("glColor4f",proc)) symbol=(void *)glColor4f;
+    if(!strcmp("glColor4ub",proc)) symbol=(void *)glColor4ub;
+    if(!strcmp("glColorPointer",proc)) symbol=(void *)glColorPointer;
+    if(!strcmp("glDeleteTextures",proc)) symbol=(void *)glDeleteTextures;
+    if(!strcmp("glDepthFunc",proc)) symbol=(void *)glDepthFunc;
+    if(!strcmp("glDisable",proc)) symbol=(void *)glDisable;
+    if(!strcmp("glDisableClientState",proc)) symbol=(void *)glDisableClientState;
+    if(!strcmp("glDrawArrays",proc)) symbol=(void *)glDrawArrays;
+    if(!strcmp("glDrawPixels",proc)) symbol=(void *)glDrawPixels;
+    if(!strcmp("glEnable",proc)) symbol=(void *)glEnable;
+    if(!strcmp("glEnableClientState",proc)) symbol=(void *)glEnableClientState;
+    if(!strcmp("glEnd",proc)) symbol=(void *)glEnd;
+    if(!strcmp("glGenTextures",proc)) symbol=(void *)glGenTextures;
+    if(!strcmp("glGetError",proc)) symbol=(void *)glGetError;
+    if(!strcmp("glGetFloatv",proc)) symbol=(void *)glGetFloatv;
+    if(!strcmp("glGetIntegerv",proc)) symbol=(void *)glGetIntegerv;
+    if(!strcmp("glGetPointerv",proc)) symbol=(void *)glGetPointerv;
+    if(!strcmp("glGetString",proc)) symbol=(void *)glGetString;
+    if(!strcmp("glLineWidth",proc)) symbol=(void *)glLineWidth;
+    if(!strcmp("glLoadIdentity",proc)) symbol=(void *)glLoadIdentity;
+    if(!strcmp("glMatrixMode",proc)) symbol=(void *)glMatrixMode;
+    if(!strcmp("glOrtho",proc)) symbol=(void *)glOrtho;
+    if(!strcmp("glPixelStorei",proc)) symbol=(void *)glPixelStorei;
+    if(!strcmp("glPointSize",proc)) symbol=(void *)glPointSize;
+    if(!strcmp("glRasterPos2i",proc)) symbol=(void *)glRasterPos2i;
+    if(!strcmp("glReadBuffer",proc)) symbol=(void *)glReadBuffer;
+    if(!strcmp("glReadPixels",proc)) symbol=(void *)glReadPixels;
+    if(!strcmp("glRectf",proc)) symbol=(void *)glRectf;
+    if(!strcmp("glRotatef",proc)) symbol=(void *)glRotatef;
+    if(!strcmp("glScissor",proc)) symbol=(void *)glScissor;
+    if(!strcmp("glShadeModel",proc)) symbol=(void *)glShadeModel;
+    if(!strcmp("glTexCoord2f",proc)) symbol=(void *)glTexCoord2f;
+    if(!strcmp("glTexCoordPointer",proc)) symbol=(void *)glTexCoordPointer;
+    if(!strcmp("glTexEnvf",proc)) symbol=(void *)glTexEnvf;
+    if(!strcmp("glTexImage2D",proc)) symbol=(void *)glTexImage2D;
+    if(!strcmp("glTexParameteri",proc)) symbol=(void *)glTexParameteri;
+    if(!strcmp("glTexSubImage2D",proc)) symbol=(void *)glTexSubImage2D;
+    if(!strcmp("glVertex2f",proc)) symbol=(void *)glVertex2f;
+    if(!strcmp("glVertex3fv",proc)) symbol=(void *)glVertex3fv;
+    if(!strcmp("glVertexPointer",proc)) symbol=(void *)glVertexPointer;
+    if(!strcmp("glViewport",proc)) symbol=(void *)glViewport;
+    if(!symbol) {
+#ifdef MAC_DEBUG
+      fprintf(stderr,"Returning fake pointer for %s...this will cause a crash when called!\n",proc); fflush(stderr);
+#endif
+      symbol=(void *)0x8000;
+    }
+#ifdef MAC_DEBUG
+      fprintf(stderr,"Returning 0x%x\n",(int)symbol); fflush(stderr);
+#endif
+
 #endif
     return (void *)symbol;
 }
@@ -213,7 +288,7 @@ SDL_GLContext glCreateContext(_THIS, SDL_Window *window)
 
     pixel_format = aglChoosePixelFormat(&device, 1, attributes);
 #ifdef MAC_DEBUG
-  fprintf(stderr,"pixel_format=%d double_buffer_attribute=%d accerlated=%d\n",pixel_format,double_buffer_attribute,_this->gl_config.accelerated); fflush(stderr);
+  fprintf(stderr,"pixel_format=%d double_buffer_attribute=%d accerlated=%d\n",(int)pixel_format,double_buffer_attribute,_this->gl_config.accelerated); fflush(stderr);
 #endif
     if (!pixel_format && double_buffer_attribute >= 0 &&
         _this->gl_config.accelerated > 0) {

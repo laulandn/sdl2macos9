@@ -30,103 +30,166 @@
 
 static int MACOS_JoystickInit(void)
 {
+#ifdef DEBUG_JOYSTICK
+    fprintf(stderr,"macosclassic joystick init\n"); fflush(stderr);
+#endif
     return 0;
 }
 
 static int MACOS_JoystickGetCount(void)
 {
+#ifdef DEBUG_JOYSTICK
+    fprintf(stderr,"macosclassic joystick get count\n"); fflush(stderr);
+#endif
     return 0;
 }
 
 static void MACOS_JoystickDetect(void)
 {
+#ifdef DEBUG_JOYSTICK
+    fprintf(stderr,"macosclassic joystick detect\n"); fflush(stderr);
+#endif
 }
 
 static const char *MACOS_JoystickGetDeviceName(int device_index)
 {
+#ifdef DEBUG_JOYSTICK
+    fprintf(stderr,"macosclassic joystick get dev name\n"); fflush(stderr);
+#endif
     return NULL;
 }
 
 static const char *MACOS_JoystickGetDevicePath(int device_index)
 {
+#ifdef DEBUG_JOYSTICK
+    fprintf(stderr,"macosclassic joystick get dev path\n"); fflush(stderr);
+#endif
     return NULL;
 }
 
 static int MACOS_JoystickGetDeviceSteamVirtualGamepadSlot(int device_index)
 {
+#ifdef DEBUG_JOYSTICK
+    fprintf(stderr,"macosclassic joystick get dev steam virt\n"); fflush(stderr);
+#endif
     return -1;
 }
 
 static int MACOS_JoystickGetDevicePlayerIndex(int device_index)
 {
+#ifdef DEBUG_JOYSTICK
+    fprintf(stderr,"macosclassic joystick get dev player index\n"); fflush(stderr);
+#endif
     return -1;
 }
 
 static void MACOS_JoystickSetDevicePlayerIndex(int device_index, int player_index)
 {
+#ifdef DEBUG_JOYSTICK
+    fprintf(stderr,"macosclassic joystick set dev player index\n"); fflush(stderr);
+#endif
 }
 
 static SDL_JoystickGUID MACOS_JoystickGetDeviceGUID(int device_index)
 {
     SDL_JoystickGUID guid;
+#ifdef DEBUG_JOYSTICK
+    fprintf(stderr,"macosclassic joystick get dev guid\n"); fflush(stderr);
+#endif
     SDL_zero(guid);
     return guid;
 }
 
 static SDL_JoystickID MACOS_JoystickGetDeviceInstanceID(int device_index)
 {
+#ifdef DEBUG_JOYSTICK
+    fprintf(stderr,"macosclassic joystick get dev inst id\n"); fflush(stderr);
+#endif
     return -1;
 }
 
 static int MACOS_JoystickOpen(SDL_Joystick *joystick, int device_index)
 {
+#ifdef DEBUG_JOYSTICK
+    fprintf(stderr,"macosclassic joystick open\n"); fflush(stderr);
+#endif
     return SDL_SetError("Logic error: No joysticks available");
 }
 
 static int MACOS_JoystickRumble(SDL_Joystick *joystick, Uint16 low_frequency_rumble, Uint16 high_frequency_rumble)
 {
+#ifdef DEBUG_JOYSTICK
+    fprintf(stderr,"macosclassic joystick rumble\n"); fflush(stderr);
+#endif
     return SDL_Unsupported();
 }
 
 static int MACOS_JoystickRumbleTriggers(SDL_Joystick *joystick, Uint16 left_rumble, Uint16 right_rumble)
 {
+#ifdef DEBUG_JOYSTICK
+    fprintf(stderr,"macosclassic joystick rumble triggers\n"); fflush(stderr);
+#endif
     return SDL_Unsupported();
 }
 
 static Uint32 MACOS_JoystickGetCapabilities(SDL_Joystick *joystick)
 {
+#ifdef DEBUG_JOYSTICK
+    fprintf(stderr,"macosclassic joystick get cap\n"); fflush(stderr);
+#endif
     return 0;
 }
 
 static int MACOS_JoystickSetLED(SDL_Joystick *joystick, Uint8 red, Uint8 green, Uint8 blue)
 {
+#ifdef DEBUG_JOYSTICK
+    fprintf(stderr,"macosclassic joystick joystick set led\n"); fflush(stderr);
+#endif
     return SDL_Unsupported();
 }
 
 static int MACOS_JoystickSendEffect(SDL_Joystick *joystick, const void *data, int size)
 {
+#ifdef DEBUG_JOYSTICK
+    fprintf(stderr,"macosclassic joystick send effects\n"); fflush(stderr);
+#endif
     return SDL_Unsupported();
 }
 
 static int MACOS_JoystickSetSensorsEnabled(SDL_Joystick *joystick, SDL_bool enabled)
 {
+#ifdef DEBUG_JOYSTICK
+    fprintf(stderr,"macosclassic joystick set sensors\n"); fflush(stderr);
+#endif
     return SDL_Unsupported();
 }
 
 static void MACOS_JoystickUpdate(SDL_Joystick *joystick)
 {
+#ifdef DEBUG_JOYSTICK
+    fprintf(stderr,"macosclassic joystick update\n"); fflush(stderr);
+#endif
 }
 
 static void MACOS_JoystickClose(SDL_Joystick *joystick)
 {
+#ifdef DEBUG_JOYSTICK
+    fprintf(stderr,"macosclassic joystick close\n"); fflush(stderr);
+#endif
 }
 
 static void MACOS_JoystickQuit(void)
 {
+#ifdef DEBUG_JOYSTICK
+    fprintf(stderr,"macosclassic joystick quit\n"); fflush(stderr);
+#endif
 }
 
 static SDL_bool MACOS_JoystickGetGamepadMapping(int device_index, SDL_GamepadMapping *out)
 {
+#ifdef DEBUG_JOYSTICK
+    fprintf(stderr,"macosclassic joystick get gamepad mapping\n"); fflush(stderr);
+#endif
     return SDL_FALSE;
 }
 

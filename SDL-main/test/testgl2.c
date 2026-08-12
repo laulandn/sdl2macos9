@@ -230,6 +230,7 @@ SDL_LogSetAllPriority(SDL_LOG_PRIORITY_DEBUG);
     fsaa = 0;
     accel = -1;
 
+fprintf(stderr,"Going to SDLTest_CommonCreateState...\n"); fflush(stderr);
     /* Initialize test framework */
     state = SDLTest_CommonCreateState(argv, SDL_INIT_VIDEO);
     if (!state) {
@@ -282,6 +283,7 @@ SDL_LogSetAllPriority(SDL_LOG_PRIORITY_DEBUG);
 		SDL_MinimizeWindow(state->windows[0]);
 		SDL_SetWindowFullscreen(state->windows[0], 0 );
 
+fprintf(stderr,"Going to SDL_GL_CreateContext...\n"); fflush(stderr);
     /* Create OpenGL context */
     context = SDL_GL_CreateContext(state->windows[0]);
     if (!context) {
@@ -289,6 +291,7 @@ SDL_LogSetAllPriority(SDL_LOG_PRIORITY_DEBUG);
         quit(2);
     }
 
+fprintf(stderr,"Going to LoadContext...\n"); fflush(stderr);
     /* Important: call this *after* creating the context */
     if (LoadContext(&ctx) < 0) {
         SDL_Log("Could not load GL functions\n");
@@ -296,6 +299,7 @@ SDL_LogSetAllPriority(SDL_LOG_PRIORITY_DEBUG);
         return 0;
     }
 
+fprintf(stderr,"Going to SDL_GL_SetSwapInterval...\n"); fflush(stderr);
     if (state->render_flags & SDL_RENDERER_PRESENTVSYNC) {
         /* try late-swap-tearing first. If not supported, try normal vsync. */
         if (SDL_GL_SetSwapInterval(-1) == 0) {
@@ -391,6 +395,7 @@ SDL_LogSetAllPriority(SDL_LOG_PRIORITY_DEBUG);
     frames = 0;
     then = SDL_GetTicks();
     done = 0;
+fprintf(stderr,"Going to enter loop...\n"); fflush(stderr);
     while (!done) {
         SDL_bool update_swap_interval = SDL_FALSE;
 
@@ -418,14 +423,18 @@ SDL_LogSetAllPriority(SDL_LOG_PRIORITY_DEBUG);
             if (state->windows[i] == NULL) {
                 continue;
             }
+fprintf(stderr,"Going SDL_GL_MakeCurrent...\n"); fflush(stderr);
             SDL_GL_MakeCurrent(state->windows[i], context);
             if (update_swap_interval) {
                 SDL_GL_SetSwapInterval(swap_interval);
                 LogSwapInterval();
             }
+fprintf(stderr,"Going SDL_GL_GetDrawableSize...\n"); fflush(stderr);
             SDL_GL_GetDrawableSize(state->windows[i], &w, &h);
             ctx.glViewport(0, 0, w, h);
+fprintf(stderr,"Going Render...\n"); fflush(stderr);
             Render();
+fprintf(stderr,"Going SDL_GL_SwapWindow...\n"); fflush(stderr);
             SDL_GL_SwapWindow(state->windows[i]);
         }
     }
