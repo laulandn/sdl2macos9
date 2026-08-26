@@ -32,7 +32,7 @@ extern void Mac_SetCaption(_THIS, const char *title, const char *icon);
  *  instead.
  */
 /*#if GENERATINGPOWERPC*/
-#if powerc
+#if __POWERPC__
 #define SDL_MACCLASSIC_GAMMA_SUPPORT ((defined(__APPLE__) && defined(__MACH__)) == 0)
 #else
 #define SDL_MACCLASSIC_GAMMA_SUPPORT 0

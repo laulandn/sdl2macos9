@@ -121,49 +121,49 @@ typedef pascal void (*DebuggerDisposeThreadProcPtr)(ThreadID threadDeleted);
 /* Prototype for debugger schedule notification */
 typedef pascal ThreadID (*DebuggerThreadSchedulerProcPtr)(SchedulerInfoRecPtr schedulerInfo);
 /* Thread Manager routines */
-extern pascal OSErr CreateThreadPool(ThreadStyle threadStyle, short numToCreate, Size stackSize)
+pascal OSErr CreateThreadPool(ThreadStyle threadStyle, short numToCreate, Size stackSize)
  THREEWORDINLINE(0x303C, 0x0501, 0xABF2);
-extern pascal OSErr GetFreeThreadCount(ThreadStyle threadStyle, short *freeCount)
+pascal OSErr GetFreeThreadCount(ThreadStyle threadStyle, short *freeCount)
  THREEWORDINLINE(0x303C, 0x0402, 0xABF2);
-extern pascal OSErr GetSpecificFreeThreadCount(ThreadStyle threadStyle, Size stackSize, short *freeCount)
+pascal OSErr GetSpecificFreeThreadCount(ThreadStyle threadStyle, Size stackSize, short *freeCount)
  THREEWORDINLINE(0x303C, 0x0615, 0xABF2);
-extern pascal OSErr GetDefaultThreadStackSize(ThreadStyle threadStyle, Size *stackSize)
+pascal OSErr GetDefaultThreadStackSize(ThreadStyle threadStyle, Size *stackSize)
  THREEWORDINLINE(0x303C, 0x0413, 0xABF2);
-extern pascal OSErr ThreadCurrentStackSpace(ThreadID thread, unsigned long *freeStack)
+pascal OSErr ThreadCurrentStackSpace(ThreadID thread, unsigned long *freeStack)
  THREEWORDINLINE(0x303C, 0x0414, 0xABF2);
-extern pascal OSErr NewThread(ThreadStyle threadStyle, ThreadEntryProcPtr threadEntry, void *threadParam, Size stackSize, ThreadOptions options, void **threadResult, ThreadID *threadMade)
+pascal OSErr NewThread(ThreadStyle threadStyle, ThreadEntryProcPtr threadEntry, void *threadParam, Size stackSize, ThreadOptions options, void **threadResult, ThreadID *threadMade)
  THREEWORDINLINE(0x303C, 0x0E03, 0xABF2);
-extern pascal OSErr DisposeThread(ThreadID threadToDump, void *threadResult, Boolean recycleThread)
+pascal OSErr DisposeThread(ThreadID threadToDump, void *threadResult, Boolean recycleThread)
  THREEWORDINLINE(0x303C, 0x0504, 0xABF2);
-extern pascal OSErr YieldToThread(ThreadID suggestedThread)
+pascal OSErr YieldToThread(ThreadID suggestedThread)
  THREEWORDINLINE(0x303C, 0x0205, 0xABF2);
-extern pascal OSErr YieldToAnyThread(void)
+pascal OSErr YieldToAnyThread(void)
  FOURWORDINLINE(0x42A7, 0x303C, 0x0205, 0xABF2);
-extern pascal OSErr GetCurrentThread(ThreadID *currentThreadID)
+pascal OSErr GetCurrentThread(ThreadID *currentThreadID)
  THREEWORDINLINE(0x303C, 0x0206, 0xABF2);
-extern pascal OSErr GetThreadState(ThreadID threadToGet, ThreadState *threadState)
+pascal OSErr GetThreadState(ThreadID threadToGet, ThreadState *threadState)
  THREEWORDINLINE(0x303C, 0x0407, 0xABF2);
-extern pascal OSErr SetThreadState(ThreadID threadToSet, ThreadState newState, ThreadID suggestedThread)
+pascal OSErr SetThreadState(ThreadID threadToSet, ThreadState newState, ThreadID suggestedThread)
  THREEWORDINLINE(0x303C, 0x0508, 0xABF2);
-extern pascal OSErr SetThreadStateEndCritical(ThreadID threadToSet, ThreadState newState, ThreadID suggestedThread)
+pascal OSErr SetThreadStateEndCritical(ThreadID threadToSet, ThreadState newState, ThreadID suggestedThread)
  THREEWORDINLINE(0x303C, 0x0512, 0xABF2);
-extern pascal OSErr SetThreadScheduler(ThreadSchedulerProcPtr threadScheduler)
+pascal OSErr SetThreadScheduler(ThreadSchedulerProcPtr threadScheduler)
  THREEWORDINLINE(0x303C, 0x0209, 0xABF2);
-extern pascal OSErr SetThreadSwitcher(ThreadID thread, ThreadSwitchProcPtr threadSwitcher, void *switchProcParam, Boolean inOrOut)
+pascal OSErr SetThreadSwitcher(ThreadID thread, ThreadSwitchProcPtr threadSwitcher, void *switchProcParam, Boolean inOrOut)
  THREEWORDINLINE(0x303C, 0x070A, 0xABF2);
-extern pascal OSErr SetThreadTerminator(ThreadID thread, ThreadTerminationProcPtr threadTerminator, void *terminationProcParam)
+pascal OSErr SetThreadTerminator(ThreadID thread, ThreadTerminationProcPtr threadTerminator, void *terminationProcParam)
  THREEWORDINLINE(0x303C, 0x0611, 0xABF2);
-extern pascal OSErr ThreadBeginCritical(void)
+pascal OSErr ThreadBeginCritical(void)
  THREEWORDINLINE(0x303C, 0x000B, 0xABF2);
-extern pascal OSErr ThreadEndCritical(void)
+pascal OSErr ThreadEndCritical(void)
  THREEWORDINLINE(0x303C, 0x000C, 0xABF2);
-extern pascal OSErr SetDebuggerNotificationProcs(DebuggerNewThreadProcPtr notifyNewThread, DebuggerDisposeThreadProcPtr notifyDisposeThread, DebuggerThreadSchedulerProcPtr notifyThreadScheduler)
+pascal OSErr SetDebuggerNotificationProcs(DebuggerNewThreadProcPtr notifyNewThread, DebuggerDisposeThreadProcPtr notifyDisposeThread, DebuggerThreadSchedulerProcPtr notifyThreadScheduler)
  THREEWORDINLINE(0x303C, 0x060D, 0xABF2);
-extern pascal OSErr GetThreadCurrentTaskRef(ThreadTaskRef *threadTRef)
+pascal OSErr GetThreadCurrentTaskRef(ThreadTaskRef *threadTRef)
  THREEWORDINLINE(0x303C, 0x020E, 0xABF2);
-extern pascal OSErr GetThreadStateGivenTaskRef(ThreadTaskRef threadTRef, ThreadID threadToGet, ThreadState *threadState)
+pascal OSErr GetThreadStateGivenTaskRef(ThreadTaskRef threadTRef, ThreadID threadToGet, ThreadState *threadState)
  THREEWORDINLINE(0x303C, 0x060F, 0xABF2);
-extern pascal OSErr SetThreadReadyGivenTaskRef(ThreadTaskRef threadTRef, ThreadID threadToSet)
+pascal OSErr SetThreadReadyGivenTaskRef(ThreadTaskRef threadTRef, ThreadID threadToSet)
  THREEWORDINLINE(0x303C, 0x0410, 0xABF2);
 
 #ifdef __CFM68K__

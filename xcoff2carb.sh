@@ -17,7 +17,7 @@ if [[ -d "/Developer" ]]; then
   cp $PATH_TO_SDL2/resforkcarb.raw $1.APPL/rsrc
   cmd="/Developer/Tools/Setfile -t APPL -c '????' $1.APPL"
 else
-  cmd="$PATH_TO_RETRO68/../bin/Rez -I$RINC $RES --data $1.pef -t APPL -c 1234 -o $1.bin --cc $1.APPL --cc $1.dsk"
+  cmd="$PATH_TO_RETRO68/../bin/Rez -D TARGET_API_MAC_CARBON -I$RINC $RES --data $1.pef -t APPL -c 1234 -o $1.bin --cc $1.APPL --cc $1.dsk"
 fi
 
 echo $cmd

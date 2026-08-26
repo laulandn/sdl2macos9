@@ -2,19 +2,22 @@ PATH_TO_RETRO68=$(HOME)/Retro68-build/toolchain/powerpc-apple-macos
 
 .SUFFIXES:	.xcoff
 
-CC=powerpc-apple-macos-gcc -carbon -DTARGET_API_MAC_CARBON=1 -DTARGET_CARBON=1
-CXX=powerpc-apple-macos-g++ -carbon -DTARGET_API_MAC_CARBON=1 -DTARGET_CARBON=1
+CC=powerpc-apple-macos-gcc -carbon -DTARGET_API_MAC_CARBON=1 -DTARGET_OS_MAC=1 -DTARGET_CARBON=1
+CXX=powerpc-apple-macos-g++ -carbon -DTARGET_API_MAC_CARBON=1 -DTARGET_OS_MAC=1 -DTARGET_CARBON=1
 
 INCPATH+= -I"../include"
 
 LIBPATH = -L..
 #LIBS    = -lSDL2_test -lSDL2 -lm -lRetroConsole
-LIBS    = -lSDL2_test -lSDL2 -lm -lOpenGLLibrary -lDrawSprocketLib
+#LIBS    = -lSDL2_test -lSDL2 -lm -lOpenGLLibrary -lDrawSprocketLib
+LIBS    =  -lCarbonLib -lSDL2_test -lSDL2 -lm $(HOME)/Mesa-3.2.1/libOpenGLLIbraryMesa.a $(HOME)/Mesa-3.2.1/libOpenGLUtilityMesa.a -l3DfxGlideLib2.x  $(HOME)/Mesa-3.2.1/macos/glmhack/libglmhack.a -lDrawSprocketLib 
+
 
 #CFLAGS+= -DHAVE_SDL_TTF
 #TTFLIBS = SDL2ttf.lib
 
 CFLAGS+= $(INCPATH) -D__MACOSCLASSIC__ -DHAVE_OPENGL=1
+CPPFLAGS += -I./include -D__MACOSCLASSIC__ -DSDL_MACOSCLASSIC_INPUTSPROCKET=1 -DSDL_MACOSCLASSIC_DRAWSPROCKET=1 -DSDL_MACOSCLASSIC_AGL=1 -DMAC_DEBUG=1
 
 TARGETS = testatomic.xcoff testdisplayinfo.xcoff testbounds.xcoff testdraw2.xcoff \
           testdrawchessboard.xcoff testdropfile.xcoff testerror.xcoff testfile.xcoff \
@@ -89,7 +92,7 @@ all: testutils.lib $(TARGETS)
 
 %.o : %.c
 	@echo Compiling $<
-	@$(CC) -o $@ -c $< $(CFLAGS)
+	@$(CC) -o $@ -c $< $(CFLAGS) $(CPPFLAGS)
 
 
 # specials

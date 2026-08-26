@@ -137,7 +137,7 @@ static SDL_bool MACOSAUDIO_Available(void)
     long attributes = 0;
 
     /* On m68k this seems to always return zero! */
-#ifdef powerc
+#ifdef __POWERPC__
     if (version.majorRev < 3) {
 #ifdef MAC_DEBUG
         fprintf(stderr,"sound manager version 3 not avail, only %d!\n",version.majorRev); fflush(stderr);

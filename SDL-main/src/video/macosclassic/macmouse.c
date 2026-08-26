@@ -547,9 +547,18 @@ static void Mac_MoveCursorGlobal(Point where)
 
     /* Cursor Device Manager should always exist on Mac OS 9. Keep a
        low-memory fallback for unusual Classic installations and emulators. */
+#ifdef BUILDING_FOR_PRE9
+    /* Those were added to InterfaceLib for MacOS 9, but not earlier MacOS */ 
+    /* For those we bang the actual low memory globals */
+    *(Point *)0x0830 = where;  /* LMSetMouseTemp */
+    *(Point *)0x0828 = where;  /* LMSetRawMouseLocation */
+    *(Point *)0x082C = where; /* LMSetMouseLocation */
+    *(char *)0x08CE = 0xff;  /* Force mouse pointer to draw */ 
+#else
     LMSetMouseTemp(where);
     LMSetRawMouseLocation(where);
     LMSetMouseLocation(where);
+#endif
 #else
     typedef struct MacCGPoint {
         float x;

@@ -31,15 +31,23 @@
 #define OLDP2C 1
 #if TARGET_API_MAC_CARBON
 #if TARGET_RT_MAC_MACHO
+/* MacOS X */
 #include <Carbon/Carbon.h>
 #else
+/* MacOS 9 */
 #include "../../thread/macosclassic/MacThreads.h"
 #undef SIGHUP
 #undef SIGURG
 #undef SIGPOLL
 #include <Carbon.h>
+#include <TextUtils.h>
+#ifndef C2PStr
+#define c2pstr(aStr) (c2pstrcpy((StringPtr)aStr, aStr) , (StringPtr) aStr)
+#define C2PStr(a)  (StringPtr)c2pstr((Ptr)(a))
+#endif
 #endif
 #else
+/* Not Carbon */
 #include <Strings.h>
 #include <CodeFragments.h>
 #include <TextUtils.h>

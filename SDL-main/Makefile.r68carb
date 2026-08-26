@@ -5,8 +5,8 @@ PATH_TO_RETRO68=$(HOME)/Retro68-build/toolchain/powerpc-apple-macos
 
 AR = powerpc-apple-macos-ar
 RANLIB = powerpc-apple-macos-ranlib
-CC = powerpc-apple-macos-gcc -carbon -DTARGET_API_MAC_CARBON=1 -DTARGET_CARBON=1
-CXX = powerpc-apple-macos-g++ -carbon -DTARGET_API_MAC_CARBON=1 -DTARGET_CARBON=1
+CC = powerpc-apple-macos-gcc
+CXX = powerpc-apple-macos-g++ -carbon -DTARGET_API_MAC_CARBON=1 -DTARGET_OS_MAC=1 -DTARGET_CARBON=1
 STRIP = powerpc-apple-macos-strip
 #CRT ?= newlib
 INSTALL_PATH ?=
@@ -19,8 +19,8 @@ RETRO68_ROOT ?= $(abspath $(dir $(shell command -v $(CC)))/..)
 ifeq ($(RETRO68_ROOT),)
 RETRO68_ROOT = $(PATH_TO_RETRO68)/..
 endif
-CURSOR_DEVICES_GLUE ?= $(RETRO68_ROOT)/universal/libppc/CursorDevicesGlue.o
-CFLAGS ?= -g -Wall -Wshadow
+CURSOR_DEVICES_GLUE ?=
+CFLAGS ?= -g -Wall -Wshadow -carbon -DTARGET_API_MAC_CARBON=1 -DTARGET_OS_MAC=1 -DTARGET_CARBON=1
 #CPPFLAGS += -I./include -D__MACOSCLASSIC__ -DSDL_MACOSCLASSIC_INPUTSPROCKET=1 -DSDL_MACOSCLASSIC_DRAWSPROCKET=1 -DSDL_MACOSCLASSIC_AGL=1
 #CPPFLAGS += -I./include -D__MACOSCLASSIC__ -DMAC_DEBUG=1
 CPPFLAGS += -I./include -D__MACOSCLASSIC__ -DSDL_MACOSCLASSIC_INPUTSPROCKET=1 -DSDL_MACOSCLASSIC_DRAWSPROCKET=1 -DSDL_MACOSCLASSIC_AGL=1 -DMAC_DEBUG=1
@@ -113,7 +113,6 @@ clean:
 install:
 	mkdir -p $(PATH_TO_RETRO68)/include/SDL2
 	mkdir -p $(PATH_TO_RETRO68)/lib
-	cp include/* $(PATH_TO_RETRO68)/include
 	cp include/* $(PATH_TO_RETRO68)/include/SDL2
 	cp libSDL*.a $(PATH_TO_RETRO68)/lib
 

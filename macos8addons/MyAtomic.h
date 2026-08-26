@@ -1,13 +1,18 @@
 #ifndef ATOMIC_INTERRUPTS_H
 #define ATOMIC_INTERRUPTS_H
 
+
 #include <MacTypes.h>
 
+
+static inline UInt16 DisableInterrupts(void) {
+#ifdef __POWERPC__
+  return 0;
+#else
 /**
  * Disables all maskable interrupts by raising the 68k IPL to level 7.
  * @return The original 16-bit Status Register (SR) value.
  */
-static inline UInt16 DisableInterrupts(void) {
     UInt16 oldSR;
     
     __asm__ __volatile__(
@@ -19,19 +24,25 @@ static inline UInt16 DisableInterrupts(void) {
     );
     
     return oldSR;
+#endif
 }
 
+
+static inline void RestoreInterrupts(UInt16 oldSR) {
+#ifdef __POWERPC__
+#else
 /**
  * Restores the 68k Status Register to its previous state.
  * @param oldSR The 16-bit SR value returned by DisableInterrupts().
  */
-static inline void RestoreInterrupts(UInt16 oldSR) {
     __asm__ __volatile__(
         "move.w %0, %%sr"      // Restore saved status register (including old IPL)
         :                      // No outputs
         : "d" (oldSR)          // Input: pass oldSR via a data register
         : "cc"                 // Clobber: Condition Codes overridden by old SR
     );
+#endif
 }
+
 
 #endif // ATOMIC_INTERRUPTS_H

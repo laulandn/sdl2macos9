@@ -1,3 +1,5 @@
+// This is just dummy stubs for linking for now...
+
 #include <stdio.h>
 
 #include <InputSprocket.h>

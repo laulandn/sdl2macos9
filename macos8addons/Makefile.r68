@@ -9,7 +9,7 @@ RANLIB=m68k-apple-macos-ranlib
 #AR=powerpc-apple-macos-ar
 #RANLIB=powerpc-apple-macos-ranlib
 
-CFLAGS= 
+CFLAGS=-D__MACOSCLASSIC__ -I../SDL-main/include
 
 OBJS=$(subst .c,.o,$(wildcard *.c))
 
@@ -20,7 +20,15 @@ OBJS=$(subst .c,.o,$(wildcard *.c))
 lib: $(OBJS)
 	$(AR) rcv lib$(LIBNAME).a $(OBJS)
 	$(RANLIB) lib$(LIBNAME).a
+	$(AR) rcv libInputSprocketLib.a MyInputSprocket.o
+	$(RANLIB) libInputSprocketLib.a
+	$(AR) rcv libDrawSprocketLib.a MyDrawSprocket.o
+	$(RANLIB) libDrawSprocketLib.a
 
+install:
+	cp libDrawSprocketLib.a $(HOME)/Retro68-build/toolchain/m68k-apple-macos/lib
+	cp libInputSprocketLib.a $(HOME)/Retro68-build/toolchain/m68k-apple-macos/lib
+	
 all: $(OBJS)
 
 clean:

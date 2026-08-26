@@ -13,7 +13,27 @@
 #endif
 
 
-#ifndef powerc
+#ifdef __POWERPC__
+#define OPENGL_IS_DYNAMIC 1
+#endif
+
+#ifdef OPENGL_IS_DYNAMIC
+#define NEED_EXT_FUNCS 1
+#endif
+
+
+#ifdef NEED_EXT_FUNCS
+/* These are GL extensions and the names are "mangled"... */
+/* This is NOT the right way...but works for now if they aren't called */
+void glBlendFuncSeparate(GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha)
+{
+  fprintf(stderr,"glBlendFuncSeparate...not implemented\n"); fflush(stderr);
+}
+void glBlendEquation(GLenum mode)
+{
+  fprintf(stderr,"glBlendEquation...not implemented\n"); fflush(stderr);
+}
+#else
 extern void glBlendFuncSeparate(GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha);
 extern void glBlendEquation(GLenum mode);
 #endif
@@ -100,7 +120,7 @@ int glLoadLibrary(_THIS, const char *name)
     OSErr error;
 
     if (gl_library_open) return 0;
-#ifdef powerc
+#ifdef OPENGL_IS_DYNAMIC
     if (name && *name && SDL_strcmp(name, "OpenGLLibrary") != 0) {
         return SDL_SetError("Classic Mac OS supports only OpenGLLibrary");
     }
@@ -138,7 +158,13 @@ void *glGetProcAddress(_THIS, const char *proc)
         fprintf(stderr,"glGetProcAddress %s\n",proc); fflush(stderr);
 #endif
     if (!gl_library_open && glLoadLibrary(_this, NULL) < 0) return NULL;
-#ifdef powerc
+#ifdef OPENGL_IS_DYNAMIC
+
+/* These are GL extensions and the names are "mangled"... */
+/* This is NOT the right way...but works for now if they aren't called */
+    if(!strcmp("glBlendEquation",proc)) return (void *)glBlendEquation;
+    if(!strcmp("glBlendFuncSeparate",proc)) return (void *)glBlendFuncSeparate;
+    
     Mac_CToPascal(proc, symbol_name);
     error = FindSymbol(gl_library, symbol_name, &symbol, &symbol_class);
     if (error != noErr ||

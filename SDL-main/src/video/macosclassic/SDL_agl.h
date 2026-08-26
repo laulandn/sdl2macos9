@@ -19,6 +19,8 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
+/* We have our own copy of this so we aren't dependent on any particular OpenGL SDK */
+
 #ifndef SDL_agl_h_
 #define SDL_agl_h_
 

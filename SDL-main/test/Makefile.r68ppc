@@ -10,13 +10,15 @@ INCPATH+= -I"../include"
 LIBPATH = -L..
 #LIBS    = -lSDL2_test -lSDL2 -lm -lRetroConsole
 #LIBS    = -lSDL2_test -lSDL2 -lm
-#LIBS    = -lSDL2_test -lSDL2 -lm -lThreadsLib
-LIBS    = -lSDL2_test -lSDL2 -lm -lThreadsLib -lInputSprocketLib -lDrawSprocketLib -lOpenGLLibrary
+LIBS    = -lSDL2_test -lSDL2 -lm -lThreadsLib ../../macos8addons/libmacos8addons.a  
+#LIBS    = -lSDL2_test -lSDL2 -lm -lThreadsLib -lInputSprocketLib -lDrawSprocketLib -lOpenGLLibrary -lOpenGLUtility
+#LIBS    = -lSDL2_test -lSDL2 -lm -lThreadsLib -lInputSprocketLib -lDrawSprocketLib $(HOME)/Mesa-3.2.1/libOpenGLLIbraryMesa.a $(HOME)/Mesa-3.2.1/libOpenGLUtilityMesa.a -l3DfxGlideLib2.x  $(HOME)/Mesa-3.2.1/macos/glmhack/libglmhack.a -lCarbonLib
 
 #CFLAGS+= -DHAVE_SDL_TTF
 #TTFLIBS = SDL2ttf.lib
 
-CFLAGS+= $(INCPATH) -D__MACOSCLASSIC__ -DSDL_MACOSCLASSIC_INPUTSPROCKET=1 -DSDL_MACOSCLASSIC_DRAWSPROCKET=1 -DSDL_MACOSCLASSIC_AGL=1 -DHAVE_OPENGL=1
+#CFLAGS+= $(INCPATH) -D__MACOSCLASSIC__ -DSDL_MACOSCLASSIC_INPUTSPROCKET=1 -DSDL_MACOSCLASSIC_DRAWSPROCKET=1 -DSDL_MACOSCLASSIC_AGL=1 -DHAVE_OPENGL=1
+CFLAGS+= $(INCPATH) -D__MACOSCLASSIC__ -DMAC_DEBUG -DBUILDING_FOR_PRE9
 
 TARGETS = testatomic.xcoff testdisplayinfo.xcoff testbounds.xcoff testdraw2.xcoff \
           testdrawchessboard.xcoff testdropfile.xcoff testerror.xcoff testfile.xcoff \
