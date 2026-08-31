@@ -26,6 +26,7 @@ lib: $(OBJS)
 	$(RANLIB) libDrawSprocketLib.a
 
 install:
+	make -f Makefile.r68 lib
 	cp libDrawSprocketLib.a $(HOME)/Retro68-build/toolchain/m68k-apple-macos/lib
 	cp libInputSprocketLib.a $(HOME)/Retro68-build/toolchain/m68k-apple-macos/lib
 	

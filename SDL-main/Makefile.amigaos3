@@ -3,11 +3,16 @@
 
 PATH_TO_TOOLS=/opt/m68k-amigaos
 
-AR = m68k-amigaos-ar
-RANLIB = m68k-amigaos-ranlib
-CC = m68k-amigaos-gcc -mcrt=nix20
-CXX = m68k-amigaos-g++ -mcrt=nix20
-STRIP = m68k-amigaos-strip
+#AR = m68k-elf-ar
+#RANLIB = m68k-elf-ranlib
+#CC = m68k-elf-gcc -mcrt=nix20
+#CXX = m68k-elf-g++ -mcrt=nix20
+#STRIP = m68k-elf-strip
+#AR = m68k-elf-ar
+RANLIB = m68k-elf-ranlib
+CC = m68k-elf-gcc -mcrt=nix20
+CXX = m68k-elf-g++ -mcrt=nix20
+STRIP = m68k-elf-strip
 #CRT ?= newlib
 INSTALL_PATH ?=
 CATCOMP = catcomp # TODO: is there a cross-compiler version?

@@ -26,6 +26,7 @@ lib: $(OBJS)
 	$(RANLIB) libFakeDrawSprocketLib.a
 
 install:
+	make -f Makefile.r68ppc lib
 	cp libFakeDrawSprocketLib.a $(HOME)/Retro68-build/toolchain/powerpc-apple-macos/lib
 	cp libFakeInputSprocketLib.a $(HOME)/Retro68-build/toolchain/powerpc-apple-macos/lib
 	

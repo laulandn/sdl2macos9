@@ -53,6 +53,8 @@
 #define SDL_DYNAMIC_API 0
 #elif defined(SDL_BUILDING_WINRT) && SDL_BUILDING_WINRT /* probably not useful on WinRT, given current .dll loading restrictions */
 #define SDL_DYNAMIC_API 0
+#elif defined(__PS1__)
+#define SDL_DYNAMIC_API 0
 #elif defined(__PS2__)
 #define SDL_DYNAMIC_API 0
 #elif defined(__PSP__) && __PSP__
@@ -68,6 +70,8 @@
 #elif defined(__3DS__)
 #define SDL_DYNAMIC_API 0 /* devkitARM doesn't support dynamic linking */
 #elif defined(__MACOSCLASSIC__)
+#define SDL_DYNAMIC_API 0
+#elif defined(__PALMOS__)
 #define SDL_DYNAMIC_API 0
 #elif defined(__AMIGAOS3__)
 #define SDL_DYNAMIC_API 0

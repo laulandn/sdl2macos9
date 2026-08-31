@@ -170,6 +170,14 @@ SDL_bool SDL_AtomicTryLock(SDL_SpinLock *lock)
     extern int _SDL_xchg_macosclassic(SDL_SpinLock *lock,int v);
     return _SDL_xchg_macosclassic(lock, 1) == 0;
 #endif
+#elif defined(__PS1__)
+    return 0;
+#elif defined(__PS2__)
+    return 0;
+#elif defined(__PSP__)
+    return 0;
+#elif defined(__PALMOS__)
+    return 0;
 #else
 #error Please implement for your platform.
     return SDL_FALSE;

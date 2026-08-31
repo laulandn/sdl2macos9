@@ -11,20 +11,46 @@ extern "C" {
 
 
 struct NumVersion myVer;
+DSpContextReference myContext;
+bool myContextAlreadyDone=false;
 
 
-EXTERN_API_C( OSStatus )
-DSpFindBestContext(
-  DSpContextAttributesPtr   inDesiredAttributes,
-  DSpContextReference *     outContext)
+OSStatus DSpStartup(void)
 {
-  fprintf(stderr,"DSpFindBestContext...MyDrawSprocket...not implemented\n"); fflush(stderr);
+  //fprintf(stderr,"DSpStartup...MyDrawSprocket...not implemented\n"); fflush(stderr);
   return noErr;
 }
 
 
-EXTERN_API_C( OSStatus )
-DSpContext_Reserve(
+OSStatus DSpShutdown(void)
+{
+  //fprintf(stderr,"DSpShutdown...MyDrawSprocket...not implemented\n"); fflush(stderr);
+  return noErr;
+}
+
+
+NumVersion DSpGetVersion(void)
+{
+  //fprintf(stderr,"DSpGetVersion...MyDrawSprocket...not implemented\n"); fflush(stderr);
+  myVer.majorRev=1;
+  myVer.minorAndBugRev=0x73;
+  myVer.stage=0;
+  myVer.nonRelRev=0;
+  return myVer;
+}
+
+
+OSStatus DSpFindBestContext(
+  DSpContextAttributesPtr   inDesiredAttributes,
+  DSpContextReference *     outContext)
+{
+  fprintf(stderr,"DSpFindBestContext...MyDrawSprocket...not implemented\n"); fflush(stderr);
+  if(!outContext) { fprintf(stderr,"outContext was NULL!\n"); fflush(stderr); }
+  return noErr;
+}
+
+
+OSStatus DSpContext_Reserve(
   DSpContextReference       inContext,
   DSpContextAttributesPtr   inDesiredAttributes)
 {
@@ -33,150 +59,125 @@ DSpContext_Reserve(
 }
 
 
-EXTERN_API_C( OSStatus )
-DSpContext_FadeGammaOut(
+OSStatus DSpContext_FadeGammaOut(
   DSpContextReference   inContext,
   RGBColor *            inZeroIntensityColor)
 {
   fprintf(stderr,"DSpContext_FadeGammaOut...MyDrawSprocket...not implemented\n"); fflush(stderr);
+  if(!inZeroIntensityColor) { fprintf(stderr,"inZeroIntensityColor was NULL!\n"); fflush(stderr); }
   return noErr;
 }
 
 
-EXTERN_API_C( OSStatus )
-DSpContext_SetState(
-  DSpContextReference   inContext,
-  DSpContextState       inState)
-{
-  fprintf(stderr,"DSpContext_SetState...MyDrawSprocket...not implemented\n"); fflush(stderr);
-  return noErr;
-}
-
-
-EXTERN_API_C( OSStatus )
-DSpContext_FadeGammaIn(
+OSStatus DSpContext_FadeGammaIn(
   DSpContextReference   inContext,
   RGBColor *            inZeroIntensityColor)
 {
   fprintf(stderr,"DSpContext_FadeGammaIn...MyDrawSprocket...not implemented\n"); fflush(stderr);
+  if(!inZeroIntensityColor) { fprintf(stderr,"inZeroIntensityColor was NULL!\n"); fflush(stderr); }
   return noErr;
 }
 
 
-EXTERN_API_C( OSStatus )
-DSpContext_LocalToGlobal(
+OSStatus DSpContext_LocalToGlobal(
   DSpContextReferenceConst   inContext,
   Point *                    ioPoint)
 {
   fprintf(stderr,"DSpContext_LocalToGlobal...MyDrawSprocket...not implemented\n"); fflush(stderr);
+  if(!ioPoint) { fprintf(stderr,"ioPoint was NULL!\n"); fflush(stderr); }
   return noErr;
 }
 
 
-EXTERN_API_C( OSStatus )
-DSpContext_Release(DSpContextReference inContext)
+OSStatus DSpContext_Release(DSpContextReference inContext)
 {
   fprintf(stderr,"DSpContext_Release...MyDrawSprocket...not implemented\n"); fflush(stderr);
   return noErr;
 }
 
 
-EXTERN_API_C( OSStatus )
-DSpStartup(void)
-{
-  fprintf(stderr,"DSpStartup...MyDrawSprocket...not implemented\n"); fflush(stderr);
-  return noErr;
-}
-
-
-EXTERN_API_C( OSStatus )
-DSpShutdown(void)
-{
-  fprintf(stderr,"DSpShutdown...MyDrawSprocket...not implemented\n"); fflush(stderr);
-  return noErr;
-}
-
-
-EXTERN_API_C( OSStatus )
-DSpContext_SwapBuffers(
+OSStatus DSpContext_SwapBuffers(
   DSpContextReference   inContext,
   DSpCallbackUPP        inBusyProc,
   void *                inUserRefCon)
 {
   fprintf(stderr,"DSpContext_SwapBuffers...MyDrawSprocket...not implemented\n"); fflush(stderr);
+  if(!inUserRefCon) { fprintf(stderr,"inUserRefCon was NULL!\n"); fflush(stderr); }
   return noErr;
 }
 
 
-EXTERN_API_C( OSStatus )
-DSpContext_GetBackBuffer(
+OSStatus DSpContext_GetBackBuffer(
   DSpContextReference   inContext,
   DSpBufferKind         inBufferKind,
   CGrafPtr *            outBackBuffer)
 {
   fprintf(stderr,"DSpContext_GetBackBuffer...MyDrawSprocket...not implemented\n"); fflush(stderr);
+  if(!outBackBuffer) { fprintf(stderr,"outBackBuffer was NULL!\n"); fflush(stderr); }
   return noErr;
 }
 
 
-EXTERN_API_C( OSStatus )
-DSpContext_GetAttributes(
+OSStatus DSpContext_GetAttributes(
   DSpContextReferenceConst   inContext,
   DSpContextAttributesPtr    outAttributes)
 {
-  fprintf(stderr,"DSpContext_GetAttributes...MyDrawSprocket...not implemented\n"); fflush(stderr);
+  //fprintf(stderr,"DSpContext_GetAttributes...MyDrawSprocket...not implemented\n"); fflush(stderr);
+  if(!outAttributes) { fprintf(stderr,"outAttributes was NULL!\n"); fflush(stderr); return -1; }
+  outAttributes->displayBestDepth=32;  // TODO This should be current mode if we aren't switching
+  outAttributes->displayWidth=800;  // TODO: This should be window
+  outAttributes->displayHeight=600;  // TODO: This should be window
+  outAttributes->frequency=60;
   return noErr;
 }
 
 
-EXTERN_API_C( NumVersion )
-DSpGetVersion(void)
+OSStatus DSpContext_SetState(
+  DSpContextReference   inContext,
+  DSpContextState       inState)
 {
-  fprintf(stderr,"DSpGetVersion...MyDrawSprocket...not implemented\n"); fflush(stderr);
-  myVer.majorRev=0;
-  myVer.minorAndBugRev=0;
-  myVer.stage=0;
-  myVer.nonRelRev=0;
-  return myVer;
+  fprintf(stderr,"DSpContext_SetState...MyDrawSprocket...not implemented\n"); fflush(stderr);
 }
 
 
-EXTERN_API_C( OSStatus )
-DSpProcessEvent(
+OSStatus DSpProcessEvent(
   EventRecord *  inEvent,
   Boolean *      outEventWasProcessed)
 {
   fprintf(stderr,"DSpProcessEvent...MyDrawSprocket...not implemented\n"); fflush(stderr);
+  if(!outEventWasProcessed) { fprintf(stderr,"outEventWasProcessed was NULL!\n"); fflush(stderr); }
   return noErr;
 }
 
 
-EXTERN_API_C( OSStatus )
-DSpGetFirstContext(
+OSStatus DSpGetFirstContext(
   DisplayIDType          inDisplayID,
   DSpContextReference *  outContext)
 {
-  fprintf(stderr,"DSpGetFirstContext...MyDrawSprocket...not implemented\n"); fflush(stderr);
+  //fprintf(stderr,"DSpGetFirstContext...MyDrawSprocket...not implemented\n"); fflush(stderr);
+  if(!outContext) { fprintf(stderr,"outContext was NULL!\n"); fflush(stderr); }
+  myContextAlreadyDone=true;
   return noErr;
 }
 
 
-EXTERN_API_C( OSStatus )
-DSpGetNextContext(
+OSStatus DSpGetNextContext(
   DSpContextReference    inCurrentContext,
   DSpContextReference *  outContext)
 {
-  fprintf(stderr,"DSpGetNextContext...MyDrawSprocket...not implemented\n"); fflush(stderr);
-  return noErr;
+  //fprintf(stderr,"DSpGetNextContext...MyDrawSprocket...not implemented\n"); fflush(stderr);
+  if(!outContext) { fprintf(stderr,"outContext was NULL!\n"); fflush(stderr); }
+  return -1;
 }
 
 
-EXTERN_API_C( OSStatus )
-DSpContext_GetMonitorFrequency(
+OSStatus DSpContext_GetMonitorFrequency(
   DSpContextReferenceConst   inContext,
   Fixed *                    outFrequency)
 {
-  fprintf(stderr,"DSpContext_GetMonitorFrequency...MyDrawSprocket...not implemented\n"); fflush(stderr);
+  //fprintf(stderr,"DSpContext_GetMonitorFrequency...MyDrawSprocket...not implemented\n"); fflush(stderr);
+  if(!outFrequency) { fprintf(stderr,"outFrequency was NULL!\n"); fflush(stderr); return -1; }
+  *outFrequency=60;
   return noErr;
 }
 

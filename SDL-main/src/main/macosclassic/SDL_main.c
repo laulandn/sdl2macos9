@@ -118,6 +118,8 @@ extern void SDL_InitQuickDraw(struct QDGlobals *the_qd);
 /* ////////////////////////////////////////////////// */
 /* ////////////////////////////////////////////////// */
 
+// NOTE: All this is unused and just pulled over from SDL 1.2 where it was never tested.
+// This is probably redundant since there's new AppleEvent handling in the event part of the video driver
 
 #define PASCAL
 

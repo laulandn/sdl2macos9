@@ -56,19 +56,19 @@ static SDL_VideoDevice *tdevice=NULL;
 /* DrawSprocket owns an exclusive display context while SDL is in true
    fullscreen. AGL manages its own buffers, so OpenGL contexts need only one
    DrawSprocket page. */
-static GDHandle mac_display_device;
+static GDHandle mac_display_device=NULL;
 static DisplayIDType mac_display_id;
 #ifdef SDL_MACOSCLASSIC_DRAWSPROCKET
 static DSpContextReference mac_dsp_context;
-static int mac_dsp_started;
-static int mac_dsp_active;
-static CGrafPtr mac_dsp_back_buffer;
-static PixMapHandle mac_dsp_back_pixmap;
+static int mac_dsp_started=0;
+static int mac_dsp_active=0;
+static CGrafPtr mac_dsp_back_buffer=NULL;
+static PixMapHandle mac_dsp_back_pixmap=NULL;
 static int mac_dsp_software_buffer;
 static int mac_dsp_page_flipping;
 #endif
-static int mac_fullscreen_window;
-static int macwindow_visible;
+static int mac_fullscreen_window=0;
+static int macwindow_visible=0;
 static int mac_gl_reattach_pending;
 static Rect mac_windowed_bounds;
 static int mac_windowed_bounds_valid;
@@ -219,9 +219,20 @@ static int Mac_FindDSpMode(int width, int height, int depth, int *refresh_rate)
   DSpContextAttributes attributes;
   OSStatus error;
 
-  if (!mac_dsp_started) return 0;
+  if (!mac_dsp_started) {
+#ifdef MAC_DEBUG
+    fprintf(stderr,"(mac_dsp_started was false)\n"); fflush(stderr);
+#endif
+    return 0;
+  }
+#ifdef MAC_DEBUG
+    fprintf(stderr,"Finding DrawSprocket modes...\n"); fflush(stderr);
+#endif
   error = DSpGetFirstContext(mac_display_id, &context);
   while (error == noErr) {
+#ifdef MAC_DEBUG
+    fprintf(stderr,"Got a context...\n"); fflush(stderr);
+#endif
     if (DSpContext_GetAttributes(context, &attributes) == noErr &&
         attributes.displayWidth == (UInt32)width &&
         attributes.displayHeight == (UInt32)height &&
@@ -231,10 +242,16 @@ static int Mac_FindDSpMode(int width, int height, int depth, int *refresh_rate)
       if (refresh_rate) {
         *refresh_rate = frequency ? (int)((frequency + 0x8000L) >> 16) : 60;
       }
+#ifdef MAC_DEBUG
+      fprintf(stderr,"(matched)\n"); fflush(stderr);
+#endif
       return 1;
     }
     error = DSpGetNextContext(context, &context);
   }
+#ifdef MAC_DEBUG
+      fprintf(stderr,"(no matches)\n"); fflush(stderr);
+#endif
   return 0;
 }
 #endif
@@ -246,9 +263,20 @@ static void Mac_AddDSpModes(SDL_VideoDisplay *display)
   DSpContextAttributes attributes;
   OSStatus error;
 
-  if (!mac_dsp_started) return;
+  if (!mac_dsp_started) {
+#ifdef MAC_DEBUG
+    fprintf(stderr,"(mac_dsp_started was false)\n"); fflush(stderr);
+#endif
+    return;
+  }
+#ifdef MAC_DEBUG
+    fprintf(stderr,"Adding DrawSprocket modes...\n"); fflush(stderr);
+#endif
   error = DSpGetFirstContext(mac_display_id, &context);
   while (error == noErr) {
+#ifdef MAC_DEBUG
+    fprintf(stderr,"Got a context...\n"); fflush(stderr);
+#endif
     if (DSpContext_GetAttributes(context, &attributes) == noErr &&
         (attributes.displayBestDepth == 16 ||
          attributes.displayBestDepth == 32)) {
@@ -268,6 +296,11 @@ static void Mac_AddDSpModes(SDL_VideoDisplay *display)
       fprintf(stderr,"Adding mode %d by %d rate %d format %ld\n",mode.w,mode.h,mode.refresh_rate,mode.format); fflush(stderr);
 #endif
       SDL_AddDisplayMode(display, &mode);
+    }
+    else {
+#ifdef MAC_DEBUG
+      fprintf(stderr,"(was not 16 or 32 bit deep)\n"); fflush(stderr);
+#endif
     }
     error = DSpGetNextContext(context, &context);
   }
@@ -498,9 +531,6 @@ static int videoInit(_THIS)
                 "macosclassic: DSpStartup failed (%ld); fullscreen disabled",
                 (long)dsp_error);
   }
-#ifdef MAC_DEBUG
-  fprintf(stderr,"DrawSprocket ready\n"); fflush(stderr);
-#endif
 #endif
 
   drawWidth=myWidth;  drawHeight=myHeight;
@@ -539,9 +569,6 @@ static int videoInit(_THIS)
     SDL_SetDesktopDisplayMode(sdlvdisp,&m);
 
 #ifdef SDL_MACOSCLASSIC_DRAWSPROCKET
-#ifdef MAC_DEBUG
-    fprintf(stderr,"Adding DrawSprocket modes...\n"); fflush(stderr);
-#endif
     Mac_AddDSpModes(sdlvdisp);
 #endif
 

@@ -13,6 +13,8 @@
 #endif
 
 
+/* This supports both real Apple dynamic OpenGL, and static Mesa */
+
 #ifdef __POWERPC__
 #define OPENGL_IS_DYNAMIC 1
 #endif

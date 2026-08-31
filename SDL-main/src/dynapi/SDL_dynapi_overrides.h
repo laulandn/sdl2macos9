@@ -27,7 +27,7 @@
 #error You should not be here.
 #endif
 
-#if defined(__MACOSCLASSIC__) || defined(__AMIGAOS3__)
+#if defined(__MACOSCLASSIC__) || defined(__AMIGAOS3__) || defined(__PS1__) || defined(__PALMOS__)
 #error foo
 #else
 #define SDL_SetError SDL_SetError_REAL

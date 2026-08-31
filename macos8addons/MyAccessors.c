@@ -1,3 +1,6 @@
+// These need to be implemented.  
+// They are only needed if your Universal Headers don't already have macros
+
 #include <stdio.h>
 
 #include "MyAccessors.h"

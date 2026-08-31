@@ -1,63 +1,65 @@
 PATH_TO_RETRO68=$(HOME)/Retro68-build/toolchain/m68k-apple-macos
 
-.SUFFIXES:	.xcoff
+.SUFFIXES:	.bin
 
 CC=m68k-apple-macos-gcc
 CXX=m68k-apple-macos-g++
 
 INCPATH+= -I"../include"
 
-LIBPATH = -L..
+LIBPATH = -L.. -L$(HOME)/tinygl-main1/lib
 #LIBS    = -lSDL2_test -lSDL2 -lm -lRetroConsole
 #LIBS    = -lSDL2_test -lSDL2 -lm ../../macos8addons/libmacos8addons.a -lOpenGLLibrary
 #LIBS    = -lSDL2_test -lSDL2 -lm ../../macos8addons/libmacos8addons.a -L$(HOME)/tinygl-main1/lib -lTinyGL -lagl -lgl
 #LIBS    =  -lSDL2_test -lSDL2 -lm $(HOME)/Mesa-3.2.1/libmesa.a ../../macos8addons/libmacos8addons.a  $(HOME)/MacGLide-master/MacGLide/OpenGLide/libOpenGlide.a $(HOME)/MacGLide-master/MacGLide/Mac/libMac.a
 #LIBS    = -lSDL2_test -lSDL2 -lm -lThreadsLib 
-LIBS    = -lSDL2_test -lSDL2 -lm -lInputSprocketLib -lDrawSprocketLib -lOpenGLLibrary ../../macos8addons/libmacos8addons.a  
+#LIBS    = -lSDL2_test -lSDL2 -lm -lInputSprocketLib -lDrawSprocketLib -lOpenGLLibrary ../../macos8addons/libmacos8addons.a  
+LIBS    = -lSDL2_test -lSDL2 -lm -lInputSprocketLib -lDrawSprocketLib -lTinyGL ../../macos8addons/libmacos8addons.a  
 
 #CFLAGS+= -DHAVE_SDL_TTF
 #TTFLIBS = SDL2ttf.lib
 
-CFLAGS+= $(INCPATH) -D__MACOSCLASSIC__ -DSDL_MACOSCLASSIC_INPUTSPROCKET=1 -DSDL_MACOSCLASSIC_AGL=1 -DHAVE_OPENGL=1
+#CFLAGS+= $(INCPATH) -D__MACOSCLASSIC__ -DSDL_MACOSCLASSIC_INPUTSPROCKET=1 -DSDL_MACOSCLASSIC_AGL=1 -DHAVE_OPENGL=1
+CFLAGS+= $(INCPATH) -D__MACOSCLASSIC__ -DSDL_MACOSCLASSIC_INPUTSPROCKET=1 -DSDL_MACOSCLASSIC_TINYGL=1 -DHAVE_OPENGL=1
 
-TARGETS = testatomic.xcoff testdisplayinfo.xcoff testbounds.xcoff testdraw2.xcoff \
-          testdrawchessboard.xcoff testdropfile.xcoff testerror.xcoff testfile.xcoff \
-          testfilesystem.xcoff testgamecontroller.xcoff testgeometry.xcoff testgesture.xcoff \
-          testhittesting.xcoff testhotplug.xcoff testiconv.xcoff testime.xcoff testlocale.xcoff \
-          testintersections.xcoff testjoystick.xcoff testkeys.xcoff testloadso.xcoff \
-          testlock.xcoff testmessage.xcoff testoverlay2.xcoff testplatform.xcoff \
-          testpower.xcoff testsensor.xcoff testrelative.xcoff testrendercopyex.xcoff \
-          testrendertarget.xcoff testrumble.xcoff testscale.xcoff testsem.xcoff \
-          testshader.xcoff testshape.xcoff testsprite2.xcoff testspriteminimal.xcoff \
-          teststreaming.xcoff testthread.xcoff testtimer.xcoff testver.xcoff \
-          testviewport.xcoff testwm2.xcoff torturethread.xcoff checkkeys.xcoff \
-          checkkeysthreads.xcoff testmouse.xcoff testgles.xcoff testgles2.xcoff \
-          controllermap.xcoff testhaptic.xcoff testqsort.xcoff testresample.xcoff \
-          testaudioinfo.xcoff testaudiocapture.xcoff loopwave.xcoff loopwavequeue.xcoff \
-          testsurround.xcoff testyuv.xcoff testgl2.xcoff testvulkan.xcoff testnative.xcoff \
-          testaudiohotplug.xcoff testcustomcursor.xcoff testmultiaudio.xcoff \
-          testoffscreen.xcoff testurl.xcoff
+TARGETS = testatomic.bin testdisplayinfo.bin testbounds.bin testdraw2.bin \
+          testdrawchessboard.bin testdropfile.bin testerror.bin testfile.bin \
+          testfilesystem.bin testgamecontroller.bin testgeometry.bin testgesture.bin \
+          testhittesting.bin testhotplug.bin testiconv.bin testime.bin testlocale.bin \
+          testintersections.bin testjoystick.bin testkeys.bin testloadso.bin \
+          testlock.bin testmessage.bin testoverlay2.bin testplatform.bin \
+          testpower.bin testsensor.bin testrelative.bin testrendercopyex.bin \
+          testrendertarget.bin testrumble.bin testscale.bin testsem.bin \
+          testshader.bin testshape.bin testsprite2.bin testspriteminimal.bin \
+          teststreaming.bin testthread.bin testtimer.bin testver.bin \
+          testviewport.bin testwm2.bin torturethread.bin checkkeys.bin \
+          checkkeysthreads.bin testmouse.bin testgles.bin testgles2.bin \
+          controllermap.bin testhaptic.bin testqsort.bin testresample.bin \
+          testaudioinfo.bin testaudiocapture.bin loopwave.bin loopwavequeue.bin \
+          testsurround.bin testyuv.bin testgl2.bin testvulkan.bin testnative.bin \
+          testaudiohotplug.bin testcustomcursor.bin testmultiaudio.bin \
+          testoffscreen.bin testurl.bin
 
 noninteractive = \
-	testatomic.xcoff \
-	testerror.xcoff \
-	testfilesystem.xcoff \
-	testkeys.xcoff \
-	testlocale.xcoff \
-	testplatform.xcoff \
-	testpower.xcoff \
-	testqsort.xcoff \
-	testthread.xcoff \
-	testtimer.xcoff \
-	testver.xcoff
+	testatomic.bin \
+	testerror.bin \
+	testfilesystem.bin \
+	testkeys.bin \
+	testlocale.bin \
+	testplatform.bin \
+	testpower.bin \
+	testqsort.bin \
+	testthread.bin \
+	testtimer.bin \
+	testver.bin
 
 needs_audio = \
-	testaudioinfo.xcoff \
-	testsurround.xcoff
+	testaudioinfo.bin \
+	testsurround.bin
 
 needs_display = \
-	testbounds.xcoff \
-	testdisplayinfo.xcoff
+	testbounds.bin \
+	testdisplayinfo.bin
 
 TESTS = $(noninteractive) $(needs_audio) $(needs_display)
 
@@ -76,7 +78,7 @@ TASRCS = testautomation.c \
 	testautomation_syswm.c testautomation_timer.c \
 	testautomation_video.c
 
-OBJS = $(TARGETS:.xcoff=.o)
+OBJS = $(TARGETS:.bin=.o)
 COBJS = $(CSRCS:.c=.o)
 TAOBJS = $(TASRCS:.c=.o)
 TNOBJS = $(TNSRCS:.c=.o)
@@ -85,7 +87,7 @@ TNOBJS = $(TNSRCS:.c=.o)
 all: testutils.lib $(TARGETS)
 
 
-.o.xcoff:
+.o.bin:
 	$(CXX) -o $*.code.bin $< testutils.o testyuv_cvt.o ../src/main/macosclassic/SDL_main.o $(LIBPATH) $(LIBS)
 	../../bin2app.sh $*
 
@@ -99,7 +101,7 @@ all: testutils.lib $(TARGETS)
 #testautomation_stdlib.o: testautomation_stdlib.c
 #	 $(CFLAGS) -wcd=201 -fo=$^@ $<
 
-#testautomation.xcoff: $(TAOBJS)
+#testautomation.bin: $(TAOBJS)
 #	 $(CC) $(LIBPATH) lib {$(LIBS)} op q op el file {$<} name $@
 
 
@@ -110,18 +112,18 @@ check: .SYMBOLIC $(TESTS)
 #  @set SDL_AUDIODRIVER=dummy
 #  @set SDL_VIDEODRIVER=dummy
 #  @copy ..\SDL2.dll .
-#  @for .xcoff in ($(TESTS)) do .xcoff
+#  @for .bin in ($(TESTS)) do .bin
 
 check-quick: .SYMBOLIC $(TESTS)
 #  @set SDL_TESTS_QUICK=1
 #  @set SDL_AUDIODRIVER=dummy
 #  @set SDL_VIDEODRIVER=dummy
 #  @copy ..\SDL2.dll .
-#  @for .xcoff in ($(TESTS)) do .xcoff
+#  @for .bin in ($(TESTS)) do .bin
 
 clean:
-	rm -rf *.o *.err *.xcoff *.pef *.dsk *.bin *.APPL *.gdb .rsrc .finf
+	rm -rf *.o *.err *.bin *.pef *.dsk *.bin *.APPL *.gdb .rsrc .finf
 	rm -f testkeys testoverlay2 testscale testaudioinfo testlocale testvulkan testintersect ions testerror testviewport testcustomcursor testmessage testrendertarget testver test file testsurround testgl2 controllermap testmouse testplatform testhotplug testdisplay info testloadso loopwave testsem checkkeysthreads testresample testgamecontroller chec kkeys testshader testsensor testyuv testsprite2 testime testurl testshape testiconv te stgles teststreaming testtimer testatomic testoffscreen testwm2 testbounds testthread testgles2 testgeometry testspriteminimal testrumble torturethread testdraw2 testaudioh otplug testhittesting testjoystick testrelative testmultiaudio testpower testaudiocapt ure loopwavequeue testdropfile testfilesystem testqsort testdrawchessboard testnative testrendercopyex testlock testgesture testhaptic testgles testintersections testfile testaudiocapture testaudiohotplug checkkeys testdisplayinfo
 
 distclean: clean
-	rm -f *.xcoff *.lib
+	rm -f *.bin *.lib

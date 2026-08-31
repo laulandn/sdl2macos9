@@ -56,6 +56,14 @@
 #include "SDL_config_amigaos3.h"
 #elif defined(__MACOSCLASSIC__)
 #include "SDL_config_macosclassic.h"
+#elif defined(__PS1__)
+#include "SDL_config_ps1.h"
+#elif defined(__PS2__)
+#include "SDL_config_ps2.h"
+#elif defined(__PSP__)
+#include "SDL_config_psp.h"
+#elif defined(__PALMOS__)
+#include "SDL_config_palm.h"
 #else
 /* This is a minimal configuration just to get SDL running on new platforms. */
 #include "SDL_config_minimal.h"

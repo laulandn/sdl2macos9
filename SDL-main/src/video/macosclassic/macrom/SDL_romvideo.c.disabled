@@ -74,7 +74,7 @@ static RgnHandle	gSaveGrayRgn = nil;
 static short		gSaveMenuBar = 0;
 static Boolean		gSaveCSVis = true;
 
-#if powerc
+#if __POWERPC__
 /* Mixed mode glue to activate the 68K emulator and twiddle a register */
 #define ONEWORDSTUB(p1) \
 		{ 0x41FA, 0x0010, 0x209F, (p1), 0x41FA, \
@@ -108,7 +108,7 @@ static pascal void SBShowHideControlStrip(Boolean showIt)
 
 	CallUniversalProc((UniversalProcPtr) procData, procInfo, 0x01, showIt);
 }
-#endif /* powerc */
+#endif /* __POWERPC__ */
 #endif /* !TARGET_API_MAC_CARBON */
 
 /* Macintosh toolbox driver bootstrap functions */

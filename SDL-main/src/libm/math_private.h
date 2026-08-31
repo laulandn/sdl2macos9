@@ -27,7 +27,7 @@
 #define libm_hidden_def(x)
 #define strong_alias(x, y)
 
-#if !defined(__HAIKU__) && !defined(__PSP__) && !defined(__3DS__) && !defined(__PS2__) && !defined(__MACOSCLASSIC__) && !defined(__AMIGAOS3__) /* already defined in a system header. */
+#if !defined(__HAIKU__) && !defined(__PSP__) && !defined(__3DS__) && !defined(__PS2__) && !defined(__MACOSCLASSIC__) && !defined(__AMIGAOS3__) && !defined(__PALMOS__) /* already defined in a system header. */
 typedef unsigned int u_int32_t;
 #endif
 
@@ -38,7 +38,7 @@ typedef unsigned int u_int32_t;
 #ifndef u_int32_t
 #define u_int32_t unsigned long
 #endif
-#if !powerc
+#if !__POWERPC__
 #undef atan
 #undef copysign
 #undef cos
