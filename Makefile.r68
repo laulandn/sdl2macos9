@@ -1,0 +1,8 @@
+
+all:
+	make -C macos8addons -fMakefile.r68 lib
+	make -C SDL-main -fMakefile.r68
+	
+clean:
+	make -C SDL-main -fMakefile.r68 clean
+	rm -f */*.o */*.a

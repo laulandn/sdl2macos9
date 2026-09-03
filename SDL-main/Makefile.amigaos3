@@ -8,7 +8,7 @@ PATH_TO_TOOLS=/opt/m68k-amigaos
 #CC = m68k-elf-gcc -mcrt=nix20
 #CXX = m68k-elf-g++ -mcrt=nix20
 #STRIP = m68k-elf-strip
-#AR = m68k-elf-ar
+AR = m68k-elf-ar
 RANLIB = m68k-elf-ranlib
 CC = m68k-elf-gcc -mcrt=nix20
 CXX = m68k-elf-g++ -mcrt=nix20

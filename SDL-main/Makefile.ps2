@@ -1,7 +1,7 @@
 # Makefile to build the classic MacOS SDL library for m68k
 # (Based on AmigaOS4 Makefile)
 
-PATH_TO_TOOLS=/opt/mipsel-unknown-elf
+PATH_TO_TOOLS=$(HOME)/Downloads/ps2sdk
 
 AR = mipsel-unknown-elf-ar
 RANLIB = mipsel-unknown-elf-ranlib
@@ -14,7 +14,7 @@ CATCOMP = catcomp # TODO: is there a cross-compiler version?
 
 #MACDATE = $(shell date +"%-d.%m.%Y")
 
-CFLAGS ?= -g -Wall -Wshadow -Wno-unused-variable -I$(PATH_TO_TOOLS)/include
+CFLAGS ?= -g -Wall -Wshadow -Wno-unused-variable -I$(PATH_TO_TOOLS)/common/include
 #CPPFLAGS += -I./include -D__MACOSCLASSIC__ -DSDL_MACOSCLASSIC_INPUTSPROCKET=1 -DSDL_MACOSCLASSIC_DRAWSPROCKET=1
 #CPPFLAGS += -I./include -D__MACOSCLASSIC__ -DMAC_DEBUG=1
 CPPFLAGS += -I./include -D__PS2__ -DPS2_DEBUG=1

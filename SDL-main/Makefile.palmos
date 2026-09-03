@@ -3,6 +3,7 @@
 
 PATH_TO_TOOLS=/opt/m68k-palm-elf
 
+AR = m68k-palm-elf-ar
 RANLIB = m68k-palm-elf-ranlib
 CC = m68k-palm-elf-gcc
 CXX = m68k-palm-elf-g++

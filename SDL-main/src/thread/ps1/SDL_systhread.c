@@ -20,7 +20,7 @@
 */
 #include "../../SDL_internal.h"
 
-#ifdef SDL_THREAD_MACOSCLASSIC
+#ifdef SDL_THREAD_PS1
 
 
 /* Thread management routines for SDL */
@@ -32,20 +32,20 @@ static void *RunThread(void *data)
 {
     SDL_Thread *t=(SDL_Thread *)data;
 #ifdef MYDEBUG
-    fprintf(stderr,"macosclassic RunThread data=%08lx\n",(long)data); fflush(stderr);
+    fprintf(stderr,"ps1 RunThread data=%08lx\n",(long)data); fflush(stderr);
 #endif
     if(data) {
 #ifdef MYDEBUG
       fprintf(stderr,"handle=%08lx userfunc=%08lx userdata=%08lx\n",(long)t->handle,(long)t->userfunc,(long)t->userdata); fflush(stderr);
 #endif
-      YieldToThread(t->handle);
+      //YieldToThread(t->handle);
       SDL_RunThread((SDL_Thread *)data);
     }
     else {
-      fprintf(stderr,"macosclassic RunThread data is null!"); fflush(stderr);
+      fprintf(stderr,"ps1 RunThread data is null!"); fflush(stderr);
     }
 #ifdef MYDEBUG
-    fprintf(stderr,"macosclassic RunThread done\n"); fflush(stderr);
+    fprintf(stderr,"ps1 RunThread done\n"); fflush(stderr);
 #endif
     return NULL;
 }
@@ -62,10 +62,11 @@ int SDL_SYS_CreateThread(SDL_Thread *thread,
 int SDL_SYS_CreateThread(SDL_Thread *thread)
 #endif /* SDL_PASSED_BEGINTHREAD_ENDTHREAD */
 {
-    //fprintf(stderr,"macosclassic create thread %08lx\n",(long)thread); fflush(stderr);
-    //fprintf(stderr,"macosclassic create thread name=%s\n",thread->name); fflush(stderr);
+    //fprintf(stderr,"ps1 create thread %08lx\n",(long)thread); fflush(stderr);
+    //fprintf(stderr,"ps1 create thread name=%s\n",thread->name); fflush(stderr);
     // style entry param stack opts &result &id
     // NOTE: We don't handle return code
+    /*
 #if defined(TARGET_API_MAC_CARBON) && TARGET_API_MAC_CARBON
     if (!run_thread_upp)
       run_thread_upp = NewThreadEntryUPP(RunThread);
@@ -73,11 +74,12 @@ int SDL_SYS_CreateThread(SDL_Thread *thread)
 #else
     if (NewThread(kCooperativeThread, RunThread, thread, 65535, 0, NULL, &thread->handle) != noErr) {
 #endif
-      fprintf(stderr,"macosclassic create thread failed!\n"); fflush(stderr);
+      fprintf(stderr,"ps1 create thread failed!\n"); fflush(stderr);
       return -1;
     }
+*/
 #ifdef MYDEBUG
-    fprintf(stderr,"macosclassic create thread %08lx name=%s handle=%08lx\n",(long)thread,thread->name,(long)thread->handle); fflush(stderr);
+    fprintf(stderr,"ps1 create thread %08lx name=%s handle=%08lx\n",(long)thread,thread->name,(long)thread->handle); fflush(stderr);
 #endif
     return 0;
 }
@@ -85,7 +87,7 @@ int SDL_SYS_CreateThread(SDL_Thread *thread)
 void SDL_SYS_SetupThread(const char *name)
 {
 #ifdef MYDEBUG
-    fprintf(stderr,"macosclassic setup thread name=%s\n",name); fflush(stderr);
+    fprintf(stderr,"ps1 setup thread name=%s\n",name); fflush(stderr);
 #endif
     // Safe to ignore?
     return;
@@ -94,12 +96,12 @@ void SDL_SYS_SetupThread(const char *name)
 SDL_threadID SDL_ThreadID(void)
 {
     SDL_threadID ret=0;
-    ThreadID id;
-    //fprintf(stderr,"macosclassic id thread\n"); fflush(stderr);
-    /*Mac*/GetCurrentThread(&id);
+    int id;
+    //fprintf(stderr,"ps1 id thread\n"); fflush(stderr);
+    /*Mac*///GetCurrentThread(&id);
     ret=id;
 #ifdef MYDEBUG
-    fprintf(stderr,"macosclassic id thread id=%08lx\n",(long)id); fflush(stderr);
+    fprintf(stderr,"ps1 id thread id=%08lx\n",(long)id); fflush(stderr);
 #endif
     return ret;
 }
@@ -107,36 +109,38 @@ SDL_threadID SDL_ThreadID(void)
 int SDL_SYS_SetThreadPriority(SDL_ThreadPriority priority)
 {
 #ifdef MYDEBUG
-    fprintf(stderr,"macosclassic setpriority thread priority=%d\n",priority); fflush(stderr);
+    fprintf(stderr,"ps1 setpriority thread priority=%d\n",priority); fflush(stderr);
 #endif
     return 0;
 }
 
 void SDL_SYS_WaitThread(SDL_Thread *thread)
 {
-    ThreadState tstate = kStoppedThreadState;
-    //fprintf(stderr,"macosclassic wait thread=%08lx\n",(long)thread); fflush(stderr);
+    //ThreadState tstate = kStoppedThreadState;
+    //fprintf(stderr,"ps1 wait thread=%08lx\n",(long)thread); fflush(stderr);
 #ifdef MYDEBUG
-    fprintf(stderr,"macosclassic wait thread %08lx handle=%08lx\n",(long)thread,(long)thread->handle); fflush(stderr);
+    fprintf(stderr,"ps1 wait thread %08lx handle=%08lx\n",(long)thread,(long)thread->handle); fflush(stderr);
 #endif
+/*
     while (GetThreadState(thread->handle, &tstate) == noErr &&
            tstate != kStoppedThreadState) {
-        YieldToAnyThread();
+        //YieldToAnyThread();
     }
+    */
 #ifdef MYDEBUG
     fprintf(stderr,"tstate=%d state=%08lx status=%08lx\n",tstate,(long)thread->state.value,(long)thread->status);
 #endif
     /* Returning from the entry point makes Thread Manager dispose the
        native thread automatically. GetThreadState reports that transition;
        an explicit DisposeThread here would only target an expired ID. */
-    thread->handle = kNoThreadID;
+    //thread->handle = kNoThreadID;
 }
 
 void SDL_SYS_DetachThread(SDL_Thread *thread)
 {
 #ifdef MYDEBUG
-    fprintf(stderr,"macosclassic detach thread=%08lx\n",(long)thread); fflush(stderr);
-    fprintf(stderr,"macosclassic detach thread handle=%08lx\n",(long)thread->handle); fflush(stderr);
+    fprintf(stderr,"ps1 detach thread=%08lx\n",(long)thread); fflush(stderr);
+    fprintf(stderr,"ps1 detach thread handle=%08lx\n",(long)thread->handle); fflush(stderr);
 #endif
     /* Thread Manager also disposes a detached native thread when its entry
        point returns; SDL_RunThread owns the detached SDL wrapper lifetime. */

@@ -1,11 +1,12 @@
-PATH_TO_TOOLS=/opt/mipsel-unknown-elf
+PATH_TO_TOOLS=$(HOME)/Downloads/ps2dev/iop/bin
+PATH_TO_SDK=$(HOME)/Downloads/PSn00bSDK/libpsn00b
 
 .SUFFIXES:	.elf
 
-CC=mipsel-unknown-elf-gcc
-CXX=mipsel-unknown-elf-g++
+CC = $(PATH_TO_TOOLS)/mipsel-none-elf-gcc
+CXX = $(PATH_TO_TOOLS)/mipsel-none-elf-g++
 
-INCPATH+= -I"../include"
+INCPATH+= -I"../include" -I../../psxaddons  -I$(PATH_TO_SDK)/include
 
 LIBPATH = -L..
 #LIBS    = -lSDL2_test -lSDL2 -lm -lRetroConsole
@@ -13,7 +14,7 @@ LIBPATH = -L..
 #LIBS    = -lSDL2_test -lSDL2 -lm ../../macos8addons/libmacos8addons.a -L$(HOME)/tinygl-main1/lib -lTinyGL -lagl -lgl
 #LIBS    =  -lSDL2_test -lSDL2 -lm $(HOME)/Mesa-3.2.1/libmesa.a ../../macos8addons/libmacos8addons.a  $(HOME)/MacGLide-master/MacGLide/OpenGLide/libOpenGlide.a $(HOME)/MacGLide-master/MacGLide/Mac/libMac.a
 #LIBS    = -lSDL2_test -lSDL2 -lm -lThreadsLib 
-LIBS    = -lSDL2_test -lSDL2
+LIBS    = -lSDL2_test -lSDL2 -L../../Baselibc -lc -L../../psxaddons -lpsxaddons
 
 #CFLAGS+= -DHAVE_SDL_TTF
 #TTFLIBS = SDL2ttf.lib

@@ -12,7 +12,7 @@ extern "C" {
 
 struct NumVersion myVer;
 DSpContextReference myContext;
-bool myContextAlreadyDone=false;
+int myContextAlreadyDone=FALSE;
 
 
 OSStatus DSpStartup(void)
@@ -156,7 +156,7 @@ OSStatus DSpGetFirstContext(
 {
   //fprintf(stderr,"DSpGetFirstContext...MyDrawSprocket...not implemented\n"); fflush(stderr);
   if(!outContext) { fprintf(stderr,"outContext was NULL!\n"); fflush(stderr); }
-  myContextAlreadyDone=true;
+  myContextAlreadyDone=TRUE;
   return noErr;
 }
 

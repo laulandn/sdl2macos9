@@ -7,7 +7,7 @@ CXX=m68k-apple-macos-g++
 
 INCPATH+= -I"../include"
 
-LIBPATH = -L.. -L$(HOME)/tinygl-main1/lib
+LIBPATH = -L.. -L$(HOME)/tinygl/lib
 #LIBS    = -lSDL2_test -lSDL2 -lm -lRetroConsole
 #LIBS    = -lSDL2_test -lSDL2 -lm ../../macos8addons/libmacos8addons.a -lOpenGLLibrary
 #LIBS    = -lSDL2_test -lSDL2 -lm ../../macos8addons/libmacos8addons.a -L$(HOME)/tinygl-main1/lib -lTinyGL -lagl -lgl

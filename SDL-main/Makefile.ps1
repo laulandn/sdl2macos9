@@ -1,20 +1,21 @@
 # Makefile to build the classic MacOS SDL library for m68k
 # (Based on AmigaOS4 Makefile)
 
-PATH_TO_TOOLS=/opt/mipsel-unknown-elf
+PATH_TO_TOOLS=$(HOME)/Downloads/ps2dev/iop/bin
+PATH_TO_SDK=$(HOME)/Downloads/PSn00bSDK/libpsn00b
 
-AR = mipsel-unknown-elf-ar
-RANLIB = mipsel-unknown-elf-ranlib
-CC = mipsel-unknown-elf-gcc
-CXX = mipsel-unknown-elf-g++
-STRIP = mipsel-unknown-elf-strip
+AR = $(PATH_TO_TOOLS)/mipsel-none-elf-ar
+RANLIB = $(PATH_TO_TOOLS)/mipsel-none-elf-ranlib
+CC = $(PATH_TO_TOOLS)/mipsel-none-elf-gcc
+CXX = $(PATH_TO_TOOLS)/mipsel-none-elf-g++
+STRIP = $(PATH_TO_TOOLS)/mipsel-none-elf-strip
 #CRT ?= newlib
 INSTALL_PATH ?=
 CATCOMP = catcomp # TODO: is there a cross-compiler version?
 
 #MACDATE = $(shell date +"%-d.%m.%Y")
 
-CFLAGS ?= -g -Wall -Wshadow -Wno-unused-variable -I$(PATH_TO_TOOLS)/include
+CFLAGS ?= -g -Wall -Wshadow -Wno-unused-variable  -I../psxaddons  -I$(PATH_TO_SDK)/include
 #CPPFLAGS += -I./include -D__MACOSCLASSIC__ -DSDL_MACOSCLASSIC_INPUTSPROCKET=1 -DSDL_MACOSCLASSIC_DRAWSPROCKET=1
 #CPPFLAGS += -I./include -D__MACOSCLASSIC__ -DMAC_DEBUG=1
 CPPFLAGS += -I./include -D__PS1__ -DPS1_DEBUG=1

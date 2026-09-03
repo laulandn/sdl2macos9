@@ -25,7 +25,7 @@
 #include "SDL_timer.h"
 #include "SDL_systhread_c.h"
 
-#ifdef SDL_THREAD_MACOSCLASSIC
+#ifdef SDL_THREAD_PS1
 
 #include "./ThreadSynch.h"
 
@@ -113,7 +113,7 @@ int SDL_SemWaitTimeout(SDL_sem *sem, Uint32 timeout)
         if (SemaphoreTryP(&sem->Sem)) {
             return 0;
         }
-        YieldToAnyThread();
+        //YieldToAnyThread();
     } while (SDL_GetTicks64() < deadline);
 
     /* Check once more at the boundary so a simultaneous post wins. */
