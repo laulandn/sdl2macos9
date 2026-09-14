@@ -7,13 +7,31 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-/*#error "<dirent.h> not supported"*/
+
+
+#include <sys/param.h>
+
+
 struct dirent {
-  char *d_name;
+  char d_name[MAXPATHLEN];
   int d_ino;
-  int dd_fd;
+  int d_reclen;
+  int d_namlen;
 };
-typedef struct dirent DIR;
+typedef struct dirent dirent;
+
+
+struct DIR {
+  char *d_name;  // Still needed?
+  int d_ino;  // Still needed?
+  int dd_fd;
+  int vRefNum;
+  int fileIndex;
+  dirent dirEntryBuffer;
+};
+typedef struct DIR DIR;
+
+
 #ifdef __cplusplus
 }
 #endif

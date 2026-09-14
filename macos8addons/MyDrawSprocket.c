@@ -182,6 +182,43 @@ OSStatus DSpContext_GetMonitorFrequency(
 }
 
 
+OSStatus DSpContext_GetState(
+  DSpContextReferenceConst   inContext,
+  DSpContextState *          outState)
+{
+  fprintf(stderr,"DSpContext_GetState...MyDrawSprocket...not implemented\n"); fflush(stderr);
+  return noErr;
+}
+
+
+OSStatus DSpContext_GetDisplayID(
+  DSpContextReferenceConst   inContext,
+  DisplayIDType *            outDisplayID)
+{
+  fprintf(stderr,"DSpContext_GetDisplayID...MyDrawSprocket...not implemented\n"); fflush(stderr);
+  return noErr;
+}
+
+
+OSStatus DSpUserSelectContext(
+  DSpContextAttributesPtr   inDesiredAttributes,
+  DisplayIDType             inDialogDisplayLocation,
+  DSpEventUPP               inEventProc,
+  DSpContextReference *     outContext)
+{
+  fprintf(stderr,"DSpUserSelectContext...MyDrawSprocket...not implemented\n"); fflush(stderr);
+  return noErr;
+}
+
+
+OSStatus DSpSetBlankingColor(const RGBColor * inRGBColor)
+{
+  fprintf(stderr,"DSpSetBlankingColor...MyDrawSprocket...not implemented\n"); fflush(stderr);
+  if(!inRGBColor) { fprintf(stderr,"inRGBColor was NULL!\n"); fflush(stderr); return -1; }
+  return noErr;
+}
+
+
 #ifdef __cplusplus
 };
 #endif

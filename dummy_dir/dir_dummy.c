@@ -1,17 +1,25 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <assert.h>
+
+// Our's, not retro68's...which is mostly empty
+// NOTE: Clients MUST use the same one!
 #include <dirent.h>
+
+#include <Files.h>
 
 
 char *getcwd(char *buf, size_t size)
 {
-  fprintf(stderr,"getcwd()...\n");  fflush(stderr);
+  fprintf(stderr,"dummy getcwd()...\n");  fflush(stderr);
   if(!buf) { fprintf(stderr,"buf was NULL!\n"); fflush(stderr); }
   return "::";
 }
 
 char *getwd(char *buf)
 {
-  fprintf(stderr,"getwd()...\n");  fflush(stderr);
+  fprintf(stderr,"dummy getwd()...\n");  fflush(stderr);
   if(!buf) { fprintf(stderr,"buf was NULL!\n"); fflush(stderr); }
   return "::";
 }
@@ -19,7 +27,7 @@ char *getwd(char *buf)
 
 int access(const char *path, int mode)
 {
-  fprintf(stderr,"access()...\n");  fflush(stderr);
+  fprintf(stderr,"dummy access()...\n");  fflush(stderr);
   if(!path) { fprintf(stderr,"path was NULL!\n"); fflush(stderr); }
   return -1;
 }
@@ -27,7 +35,7 @@ int access(const char *path, int mode)
 
 int mkdir(const char *path, int/*mode_t*/ mode)
 {
-  fprintf(stderr,"mkdir(%s,%d)...\n",path,mode);  fflush(stderr);
+  fprintf(stderr,"dummy mkdir(%s,%d)...\n",path,mode);  fflush(stderr);
   if(!path) { fprintf(stderr,"path was NULL!\n"); fflush(stderr); }
   return -1;
 }
@@ -35,7 +43,7 @@ int mkdir(const char *path, int/*mode_t*/ mode)
 
 int chdir(const char *path)
 {
-  fprintf(stderr,"chdir(%s)...\n",path);  fflush(stderr);
+  fprintf(stderr,"dummy chdir(%s)...\n",path);  fflush(stderr);
   if(!path) { fprintf(stderr,"path was NULL!\n"); fflush(stderr); }
   return -1;
 }
@@ -47,15 +55,13 @@ int chdir(const char *path)
  * (I have as yet no use for multiple open directories; this could
  * be implemented by allocating memory dynamically.)
  */
-DIR * opendir(const char *filename)
+DIR * opendir(const char *path)
 {
-/*  fprintf(stderr,"opendir(%s)...\n",filename);  fflush(stderr);
-  if(!filename) { fprintf(stderr,"filename was NULL!\n"); fflush(stderr); }
-  return NULL;*/
+  if(!path) { fprintf(stderr,"opendir path was NULL!\n"); fflush(stderr); return NULL; }
 	
 	int i;
 	WDPBRec paramBlock;
-	char ppath[MAXPATH];
+	char ppath[MAXPATHLEN];
 	OSErr error;
 	
 	
@@ -97,9 +103,7 @@ DIR * opendir(const char *filename)
 
 struct dirent *readdir(DIR *dirp)
 {
-  /*fprintf(stderr,"readdir()...\n");  fflush(stderr);
-  if(!dirp) { fprintf(stderr,"DIR was NULL!\n"); fflush(stderr); }
-  return NULL;*/
+  if(!dirp) { fprintf(stderr,"readdir DIR was NULL!\n"); fflush(stderr); return NULL; }
 	CInfoPBRec 	paramBlock;
 	OSErr		error;
 	
@@ -127,9 +131,7 @@ struct dirent *readdir(DIR *dirp)
 
 int closedir(DIR *dirp)
 {
-  /*fprintf(stderr,"closedir()...\n");  fflush(stderr);
-  if(!dirp) { fprintf(stderr,"DIR was NULL!\n"); fflush(stderr); }
-  return 0;*/
+  if(!dirp) { fprintf(stderr,"closedir DIR was NULL!\n"); fflush(stderr); return 0; }
 	WDPBRec paramBlock;
 	
 	paramBlock.ioCompletion = 0;
@@ -141,18 +143,18 @@ int closedir(DIR *dirp)
 }
 
 
-char *realpath(char *n,char *rn)
+char *realpath(const char *n,char *rn)
 {
-  fprintf(stderr,"realpath()...\n");  fflush(stderr);
+  fprintf(stderr,"dummy realpath()...\n");  fflush(stderr);
   if(!n) { fprintf(stderr,"n was NULL!\n"); fflush(stderr); }
   if(!rn) { fprintf(stderr,"n was NULL!\n"); fflush(stderr); }
-  return n;
+  return (const char *)n;
 }
 
 
 FILE *popen(const char *n,const char *m)
 {
-  fprintf(stderr,"popen()...\n");  fflush(stderr);
+  fprintf(stderr,"dummy popen()...\n");  fflush(stderr);
   if(!n) { fprintf(stderr,"n was NULL!\n"); fflush(stderr); }
   if(!m) { fprintf(stderr,"m was NULL!\n"); fflush(stderr); }
   return NULL;
@@ -161,7 +163,7 @@ FILE *popen(const char *n,const char *m)
 
 int pclose(FILE *f)
 {
-  fprintf(stderr,"pclose()...\n");  fflush(stderr);
+  fprintf(stderr,"dummy pclose()...\n");  fflush(stderr);
   if(!f) { fprintf(stderr,"f was NULL!\n"); fflush(stderr); }
   return 0;
 }

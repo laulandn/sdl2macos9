@@ -4,7 +4,7 @@
 
 #ifdef SDL_VIDEO_DRIVER_MACOSCLASSIC
 #ifdef SDL_VIDEO_OPENGL
-#ifdef SDL_MACOSCLASSIC_TINYGL
+#ifdef SDL_MACOSCLASSIC_OSGL
 
 #include "SDL_agl.h"
 #ifdef TARGET_OS_OSX
@@ -13,18 +13,28 @@
 #endif
 
 #include <SDL_render.h>
-#include "zbuffer.h"
+
+#ifdef SDL_MACOSCLASSIC_TINYGL
+#include "GL/ostinygl.h"
+#else
+#include <GL/osmesa.h>
+#endif
 
 
 /* This supports both real Apple dynamic OpenGL, and static Mesa */
 
 #ifdef __POWERPC__
-#define OPENGL_IS_DYNAMIC 1
+//#define OPENGL_IS_DYNAMIC 1
 #endif
 
 #ifdef OPENGL_IS_DYNAMIC
-#define NEED_EXT_FUNCS 1
+#define NEED_EXT_FUNC
 #endif
+
+
+// TODO: This is a TEMPORARY hack!
+// NOTE: Should be static
+SDL_Window *theOnlyLonelyWindow;
 
 
 #ifdef NEED_EXT_FUNCS
@@ -44,9 +54,24 @@ extern void glBlendEquation(GLenum mode);
 #endif
 
 
+extern DECLSPEC void SDLCALL SDL_Quit(void);
+
+
+typedef struct OSGLPixelFormatRec
+{
+  int fake;
+} OSGLPixelFormatRec;
+
+#ifdef SDL_MACOSCLASSIC_TINYGL
+typedef ostgl_context_t * OSGLContext;
+#else
+typedef OSMesaContext OSGLContext;
+#endif
+
+
 typedef struct MacGLContext
 {
-    AGLContext agl;
+    OSGLContext osgl;
     SDL_Window *window;
     int drawable_attached;
     int double_buffered;
@@ -58,152 +83,218 @@ static CFragConnectionID gl_library;
 static SDL_bool gl_library_open;
 static MacGLContext *mac_current_context;
 static MacGLContext *mac_contexts;
-static int Mac_AGLError(const char *operation);
+static int Mac_OSGLError(const char *operation);
 
-
-extern void glInit(void *zbuffer);
-
-
-typedef struct __AGLPixelFormatRec
-{
-  int fake;
-} __AGLPixelFormatRec;
-
-
-typedef struct __AGLContextRec
-{
-  int fake;
-} __AGLContextRec;
-
+static struct OSGLPixelFormatRec osPixelFormat;
+typedef void * OSGLPixelFormat;
+static OSGLPixelFormat osPixelFormatPtr=(OSGLPixelFormat)&osPixelFormat;
 
 static SDL_Texture *texture = NULL;
-static ZBuffer *frameBuffer = NULL;
 static SDL_Renderer *renderer = NULL;
-static SDL_Window *theOnlyWindow;
-static SDL_Surface *screen = NULL;
-static int tinyError=0;
-static struct __AGLPixelFormatRec tinyPixelFormat;
-static struct __AGLContextRec tinyContext;
-static AGLPixelFormat tinyPixelFormatPtr=&tinyPixelFormat;
-static AGLContext tinyContextPtr=&tinyContext;
+
+// TODO: This is a TEMPORARY hack!
+SDL_Window *theOnlyLonelyWindow;
+
+static int osError=0;
+char *osBuffer=NULL;
+OSGLContext osContext=NULL;
 
 
-GLenum aglGetError()
+OSGLContext osglCreateContext(OSGLPixelFormat pix, OSGLContext share)
 {
-  //fprintf(stderr,"fake aglGetError!\n"); fflush(stderr);
-  return tinyError;
+    //fprintf(stderr,"aglCreateContext....\n"); fflush(stderr); aglTheError=1;
+    //fprintf(stderr,"aglTheScreenDepth is %d\n",aglTheScreenDepth); fflush(stderr);
+    int winSizeX,winSizeY;
+    SDL_GetWindowSize(theOnlyLonelyWindow,&winSizeX,&winSizeY);
+#ifdef USING_SDL2
+    if(!theOnlyLonelyWindow) {
+      fprintf(stderr,"theOnlyLonelyWindow failed!\n"); fflush(stderr); aglTheError=1;
+      return NULL;
+    }  
+    SDL_GetWindowSize(theOnlyLonelyWindow,&aglWinSizeX,&aglWinSizeY);
+#endif
+#ifdef SDL_MACOSCLASSIC_TINYGL
+    fprintf(stderr,"osglCreateContext using TinyGL...\n"); fflush(stderr);
+    int tDepth=myDepth;
+    if(myDepth==32) {
+      fprintf(stderr,"NOTE: Requested 32 bit, switching to 16!\n"); fflush(stderr);
+      tDepth=16;
+    }
+  	osContext = ostgl_create_context(winSizeX,winSizeY,tDepth);
+	  ostgl_make_current(osContext);
+	  osBuffer=osContext->pixels;
+#else
+    fprintf(stderr,"osglCreateContext using Mesa...\n"); fflush(stderr);
+    int format=OSMESA_RGB;
+    if(myDepth==32) format=OSMESA_ARGB;  // Not sure this is right...
+    int factor=2;
+    if(myDepth==32) factor=4;
+    fprintf(stderr,"myDepth is %d\n",myDepth); fflush(stderr);
+    // TODO: The context is obviously not QUITE right...
+  	osContext=OSMesaCreateContext(format,NULL);
+  	osBuffer=(char *)malloc(winSizeX*winSizeY*factor);
+    if(!osBuffer) {
+      fprintf(stderr,"osBuffer failed!\n"); fflush(stderr); osError=1;
+      return NULL;
+    }  
+    else { fprintf(stderr,"got osBuffer\n"); fflush(stderr); } 
+    GLboolean res=OSMesaMakeCurrent(osContext,osBuffer,GL_UNSIGNED_BYTE,winSizeX,winSizeY);
+    if(!res) {
+      fprintf(stderr,"OSMesaMakeCurrent failed!\n"); fflush(stderr); osError=1;
+      return NULL;
+    }  
+    else { fprintf(stderr,"got OSMesaMakeCurrent\n"); fflush(stderr); } 
+#endif
+    if(!osContext) {
+      fprintf(stderr,"osContext failed!\n"); fflush(stderr); osError=1;
+      return NULL;
+    }
+    else { fprintf(stderr,"got osContext\n"); fflush(stderr); }
+//#ifdef USING_SDL2
+    renderer = SDL_CreateRenderer(theOnlyLonelyWindow, -1, SDL_RENDERER_PRESENTVSYNC);	
+    if(!renderer) {
+      fprintf(stderr,"SDL_CreateRenderer failed!\n"); fflush(stderr); osError=1;
+      return NULL;
+    }  
+    else { fprintf(stderr,"got renderer\n"); fflush(stderr); } 
+    texture = SDL_CreateTexture(renderer, SDL_GetWindowPixelFormat(theOnlyLonelyWindow), SDL_TEXTUREACCESS_STREAMING, winSizeX,winSizeY);
+    if(!texture) {
+      fprintf(stderr,"SDL_CreateTexture failed!\n"); fflush(stderr); osError=1;
+      return NULL;
+    }  
+    else { fprintf(stderr,"got texture\n"); fflush(stderr); } 
+//#endif
+    fprintf(stderr,"osglCreateContext done\n"); fflush(stderr);
+    return (OSGLContext)osContext;
 }
 
 
-AGLPixelFormat aglChoosePixelFormat(GDevice ** const *gdevs, GLint ndev,  const GLint *v)
+void osglSwapBuffers(OSGLContext ctx)
 {
-  fprintf(stderr,"fake aglChoosePixelFormat!\n"); fflush(stderr);
-  return tinyPixelFormatPtr;
+//#ifdef USING_SDL2
+    SDL_Surface *src=NULL;
+    SDL_Surface *dst=NULL;
+    int tFormat=SDL_PIXELFORMAT_RGB565;
+    if(myDepth==32) tFormat=SDL_PIXELFORMAT_ARGB8888;
+//#endif
+    int winSizeX=640,winSizeY=480;
+    int tDepth=myDepth;
+#ifdef SDL_MACOSCLASSIC_TINYGL
+    // Note: If doesn't match actual win size, we're wrong for win, right for buffer...
+    winSizeX=((ostgl_context_t *)ctx)->width;
+    winSizeY=((ostgl_context_t *)ctx)->height;
+    // Same here...
+    tDepth=((ostgl_context_t *)ctx)->depth;
+    if(((ostgl_context_t *)ctx)->depth!=myDepth) {
+      fprintf(stderr,"ostgl_context_t depth mismatch!\n"); fflush(stderr);
+    }
+#else
+    // Mesa only?
+    SDL_GetWindowSize(theOnlyLonelyWindow,&winSizeX,&winSizeY);
+#endif
+//#ifdef USING_SDL2
+    // Would error checking here slow things down?
+  	src = SDL_CreateRGBSurfaceWithFormatFrom(osBuffer, winSizeX, winSizeY, tDepth, ((winSizeX * tDepth) / 8), tFormat);
+  	dst = SDL_CreateRGBSurfaceWithFormatFrom(NULL, winSizeX, winSizeY, 0, 0, SDL_GetWindowPixelFormat(theOnlyLonelyWindow));
+	  if (SDL_LockTexture(texture, NULL, &dst->pixels, &dst->pitch) == 0)
+	  {
+		  if (SDL_BlitSurface(src, NULL, dst, NULL) != 0)
+		  { SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "surface blit failed: %s", SDL_GetError()); }
+		  SDL_UnlockTexture(texture);
+	  }
+	  else
+	  { SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "texture lock failed: %s", SDL_GetError()); }
+	  if(dst) SDL_FreeSurface(dst);
+	  if(src) SDL_FreeSurface(src);
+	  SDL_RenderClear(renderer);
+	  SDL_RenderCopy(renderer, texture, NULL, NULL);
+	  SDL_RenderPresent(renderer);
+//#endif
 }
 
 
-void aglDestroyPixelFormat(AGLPixelFormat pix)
+GLenum osglGetError()
 {
-  fprintf(stderr,"fake aglDestroyPixelFormat!\n"); fflush(stderr);
+  return osError;
 }
 
 
-AGLContext aglCreateContext(AGLPixelFormat pix, AGLContext share)
+struct OSGLpixelfmtRec *osglChoosePixelFormat(void *gdevs, GLint ndev,  GLint *v)
 {
-  int winSizeX=640,winSizeY=480;
-  SDL_GetWindowSize(theOnlyWindow,&winSizeX,&winSizeY);
-  fprintf(stderr,"fake aglCreateContext window is %dx%d\n",winSizeX,winSizeY); fflush(stderr);
-  renderer = SDL_CreateRenderer(theOnlyWindow, -1, SDL_RENDERER_SOFTWARE);
-  if(!renderer) {
-    fprintf(stderr,"SDL_CreateRenderer failed!\n"); fflush(stderr); tinyError=1;
-    return NULL;
-  }  
-  screen = SDL_GetWindowSurface(theOnlyWindow);
-  if(!screen) {
-    fprintf(stderr,"SDL_GetWindowSurface failed!\n"); fflush(stderr); tinyError=1;
-    return NULL;
-  }  
-  texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA32,
-                              SDL_TEXTUREACCESS_STREAMING, winSizeX, winSizeY);
-  if(!texture) {
-    fprintf(stderr,"SDL_CreateTexture failed!\n"); fflush(stderr); tinyError=1;
-    return NULL;
-  }  
-  frameBuffer = ZB_open(winSizeX, winSizeY, ZB_MODE_RGBA, 0);
-  if(!frameBuffer) {
-    fprintf(stderr,"ZB_open failed!\n"); fflush(stderr); tinyError=1;
-    return NULL;
-  }  
-   glInit(frameBuffer);
-  return tinyContextPtr;
+  // We don't choose anything, there's only a single static one
+  return (struct OSGLpixelfmtRec *)osPixelFormatPtr;
 }
 
 
-GLboolean aglSetDrawable(AGLContext ctx, AGLDrawable draw)
+void osglDestroyPixelFormat(OSGLPixelFormat pix)
 {
-  fprintf(stderr,"fake aglSetDrawable!\n"); fflush(stderr);
+  // We don't destroy anything, there's only a single static one
+}
+
+
+GLboolean osglSetDrawable(OSGLContext ctx, AGLDrawable draw)
+{
+  //fprintf(stderr,"fake osglSetDrawable!\n"); fflush(stderr);
   return true;
 }
 
 
-GLboolean aglSetCurrentContext(AGLContext ctx)
+GLboolean osglSetCurrentContext(OSGLContext ctx)
 {
-  fprintf(stderr,"fake aglSetCurrentContext!\n"); fflush(stderr);
+  //fprintf(stderr,"fake osglSetCurrentContext!\n"); fflush(stderr);
   return true;
 }
 
 
-GLboolean aglDestroyContext(AGLContext ctx)
+GLboolean osglDestroyContext(OSGLContext ctx)
 {
-  fprintf(stderr,"fake aglDestroyContext!\n"); fflush(stderr);
+#ifdef SDL_MACOSCLASSIC_TINYGL
+  ostgl_delete_context((ostgl_context_t *)ctx);
+#else
+#endif
   return true;
 }
 
 
-AGLContext aglGetCurrentContext(void)
+OSGLContext osglGetCurrentContext(void)
 {
-  fprintf(stderr,"fake aglGetCurrentContext!\n"); fflush(stderr);
-  return NULL;
+  return osContext;
 }
 
 
-void aglSwapBuffers(AGLContext ctx)
+GLboolean osglUpdateContext(OSGLContext ctx)
 {
-  fprintf(stderr,"fake aglSwapBuffers!\n"); fflush(stderr);
-        ZB_copyFrameBuffer(frameBuffer, screen->pixels, screen->pitch);
-        if (SDL_MUSTLOCK(screen))
-            SDL_UnlockSurface(screen);
-        SDL_UpdateTexture(texture, NULL, screen->pixels, screen->pitch);
-        SDL_RenderClear(renderer);
-        SDL_RenderCopy(renderer, texture, NULL, NULL);
-        SDL_RenderPresent(renderer);
-}
-
-
-GLboolean aglUpdateContext(AGLContext ctx)
-{
-  fprintf(stderr,"fake aglUpdateContext!\n"); fflush(stderr);
+  //fprintf(stderr,"fake osglUpdateContext!\n"); fflush(stderr);
   return true;
 }
 
 
-GLboolean aglSetInteger(AGLContext ctx, GLenum pname,const GLint *params)
+GLboolean osglSetInteger(OSGLContext ctx, GLenum pname,const GLint *params)
 {
-  fprintf(stderr,"fake aglSetInteger!\n"); fflush(stderr);
+  fprintf(stderr,"fake osglSetInteger %d %d!\n",pname,*params); fflush(stderr);
+  switch(pname) {
+    case AGL_SWAP_INTERVAL:
+      fprintf(stderr,"osglSetInteger AGL_SWAP_INTERVAL not implemented\n"); fflush(stderr);
+      break;
+    default:
+      fprintf(stderr,"osglSetInteger...pname %d to %d not implemented\n",pname,*params); fflush(stderr);
+      break;
+  }
+    
   return true;
 }
 
 
-const GLubyte * aglErrorString(GLenum code)
+const GLubyte * osglErrorString(GLenum code)
 {
-  //fprintf(stderr,"fake aglErrorString!\n"); fflush(stderr);
-  if(tinyError==1) return (GLubyte *)"Problem getting something!";
+  if(osError==1) return (GLubyte *)"Problem getting something!";
   else return (GLubyte *)"Who knows";
 }
 
 
-GLboolean aglDescribePixelFormat(struct __AGLPixelFormatRec *fmt,GLint what,GLint *value)
+GLboolean osglDescribePixelFormat(OSGLPixelFormatRec *fmt,GLint what,GLint *value)
 {
+  // This is all fake, but plausible
   switch(what) {
     case AGL_RGBA:
       *value=1;
@@ -218,11 +309,11 @@ GLboolean aglDescribePixelFormat(struct __AGLPixelFormatRec *fmt,GLint what,GLin
       return true;
       break;
     case AGL_DEPTH_SIZE:
-      *value=20;
+      *value=20;  // Random
       return true;
       break;
     case AGL_STENCIL_SIZE:
-      *value=20;
+      *value=20;  // Random
       return true;
       break;
     case AGL_DOUBLEBUFFER:
@@ -230,11 +321,11 @@ GLboolean aglDescribePixelFormat(struct __AGLPixelFormatRec *fmt,GLint what,GLin
       return true;
       break;
     case AGL_PIXEL_SIZE:
-      *value=32;  // TODO: This should be current depth
+      *value=myDepth;
       return true;
       break;
     default:
-      fprintf(stderr,"tinyglDescribePixelFormat...what=%d implemented\n",what); fflush(stderr);
+      fprintf(stderr,"osglDescribePixelFormat...what=%d not implemented\n",what); fflush(stderr);
       return false;
       break;
   }
@@ -253,13 +344,13 @@ int Mac_GL_SetDrawableActive(int active)
             continue;
 
         if (active) {
-            if (!macport || !aglSetDrawable(context->agl, macport)) {
-                Mac_AGLError("aglSetDrawable(window)");
+            if (!macport || !osglSetDrawable(context->osgl, macport)) {
+                Mac_OSGLError("osglSetDrawable(window)");
                 result = -1;
                 continue;
             }
-        } else if (!aglSetDrawable(context->agl, NULL)) {
-            Mac_AGLError("aglSetDrawable(NULL)");
+        } else if (!osglSetDrawable(context->osgl, NULL)) {
+            Mac_OSGLError("osglSetDrawable(NULL)");
             result = -1;
             continue;
         }
@@ -276,18 +367,18 @@ void Mac_GL_Update(void)
     if (!mac_window_active)
         return;
     for (context = mac_contexts; context; context = context->next) {
-        if (context->drawable_attached && !aglUpdateContext(context->agl)) {
+        if (context->drawable_attached && !osglUpdateContext(context->osgl)) {
             SDL_LogWarn(SDL_LOG_CATEGORY_VIDEO,
-                        "macosclassic: aglUpdateContext failed (AGL %u)",
-                        (unsigned)aglGetError());
+                        "macosclassic: osglUpdateContext failed (AGL %u)",
+                        (unsigned)osglGetError());
         }
     }
 }
 
-static int Mac_AGLError(const char *operation)
+static int Mac_OSGLError(const char *operation)
 {
-    GLenum code = aglGetError();
-    const GLubyte *description = aglErrorString(code);
+    GLenum code = osglGetError();
+    const GLubyte *description = osglErrorString(code);
     return SDL_SetError("%s failed (AGL %u: %s)", operation, (unsigned)code,
                         description ? (const char *)description : "unknown error");
 }
@@ -368,16 +459,12 @@ void *glGetProcAddress(_THIS, const char *proc)
     /* There's a better way to do this...but this works for now... */
     if(!strcmp("glBegin",proc)) symbol=(void *)glBegin;
     if(!strcmp("glBindTexture",proc)) symbol=(void *)glBindTexture;
-    if(!strcmp("glBlendEquation",proc)) symbol=(void *)glBlendEquation;
-    if(!strcmp("glBlendFuncSeparate",proc)) symbol=(void *)glBlendFuncSeparate;
     if(!strcmp("glClear",proc)) symbol=(void *)glClear;
     if(!strcmp("glClearColor",proc)) symbol=(void *)glClear;
     if(!strcmp("glColor3fv",proc)) symbol=(void *)glColor3fv;
     if(!strcmp("glColor4f",proc)) symbol=(void *)glColor4f;
-    if(!strcmp("glColor4ub",proc)) symbol=(void *)glColor4ub;
     if(!strcmp("glColorPointer",proc)) symbol=(void *)glColorPointer;
     if(!strcmp("glDeleteTextures",proc)) symbol=(void *)glDeleteTextures;
-    if(!strcmp("glDepthFunc",proc)) symbol=(void *)glDepthFunc;
     if(!strcmp("glDisable",proc)) symbol=(void *)glDisable;
     if(!strcmp("glDisableClientState",proc)) symbol=(void *)glDisableClientState;
     if(!strcmp("glDrawArrays",proc)) symbol=(void *)glDrawArrays;
@@ -389,36 +476,48 @@ void *glGetProcAddress(_THIS, const char *proc)
     if(!strcmp("glGetError",proc)) symbol=(void *)glGetError;
     if(!strcmp("glGetFloatv",proc)) symbol=(void *)glGetFloatv;
     if(!strcmp("glGetIntegerv",proc)) symbol=(void *)glGetIntegerv;
-    if(!strcmp("glGetPointerv",proc)) symbol=(void *)glGetPointerv;
     if(!strcmp("glGetString",proc)) symbol=(void *)glGetString;
-    if(!strcmp("glLineWidth",proc)) symbol=(void *)glLineWidth;
     if(!strcmp("glLoadIdentity",proc)) symbol=(void *)glLoadIdentity;
     if(!strcmp("glMatrixMode",proc)) symbol=(void *)glMatrixMode;
-    if(!strcmp("glOrtho",proc)) symbol=(void *)glOrtho;
-    if(!strcmp("glPixelStorei",proc)) symbol=(void *)glPixelStorei;
     if(!strcmp("glPointSize",proc)) symbol=(void *)glPointSize;
-    if(!strcmp("glRasterPos2i",proc)) symbol=(void *)glRasterPos2i;
     if(!strcmp("glReadBuffer",proc)) symbol=(void *)glReadBuffer;
     if(!strcmp("glReadPixels",proc)) symbol=(void *)glReadPixels;
     if(!strcmp("glRectf",proc)) symbol=(void *)glRectf;
     if(!strcmp("glRotatef",proc)) symbol=(void *)glRotatef;
-    if(!strcmp("glScissor",proc)) symbol=(void *)glScissor;
     if(!strcmp("glShadeModel",proc)) symbol=(void *)glShadeModel;
     if(!strcmp("glTexCoord2f",proc)) symbol=(void *)glTexCoord2f;
     if(!strcmp("glTexCoordPointer",proc)) symbol=(void *)glTexCoordPointer;
-    if(!strcmp("glTexEnvf",proc)) symbol=(void *)glTexEnvf;
-    if(!strcmp("glTexImage2D",proc)) symbol=(void *)glTexImage2D;
     if(!strcmp("glTexParameteri",proc)) symbol=(void *)glTexParameteri;
-    if(!strcmp("glTexSubImage2D",proc)) symbol=(void *)glTexSubImage2D;
     if(!strcmp("glVertex2f",proc)) symbol=(void *)glVertex2f;
     if(!strcmp("glVertex3fv",proc)) symbol=(void *)glVertex3fv;
     if(!strcmp("glVertexPointer",proc)) symbol=(void *)glVertexPointer;
     if(!strcmp("glViewport",proc)) symbol=(void *)glViewport;
+    //
+    if(!strcmp("glBlendFuncSeparate",proc)) symbol=(void *)glBlendFuncSeparate;
+    if(!strcmp("glBlendEquation",proc)) symbol=(void *)glBlendEquation;
+    //
+    if(!strcmp("glOrtho",proc)) symbol=(void *)glOrtho;
+    if(!strcmp("glTexEnvf",proc)) symbol=(void *)glTexEnvf;
+    if(!strcmp("glDepthFunc",proc)) symbol=(void *)glDepthFunc;
+    if(!strcmp("glScissor",proc)) symbol=(void *)glScissor;
+    if(!strcmp("glTexSubImage2D",proc)) symbol=(void *)glTexSubImage2D;
+    if(!strcmp("glGetPointerv",proc)) symbol=(void *)glGetPointerv;
+    if(!strcmp("glLineWidth",proc)) symbol=(void *)glLineWidth;
+    if(!strcmp("glTexImage2D",proc)) symbol=(void *)glTexImage2D;
+    if(!strcmp("glRasterPos2i",proc)) symbol=(void *)glRasterPos2i;
+    if(!strcmp("glPixelStorei",proc)) symbol=(void *)glPixelStorei;
+    if(!strcmp("glColor4ub",proc)) symbol=(void *)glColor4ub;
+    //
     if(!symbol) {
+    /*
 #ifdef MAC_DEBUG
       fprintf(stderr,"Returning fake pointer for %s...this will cause a crash when called!\n",proc); fflush(stderr);
 #endif
       symbol=(void *)0x8000;
+      */
+      fprintf(stderr,"Func for %s...does not exist\n",proc); fflush(stderr);
+      SDL_Quit();
+      exit(5);
     }
 #ifdef MAC_DEBUG
       fprintf(stderr,"Returning 0x%x\n",(int)symbol); fflush(stderr);
@@ -442,8 +541,8 @@ SDL_GLContext glCreateContext(_THIS, SDL_Window *window)
     int double_buffer_attribute = -1;
     int i;
     AGLDevice device;
-    AGLPixelFormat pixel_format;
-    AGLContext share = NULL;
+    OSGLPixelFormat pixel_format;
+    OSGLContext share = NULL;
     MacGLContext *context;
     GLint accelerated = 0;
     GLint renderer_id = 0;
@@ -452,7 +551,8 @@ SDL_GLContext glCreateContext(_THIS, SDL_Window *window)
     GLint stencil_size = 0;
     GLint double_buffer = 0;
 
-theOnlyWindow=window;
+// TODO: This is a TEMPORARY hack!
+theOnlyLonelyWindow=window;
 
     if (!window || !macwindow) {
         SDL_SetError("OpenGL context requires a native Classic window");
@@ -502,13 +602,13 @@ theOnlyWindow=window;
     }
     attributes[count++] = AGL_NONE;
 
-    pixel_format = aglChoosePixelFormat(&device, 1, attributes);
+    pixel_format = osglChoosePixelFormat((void *)&device, 1, attributes);
 #ifdef MAC_DEBUG
-  fprintf(stderr,"pixel_format=%d double_buffer_attribute=%d accerlated=%d\n",(int)pixel_format,double_buffer_attribute,_this->gl_config.accelerated); fflush(stderr);
+  fprintf(stderr,"pixel_format=%x double_buffer_attribute=%d accerlated=%d\n",(unsigned int)pixel_format,double_buffer_attribute,_this->gl_config.accelerated); fflush(stderr);
 #endif
     if (!pixel_format && double_buffer_attribute >= 0 &&
         _this->gl_config.accelerated > 0) {
-        GLenum first_error = aglGetError();
+        GLenum first_error = osglGetError();
 
         /* Retry without double buffering while preserving the requested
            acceleration attributes. */
@@ -519,24 +619,24 @@ theOnlyWindow=window;
                      "macosclassic: hardware double buffering unavailable "
                      "(0x%lx); retrying with a single buffer",
                      (unsigned long)first_error);
-        pixel_format = aglChoosePixelFormat(&device, 1, attributes);
+        pixel_format = osglChoosePixelFormat(&device, 1, attributes);
     }
     if (!pixel_format) {
-        Mac_AGLError("aglChoosePixelFormat");
+        Mac_OSGLError("osglChoosePixelFormat");
         return NULL;
     }
 
-    if (!aglDescribePixelFormat(pixel_format, AGL_PIXEL_SIZE, &pixel_size)) {
-        Mac_AGLError("aglDescribePixelFormat(AGL_PIXEL_SIZE)");
-        aglDestroyPixelFormat(pixel_format);
+    if (!osglDescribePixelFormat(pixel_format, AGL_PIXEL_SIZE, &pixel_size)) {
+        Mac_OSGLError("osglDescribePixelFormat(AGL_PIXEL_SIZE)");
+        osglDestroyPixelFormat(pixel_format);
         return NULL;
     }
-    aglDescribePixelFormat(pixel_format, AGL_ACCELERATED, &accelerated);
-    aglDescribePixelFormat(pixel_format, AGL_RENDERER_ID, &renderer_id);
-    aglDescribePixelFormat(pixel_format, AGL_DEPTH_SIZE, &depth_size);
-    aglDescribePixelFormat(pixel_format, AGL_STENCIL_SIZE, &stencil_size);
-    aglDescribePixelFormat(pixel_format, AGL_DOUBLEBUFFER, &double_buffer);
-    (void)aglGetError();
+    osglDescribePixelFormat(pixel_format, AGL_ACCELERATED, &accelerated);
+    osglDescribePixelFormat(pixel_format, AGL_RENDERER_ID, &renderer_id);
+    osglDescribePixelFormat(pixel_format, AGL_DEPTH_SIZE, &depth_size);
+    osglDescribePixelFormat(pixel_format, AGL_STENCIL_SIZE, &stencil_size);
+    osglDescribePixelFormat(pixel_format, AGL_DOUBLEBUFFER, &double_buffer);
+    (void)osglGetError();
     SDL_LogDebug(SDL_LOG_CATEGORY_VIDEO,
                  "macosclassic: AGL format accelerated=%ld renderer=0x%lx "
                  "color=%ld depth=%ld stencil=%ld double=%ld",
@@ -545,7 +645,7 @@ theOnlyWindow=window;
                  (long)double_buffer);
 
     if (_this->gl_config.accelerated > 0 && !accelerated) {
-        aglDestroyPixelFormat(pixel_format);
+        osglDestroyPixelFormat(pixel_format);
         SDL_SetError("AGL returned a software format for a hardware-only request");
         return NULL;
     }
@@ -558,29 +658,29 @@ theOnlyWindow=window;
     }
 
     if (_this->gl_config.share_with_current_context && _this->current_glctx) {
-        share = ((MacGLContext *)_this->current_glctx)->agl;
+        share = ((MacGLContext *)_this->current_glctx)->osgl;
     }
     context = (MacGLContext *)SDL_calloc(1, sizeof(*context));
     if (!context) {
-        aglDestroyPixelFormat(pixel_format);
+        osglDestroyPixelFormat(pixel_format);
         SDL_OutOfMemory();
         return NULL;
     }
-    context->agl = aglCreateContext(pixel_format, share);
+    context->osgl = osglCreateContext(pixel_format, share);
     context->double_buffered = double_buffer ? 1 : 0;
-    aglDestroyPixelFormat(pixel_format);
-    if (!context->agl) {
+    osglDestroyPixelFormat(pixel_format);
+    if (!context->osgl) {
         SDL_free(context);
-        Mac_AGLError("aglCreateContext");
+        Mac_OSGLError("osglCreateContext");
         return NULL;
     }
     context->window = window;
-    if (!aglSetDrawable(context->agl, macport) ||
-        !aglSetCurrentContext(context->agl)) {
-        aglSetDrawable(context->agl, NULL);
-        aglDestroyContext(context->agl);
+    if (!osglSetDrawable(context->osgl, macport) ||
+        !osglSetCurrentContext(context->osgl)) {
+        osglSetDrawable(context->osgl, NULL);
+        osglDestroyContext(context->osgl);
         SDL_free(context);
-        Mac_AGLError("attaching the AGL drawable");
+        Mac_OSGLError("attaching the AGL drawable");
         return NULL;
     }
     context->drawable_attached = 1;
@@ -599,8 +699,8 @@ int glSetSwapInterval(_THIS, int interval)
     /* There is no back-buffer presentation point to synchronize. Accept the
        application's preference while leaving front-buffer delivery alone. */
     if (!context->double_buffered) return 0;
-    if (!aglSetInteger(context->agl, AGL_SWAP_INTERVAL, &value)) {
-        return Mac_AGLError("aglSetInteger(AGL_SWAP_INTERVAL)");
+    if (!osglSetInteger(context->osgl, AGL_SWAP_INTERVAL, &value)) {
+        return Mac_OSGLError("osglSetInteger(AGL_SWAP_INTERVAL)");
     }
     return 0;
 }
@@ -613,7 +713,7 @@ int glSwapWindow(_THIS, SDL_Window *window)
     }
     if (mac_window_active && context->drawable_attached) {
         if (context->double_buffered)
-            aglSwapBuffers(context->agl);
+            osglSwapBuffers(context->osgl);
         else
             glFlush();
     }
@@ -625,14 +725,14 @@ int glMakeCurrent(_THIS, SDL_Window *window, SDL_GLContext sdl_context)
     MacGLContext *context = (MacGLContext *)sdl_context;
     (void)_this;
     if (!context) {
-        if (!aglSetCurrentContext(NULL)) return Mac_AGLError("aglSetCurrentContext(NULL)");
+        if (!osglSetCurrentContext(NULL)) return Mac_OSGLError("osglSetCurrentContext(NULL)");
         mac_current_context = NULL;
         return 0;
     }
     if (window && context->window != window) {
         context->window = window;
     }
-    if (!aglSetCurrentContext(context->agl)) return Mac_AGLError("aglSetCurrentContext");
+    if (!osglSetCurrentContext(context->osgl)) return Mac_OSGLError("osglSetCurrentContext");
     mac_current_context = context;
     return 0;
 }
@@ -646,10 +746,10 @@ void glUpdateWindow(_THIS, SDL_Window *window)
         return;
     for (context = mac_contexts; context; context = context->next) {
         if (context->window == window && context->drawable_attached &&
-            !aglUpdateContext(context->agl)) {
+            !osglUpdateContext(context->osgl)) {
             SDL_LogWarn(SDL_LOG_CATEGORY_VIDEO,
-                        "macosclassic: aglUpdateContext failed (AGL %u)",
-                        (unsigned)aglGetError());
+                        "macosclassic: osglUpdateContext failed (AGL %u)",
+                        (unsigned)osglGetError());
         }
     }
 }
@@ -667,10 +767,10 @@ void glDeleteContext(_THIS, SDL_GLContext sdl_context)
             break;
         }
     }
-    if (aglGetCurrentContext() == context->agl) aglSetCurrentContext(NULL);
-    aglSetDrawable(context->agl, NULL);
+    if (osglGetCurrentContext() == context->osgl) osglSetCurrentContext(NULL);
+    osglSetDrawable(context->osgl, NULL);
     if (mac_current_context == context) mac_current_context = NULL;
-    aglDestroyContext(context->agl);
+    osglDestroyContext(context->osgl);
     SDL_free(context);
 }
 

@@ -1,4 +1,4 @@
-LIBNAME=macos8addons
+LIBNAME=dummy_dir
 
 CC=m68k-apple-macos-gcc
 CXX=m68k-apple-macos-g++
@@ -20,15 +20,6 @@ OBJS=$(subst .c,.o,$(wildcard *.c))
 all: $(OBJS)
 	$(AR) rcv lib$(LIBNAME).a $(OBJS)
 	$(RANLIB) lib$(LIBNAME).a
-	$(AR) rcv libInputSprocketLib.a MyInputSprocket.o
-	$(RANLIB) libInputSprocketLib.a
-	$(AR) rcv libDrawSprocketLib.a MyDrawSprocket.o
-	$(RANLIB) libDrawSprocketLib.a
 
-install:
-	make -f Makefile.r68 lib
-	cp libDrawSprocketLib.a $(HOME)/Retro68-build/toolchain/m68k-apple-macos/lib
-	cp libInputSprocketLib.a $(HOME)/Retro68-build/toolchain/m68k-apple-macos/lib
-	
 clean:
-	rm -f *.o *.a
+	rm -f *.o

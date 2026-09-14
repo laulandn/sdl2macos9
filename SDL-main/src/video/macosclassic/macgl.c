@@ -24,6 +24,11 @@
 #endif
 
 
+// TODO: This is a TEMPORARY hack!
+// NOTE: Must NOT be static
+SDL_Window *theOnlyLonelyWindow;
+
+
 #ifdef NEED_EXT_FUNCS
 /* These are GL extensions and the names are "mangled"... */
 /* This is NOT the right way...but works for now if they aren't called */
@@ -106,13 +111,13 @@ static int Mac_AGLError(const char *operation)
                         description ? (const char *)description : "unknown error");
 }
 
-static void Mac_CToPascal(const char *source, Str255 destination)
+/*static void Mac_CToPascal(const char *source, Str255 destination)
 {
     size_t length = SDL_strlen(source);
     if (length > 255) length = 255;
     destination[0] = (unsigned char)length;
     SDL_memcpy(destination + 1, source, length);
-}
+}*/
 
 int glLoadLibrary(_THIS, const char *name)
 {
@@ -265,6 +270,9 @@ SDL_GLContext glCreateContext(_THIS, SDL_Window *window)
     GLint depth_size = 0;
     GLint stencil_size = 0;
     GLint double_buffer = 0;
+
+// TODO: This is a TEMPORARY hack!
+theOnlyLonelyWindow=window;
 
     if (!window || !macwindow) {
         SDL_SetError("OpenGL context requires a native Classic window");
