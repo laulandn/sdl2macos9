@@ -9,7 +9,7 @@ CXX=powerpc-apple-macos-g++
 AR=powerpc-apple-macos-ar
 RANLIB=powerpc-apple-macos-ranlib
 
-CFLAGS=-D__MACOSCLASSIC__ -I../SDL-main/include
+CFLAGS=-D__MACOSCLASSIC__ -I../SDL-main/include -I.
 
 OBJS=$(subst .c,.o,$(wildcard *.c))
 
@@ -17,7 +17,7 @@ OBJS=$(subst .c,.o,$(wildcard *.c))
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 
-lib: $(OBJS)
+all: $(OBJS)
 	$(AR) rcv lib$(LIBNAME).a $(OBJS)
 	$(RANLIB) lib$(LIBNAME).a
 	$(AR) rcv libFakeInputSprocketLib.a MyInputSprocket.o
@@ -26,11 +26,8 @@ lib: $(OBJS)
 	$(RANLIB) libFakeDrawSprocketLib.a
 
 install:
-	make -f Makefile.r68ppc lib
 	cp libFakeDrawSprocketLib.a $(HOME)/Retro68-build/toolchain/powerpc-apple-macos/lib
 	cp libFakeInputSprocketLib.a $(HOME)/Retro68-build/toolchain/powerpc-apple-macos/lib
 	
-all: $(OBJS)
-
 clean:
 	rm -f *.o *.a

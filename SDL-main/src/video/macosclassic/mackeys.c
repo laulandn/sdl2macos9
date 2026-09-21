@@ -90,6 +90,7 @@ static SDL_Scancode MacKeyCodeToSDL( int keycode )
     case 0x32: return SDL_SCANCODE_GRAVE;
     case 0x33: return SDL_SCANCODE_BACKSPACE;
     case 0x35: return SDL_SCANCODE_ESCAPE;
+    case 0x37: return SDL_SCANCODE_LGUI;
     case 0x38: return SDL_SCANCODE_LSHIFT;
     case 0x39: return SDL_SCANCODE_CAPSLOCK;
     case 0x3A: return SDL_SCANCODE_LALT;

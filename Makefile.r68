@@ -5,7 +5,12 @@ all:
 	make -C SDL-main -f Makefile.r68
 	
 clean:
+	make -C __debugbreak -f Makefile.r68 clean
+	make -C dummy_atomic -f Makefile.r68 clean
 	make -C dummy_dir -f Makefile.r68 clean
+	make -C dummy_image -f Makefile.r68 clean
+	make -C dummy_pthreads -f Makefile.r68 clean
+	make -C mytests -f Makefile.r68 clean
 	make -C macos8addons -f Makefile.r68 clean
 	make -C SDL-main -f Makefile.r68 clean
 	rm -f */*.o */*.a

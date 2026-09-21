@@ -1,8 +1,16 @@
 
 all:
-#	make -C macos8addons -fMakefile.r68 lib
-	make -C SDL-main -fMakefile.r68ppc
+	make -C dummy_dir -f Makefile.r68ppc
+	make -C macos8addons -f Makefile.r68ppc
+	make -C SDL-main -f Makefile.r68ppc
 	
 clean:
-	make -C SDL-main -fMakefile.r68ppc clean
+	make -C __debugbreak -f Makefile.r68ppc clean
+	make -C dummy_atomic -f Makefile.r68ppc clean
+	make -C dummy_dir -f Makefile.r68ppc clean
+	make -C dummy_image -f Makefile.r68ppc clean
+	make -C dummy_pthreads -f Makefile.r68ppc clean
+	make -C mytests -f Makefile.r68ppc clean
+	make -C macos8addons -f Makefile.r68ppc clean
+	make -C SDL-main -f Makefile.r68ppc clean
 	rm -f */*.o */*.a

@@ -41,10 +41,12 @@
 #include <Carbon.h>
 #endif
 #else
+#ifdef SDL_THREAD_MACOSCLASSIC
 #include "../../thread/macosclassic/MacThreads.h"
 #undef SIGHUP
 #undef SIGURG
 #undef SIGPOLL
+#endif
 #include <Quickdraw.h>
 #include <QDOffscreen.h>
 #include <MacWindows.h>

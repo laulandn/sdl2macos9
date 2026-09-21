@@ -46,6 +46,9 @@ extern void glBlendEquation(GLenum mode);
 #endif
 
 
+extern void SDL_Quit();
+
+
 typedef struct MacGLContext
 {
     AGLContext agl;
@@ -111,13 +114,15 @@ static int Mac_AGLError(const char *operation)
                         description ? (const char *)description : "unknown error");
 }
 
-/*static void Mac_CToPascal(const char *source, Str255 destination)
+#ifdef OPENGL_IS_DYNAMIC
+static void Mac_CToPascal(const char *source, Str255 destination)
 {
     size_t length = SDL_strlen(source);
     if (length > 255) length = 255;
     destination[0] = (unsigned char)length;
     SDL_memcpy(destination + 1, source, length);
-}*/
+}
+#endif
 
 int glLoadLibrary(_THIS, const char *name)
 {
@@ -187,16 +192,12 @@ void *glGetProcAddress(_THIS, const char *proc)
     /* There's a better way to do this...but this works for now... */
     if(!strcmp("glBegin",proc)) symbol=(void *)glBegin;
     if(!strcmp("glBindTexture",proc)) symbol=(void *)glBindTexture;
-    if(!strcmp("glBlendEquation",proc)) symbol=(void *)glBlendEquation;
-    if(!strcmp("glBlendFuncSeparate",proc)) symbol=(void *)glBlendFuncSeparate;
     if(!strcmp("glClear",proc)) symbol=(void *)glClear;
     if(!strcmp("glClearColor",proc)) symbol=(void *)glClear;
     if(!strcmp("glColor3fv",proc)) symbol=(void *)glColor3fv;
     if(!strcmp("glColor4f",proc)) symbol=(void *)glColor4f;
-    if(!strcmp("glColor4ub",proc)) symbol=(void *)glColor4ub;
     if(!strcmp("glColorPointer",proc)) symbol=(void *)glColorPointer;
     if(!strcmp("glDeleteTextures",proc)) symbol=(void *)glDeleteTextures;
-    if(!strcmp("glDepthFunc",proc)) symbol=(void *)glDepthFunc;
     if(!strcmp("glDisable",proc)) symbol=(void *)glDisable;
     if(!strcmp("glDisableClientState",proc)) symbol=(void *)glDisableClientState;
     if(!strcmp("glDrawArrays",proc)) symbol=(void *)glDrawArrays;
@@ -208,36 +209,48 @@ void *glGetProcAddress(_THIS, const char *proc)
     if(!strcmp("glGetError",proc)) symbol=(void *)glGetError;
     if(!strcmp("glGetFloatv",proc)) symbol=(void *)glGetFloatv;
     if(!strcmp("glGetIntegerv",proc)) symbol=(void *)glGetIntegerv;
-    if(!strcmp("glGetPointerv",proc)) symbol=(void *)glGetPointerv;
     if(!strcmp("glGetString",proc)) symbol=(void *)glGetString;
-    if(!strcmp("glLineWidth",proc)) symbol=(void *)glLineWidth;
     if(!strcmp("glLoadIdentity",proc)) symbol=(void *)glLoadIdentity;
     if(!strcmp("glMatrixMode",proc)) symbol=(void *)glMatrixMode;
-    if(!strcmp("glOrtho",proc)) symbol=(void *)glOrtho;
-    if(!strcmp("glPixelStorei",proc)) symbol=(void *)glPixelStorei;
     if(!strcmp("glPointSize",proc)) symbol=(void *)glPointSize;
-    if(!strcmp("glRasterPos2i",proc)) symbol=(void *)glRasterPos2i;
     if(!strcmp("glReadBuffer",proc)) symbol=(void *)glReadBuffer;
     if(!strcmp("glReadPixels",proc)) symbol=(void *)glReadPixels;
     if(!strcmp("glRectf",proc)) symbol=(void *)glRectf;
     if(!strcmp("glRotatef",proc)) symbol=(void *)glRotatef;
-    if(!strcmp("glScissor",proc)) symbol=(void *)glScissor;
     if(!strcmp("glShadeModel",proc)) symbol=(void *)glShadeModel;
     if(!strcmp("glTexCoord2f",proc)) symbol=(void *)glTexCoord2f;
     if(!strcmp("glTexCoordPointer",proc)) symbol=(void *)glTexCoordPointer;
-    if(!strcmp("glTexEnvf",proc)) symbol=(void *)glTexEnvf;
-    if(!strcmp("glTexImage2D",proc)) symbol=(void *)glTexImage2D;
     if(!strcmp("glTexParameteri",proc)) symbol=(void *)glTexParameteri;
-    if(!strcmp("glTexSubImage2D",proc)) symbol=(void *)glTexSubImage2D;
     if(!strcmp("glVertex2f",proc)) symbol=(void *)glVertex2f;
     if(!strcmp("glVertex3fv",proc)) symbol=(void *)glVertex3fv;
     if(!strcmp("glVertexPointer",proc)) symbol=(void *)glVertexPointer;
     if(!strcmp("glViewport",proc)) symbol=(void *)glViewport;
+    //
+    if(!strcmp("glBlendFuncSeparate",proc)) symbol=(void *)glBlendFuncSeparate;
+    if(!strcmp("glBlendEquation",proc)) symbol=(void *)glBlendEquation;
+    //
+    if(!strcmp("glOrtho",proc)) symbol=(void *)glOrtho;
+    if(!strcmp("glTexEnvf",proc)) symbol=(void *)glTexEnvf;
+    if(!strcmp("glDepthFunc",proc)) symbol=(void *)glDepthFunc;
+    if(!strcmp("glScissor",proc)) symbol=(void *)glScissor;
+    if(!strcmp("glTexSubImage2D",proc)) symbol=(void *)glTexSubImage2D;
+    if(!strcmp("glGetPointerv",proc)) symbol=(void *)glGetPointerv;
+    if(!strcmp("glLineWidth",proc)) symbol=(void *)glLineWidth;
+    if(!strcmp("glTexImage2D",proc)) symbol=(void *)glTexImage2D;
+    if(!strcmp("glRasterPos2i",proc)) symbol=(void *)glRasterPos2i;
+    if(!strcmp("glPixelStorei",proc)) symbol=(void *)glPixelStorei;
+    if(!strcmp("glColor4ub",proc)) symbol=(void *)glColor4ub;
+    //
     if(!symbol) {
+    /*
 #ifdef MAC_DEBUG
       fprintf(stderr,"Returning fake pointer for %s...this will cause a crash when called!\n",proc); fflush(stderr);
 #endif
       symbol=(void *)0x8000;
+      */
+      fprintf(stderr,"Func for %s...does not exist\n",proc); fflush(stderr);
+      SDL_Quit();
+      exit(5);
     }
 #ifdef MAC_DEBUG
       fprintf(stderr,"Returning 0x%x\n",(int)symbol); fflush(stderr);
@@ -274,6 +287,10 @@ SDL_GLContext glCreateContext(_THIS, SDL_Window *window)
 // TODO: This is a TEMPORARY hack!
 theOnlyLonelyWindow=window;
 
+#ifdef MAC_DEBUG
+        fprintf(stderr,"glCreateContext...\n"); fflush(stderr);
+#endif
+
     if (!window || !macwindow) {
         SDL_SetError("OpenGL context requires a native Classic window");
         return NULL;
@@ -281,14 +298,20 @@ theOnlyLonelyWindow=window;
     if (_this->gl_config.profile_mask & (SDL_GL_CONTEXT_PROFILE_CORE |
                                          SDL_GL_CONTEXT_PROFILE_ES)) {
         SDL_SetError("Classic OpenGL supports only the compatibility profile");
+#ifdef MAC_DEBUG
+        fprintf(stderr,"(bad profile!)\n"); fflush(stderr);
+#endif
         return NULL;
     }
     if (_this->gl_config.major_version > 1 ||
         (_this->gl_config.major_version == 1 && _this->gl_config.minor_version > 5)) {
 #ifdef MAC_DEBUG
-        fprintf(stderr,"Asked for OpenGL %d.%d\n",_this->gl_config.major_version,_this->gl_config.minor_version); fflush(stderr);
+        fprintf(stderr,"Asked for OpenGL %d.%d...\n",_this->gl_config.major_version,_this->gl_config.minor_version); fflush(stderr);
 #endif
-        SDL_SetError("Classic OpenGL runtime provides OpenGL 1.5");
+        SDL_SetError("Classic OpenGL runtime only provides OpenGL 1.5");
+#ifdef MAC_DEBUG
+        fprintf(stderr,"(bad version!)\n"); fflush(stderr);
+#endif
         return NULL;
     }
     if (!gl_library_open && glLoadLibrary(_this, NULL) < 0) return NULL;
@@ -324,7 +347,7 @@ theOnlyLonelyWindow=window;
 
     pixel_format = aglChoosePixelFormat(&device, 1, attributes);
 #ifdef MAC_DEBUG
-  fprintf(stderr,"pixel_format=%d double_buffer_attribute=%d accerlated=%d\n",(int)pixel_format,double_buffer_attribute,_this->gl_config.accelerated); fflush(stderr);
+  fprintf(stderr,"pixel_format=%x double_buffer_attribute=%d accerlated=%d\n",(unsigned int)pixel_format,double_buffer_attribute,_this->gl_config.accelerated); fflush(stderr);
 #endif
     if (!pixel_format && double_buffer_attribute >= 0 &&
         _this->gl_config.accelerated > 0) {
@@ -339,6 +362,9 @@ theOnlyLonelyWindow=window;
                      "macosclassic: hardware double buffering unavailable "
                      "(0x%lx); retrying with a single buffer",
                      (unsigned long)first_error);
+#ifdef MAC_DEBUG
+        fprintf(stderr,"(retrying with a single buffer!)\n"); fflush(stderr);
+#endif
         pixel_format = aglChoosePixelFormat(&device, 1, attributes);
     }
     if (!pixel_format) {
@@ -367,6 +393,9 @@ theOnlyLonelyWindow=window;
     if (_this->gl_config.accelerated > 0 && !accelerated) {
         aglDestroyPixelFormat(pixel_format);
         SDL_SetError("AGL returned a software format for a hardware-only request");
+#ifdef MAC_DEBUG
+        fprintf(stderr,"(software only!)\n"); fflush(stderr);
+#endif
         return NULL;
     }
     if (pixel_size != myDepth) {

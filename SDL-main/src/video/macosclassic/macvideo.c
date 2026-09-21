@@ -23,11 +23,13 @@
 #include "../../SDL_internal.h"
 #include "../SDL_sysvideo.h"
 #include "../../events/SDL_windowevents_c.h"
+#include "SDL_hints.h"
 #include "sdl_mac.h"
 #ifdef TARGET_OS_OSX
 #else
 #include <Displays.h>
 #include <Processes.h>
+#include <Gestalt.h>
 #endif
 #ifdef SDL_MACOSCLASSIC_DRAWSPROCKET
 #include <DrawSprocket.h>
@@ -490,9 +492,9 @@ static int videoInit(_THIS)
   /* The display mode advertised to SDL must match the active QuickDraw
      device rather than using a hard-coded pixel depth. */
   myDepth=(**gdpm).pixelSize;
-  if(myDepth!=16 && myDepth!=32) {
+  /*if(myDepth!=16 && myDepth!=32) {
     return SDL_SetError("Unsupported Classic display depth: %d",myDepth);
-  }
+  }*/
 
   mac_display_device = gDev;
   myWidth = (**gDev).gdRect.right - (**gDev).gdRect.left;
@@ -634,6 +636,8 @@ static int setDisplayMode(_THIS, SDL_VideoDisplay *display,
         requested_depth = 16;
     else if (mode->format == SDL_PIXELFORMAT_RGB888)
         requested_depth = 32;
+    else if (mode->format == SDL_PIXELFORMAT_INDEX8)
+        requested_depth = 8;
     else
         requested_depth = 0;
     if (!mac_dsp_started || !requested_depth ||
@@ -992,13 +996,16 @@ static int createWindowFramebuffer(_THIS, SDL_Window * window, Uint32 * format,
     thePM->pmTable=NULL; 
     thePM->pmExt=NULL;
 #else
-    thePM->planeBytes=0; 
-    thePM->pmTable=(*macport->portPixMap)->pmTable;
+    thePM->planeBytes=0;
+    if (macport && macport->portPixMap)
+      thePM->pmTable=(*macport->portPixMap)->pmTable;
+    else
+      thePM->pmTable=NULL;
     thePM->pmReserved=0;
 #endif
 
 #ifdef MAC_DEBUG
-    fprintf(stderr,"macosclassic thePM at %08lx\n",(long)thePM); fflush(stderr);
+    fprintf(stderr,"macosclassic thePM at %08lx depth %d\n",(long)thePM, myDepth); fflush(stderr);
 #endif
 
     *pixels=mypixels;
@@ -1311,6 +1318,7 @@ void SDL_InitQuickDraw(struct QDGlobals *the_qd)
 #endif
 }
 
+// This may be called too many times...
 static void cleanupMac(void)
 {   
 #ifdef MAC_DEBUG
@@ -1348,4 +1356,4 @@ VideoBootStrap Mac_bootstrap = {
     NULL /* no ShowMessageBox implementation */
 };
 
-#endif
+#endif /* SDL_VIDEO_DRIVER_MACOSCLASSIC */

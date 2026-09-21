@@ -1,7 +1,7 @@
 # xcoff2carb.sh: Takes an xcoff and creates a PPC Carbon application.
 
 PATH_TO_RETRO68=$HOME/Retro68-build/toolchain/powerpc-apple-macos
-PATH_TO_SDL2=$HOME/sdl2macos9
+PATH_TO_SDL2=./sdl2macos9
 RINC=$PATH_TO_RETRO68/RIncludes
 RES="$PATH_TO_SDL2/RetroCarbonAPPL.r $PATH_TO_SDL2/SDL.r"
 

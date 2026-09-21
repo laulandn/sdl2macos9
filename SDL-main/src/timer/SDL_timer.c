@@ -206,6 +206,9 @@ static int SDLCALL SDL_TimerThread(void *_data)
 
 int SDL_TimerInit(void)
 {
+#ifdef SDL_THREADS_DISABLED
+    return 0;
+#else
     SDL_TimerData *data = &SDL_timer_data;
 
     if (!SDL_AtomicGet(&data->active)) {
@@ -233,6 +236,7 @@ int SDL_TimerInit(void)
         SDL_AtomicSet(&data->nextID, 1);
     }
     return 0;
+#endif
 }
 
 void SDL_TimerQuit(void)
