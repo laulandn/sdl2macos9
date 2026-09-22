@@ -60,14 +60,19 @@ SDL_TimerCallback SDL_alarm_callback;
 /* Note: This is only a step above the original 1/60s implementation.
  *       For a good implementation, see FastTimes.[ch], by Matt Slot.
  */
+#if !defined(SDL_MACOSCLASSIC_SYS6) && !defined(SDL_MACOSCLASSIC_COLORQD)
 #define USE_MICROSECONDS
+#endif
 
+#ifdef USE_MICROSECONDS
 static Uint64 Mac_WideToUint64(const UnsignedWide *value)
 {
 	return ((Uint64)value->hi << 32) | (Uint64)value->lo;
 }
 
 UInt64 start;
+#endif
+static unsigned long start_ticks;
 
 static SDL_bool ticks_started = SDL_FALSE;
 
@@ -82,7 +87,7 @@ void SDL_TicksInit(void)
 	Microseconds(&now);
 	start = Mac_WideToUint64(&now);
 #else
-	/* FIXME: Should we implement a wrapping algorithm, like Win32? */
+	start_ticks = TickCount();
 #endif
     ticks_started = SDL_TRUE;
 }
@@ -114,7 +119,10 @@ Uint64 SDL_GetTicks64(void)
 	Microseconds(&now);
 	return ((Mac_WideToUint64(&now)-start)/1000);
 #else
-	return(LMGetTicks()*MS_PER_TICK);
+	if (!ticks_started) {
+		SDL_TicksInit();
+	}
+	return (Uint64)(TickCount() - start_ticks) * (Uint64)MS_PER_TICK;
 #endif
 }
 
@@ -136,15 +144,23 @@ void SDL_Delay(Uint32 ms)
 		}
 	}
 #else
-	UInt32		unused; /* MJS */
-#ifdef SDL_THREAD_MACOSCLASSIC
-	YieldToAnyThread();
-#endif
-	Delay(ms/MS_PER_TICK, &unused);
+	unsigned long wait_ticks;
+	unsigned long t0;
+	if (ms == 0) {
+		return;
+	}
+	wait_ticks = ((unsigned long)ms + (MS_PER_TICK - 1u)) / MS_PER_TICK;
+	if (wait_ticks < 1) {
+		wait_ticks = 1;
+	}
+	t0 = TickCount();
+	while ((TickCount() - t0) < wait_ticks) {
+	}
 #endif
 }
 
 
+#ifdef USE_MICROSECONDS
 /* Data to handle a single periodic alarm */
 typedef struct _ExtendedTimerRec
 {
@@ -153,21 +169,18 @@ typedef struct _ExtendedTimerRec
 } ExtendedTimerRec, *ExtendedTimerPtr;
 
 static ExtendedTimerRec gExtendedTimerRec;
-
+#endif
 
 int SDL_SYS_TimerInit(void)
 {
-	/* We don't need a setup? */
 	return(0);
 }
 
 void SDL_SYS_TimerQuit(void)
 {
-	/* We don't need a cleanup? */
-	return;
 }
 
-/* Our Stub routine to set up and then call the real routine. */
+#ifdef USE_MICROSECONDS
 pascal void TimerCallbackProc(TMTaskPtr tmTaskPtr)
 {
 	Uint32 ms;
@@ -186,9 +199,6 @@ pascal void TimerCallbackProc(TMTaskPtr tmTaskPtr)
 
 int SDL_SYS_StartTimer(void)
 {
-	/*
-	 * Configure the global structure that stores the timing information.
-	 */
 	gExtendedTimerRec.tmTask.qLink = NULL;
 	gExtendedTimerRec.tmTask.qType = 0;
 	gExtendedTimerRec.tmTask.tmAddr = NewTimerUPP(TimerCallbackProc);
@@ -197,10 +207,7 @@ int SDL_SYS_StartTimer(void)
 	gExtendedTimerRec.tmTask.tmReserved = 0;
 	GetCurrentProcess(&gExtendedTimerRec.taskPSN);
 
-	/* Install the task record */
 	InsXTime((QElemPtr)&gExtendedTimerRec.tmTask);
-
-	/* Go! */
 	PrimeTime((QElemPtr)&gExtendedTimerRec.tmTask, SDL_alarm_interval);
 	return(0);
 }
@@ -209,6 +216,7 @@ void SDL_SYS_StopTimer(void)
 {
 	RmvTime((QElemPtr)&gExtendedTimerRec.tmTask);
 }
+#endif
 
 Uint64 SDL_GetPerformanceCounter(void)
 {
@@ -217,7 +225,7 @@ Uint64 SDL_GetPerformanceCounter(void)
     Microseconds(&now);
     return Mac_WideToUint64(&now);
 #else
-    return (Uint64)LMGetTicks();
+    return (Uint64)TickCount();
 #endif
 }
 

@@ -1,0 +1,106 @@
+# System 6.0.8 / Mac Plus (68000, 1-bit QuickDraw) build of SDL2.
+# Default Makefile.r68 remains Mac OS 7/8/9 Color QD + Sprockets + AGL.
+#
+#   make -f Makefile.r68sys6
+
+PATH_TO_RETRO68=$(HOME)/Retro68-build/toolchain/m68k-apple-macos
+
+AR = m68k-apple-macos-ar
+RANLIB = m68k-apple-macos-ranlib
+CC = m68k-apple-macos-gcc
+CXX = m68k-apple-macos-g++
+STRIP = m68k-apple-macos-strip
+
+RETRO68_ROOT ?= $(abspath $(dir $(shell command -v $(CC)))/..)
+ifeq ($(RETRO68_ROOT),)
+RETRO68_ROOT = $(PATH_TO_RETRO68)/..
+endif
+
+CFLAGS ?= -Os -m68000 -msoft-float -Wall -Wshadow -Wno-unused-variable -ffunction-sections
+CPPFLAGS += -I./include -D__MACOSCLASSIC__ -DSDL_MACOSCLASSIC_SYS6=1
+CPPFLAGS += -DSDL_HAVE_BLIT_0=1 -DSDL_HAVE_BLIT_1=1
+CPPFLAGS += -DSDL_HAVE_BLIT_A=0 -DSDL_HAVE_BLIT_N=0 -DSDL_HAVE_BLIT_AUTO=0
+CPPFLAGS += -DSDL_HAVE_RLE=0 -DSDL_HAVE_YUV=0 -DSDL_VIDEO_RENDER_SW=0
+CPPFLAGS += -DSDL_RENDER_DISABLED=1 -DSDL_LEAN_AND_MEAN=1
+
+TARGET_STATIC  = libSDL2.a
+TESTLIB_STATIC = libSDL2_test.a
+
+SOURCES = \
+	./src/*.c \
+	./src/atomic/*.c \
+	./src/audio/*.c \
+	./src/audio/dummy/*.c \
+	./src/cpuinfo/*.c \
+	./src/events/*.c \
+	./src/file/*.c \
+	./src/filesystem/dummy/*.c \
+	./src/haptic/*.c \
+	./src/haptic/dummy/*.c \
+	./src/joystick/*.c \
+	./src/joystick/dummy/*.c \
+	./src/libm/*.c \
+	./src/loadso/dummy/*.c \
+	./src/locale/*.c \
+	./src/locale/dummy/*.c \
+	./src/misc/*.c \
+	./src/misc/dummy/*.c \
+	./src/power/*.c \
+	./src/render/*.c \
+	./src/sensor/*.c \
+	./src/sensor/dummy/*.c \
+	./src/stdlib/*.c \
+	./src/thread/*.c \
+	./src/thread/generic/*.c \
+	./src/timer/*.c \
+	./src/timer/macosclassic/*.c \
+	./src/video/*.c \
+	./src/video/macosclassic/*.c \
+
+TESTLIB_SOURCES =./src/test/*.c
+
+OBJECTS = $(shell echo $(SOURCES) | sed -e 's,\.c,\.o,g')
+TESTLIB_OBJECTS = $(shell echo $(TESTLIB_SOURCES) | sed -e 's,\.c,\.o,g')
+MAIN_OBJECT = src/main/macosclassic/SDL_main.o
+ALL_OBJECTS = $(OBJECTS) $(TESTLIB_OBJECTS) $(MAIN_OBJECT)
+DEPS = $(ALL_OBJECTS:.o=.d)
+
+all: info $(TARGET_STATIC) $(TESTLIB_STATIC)
+	@echo All done
+
+info:
+	@echo Compiler flags: $(CPPFLAGS) $(CFLAGS)
+
+$(TESTLIB_STATIC): $(TESTLIB_OBJECTS)
+	@echo Creating $@
+	@$(AR) crv $@ $^
+	@$(RANLIB) $@
+
+$(TARGET_STATIC): $(OBJECTS)
+	@echo Creating $@
+	@$(AR) crv $@ $^
+	@$(RANLIB) $@
+	@$(AR) crv libSDL2main.a $(MAIN_OBJECT)
+	@$(RANLIB) libSDL2main.a
+
+clean:
+	@echo Cleaning
+	@rm -f $(TARGET_STATIC) $(TESTLIB_STATIC) $(ALL_OBJECTS) $(DEPS) libSDL2main.a
+
+install:
+	mkdir -p $(PATH_TO_RETRO68)/include/SDL2
+	mkdir -p $(PATH_TO_RETRO68)/lib
+	cp include/* $(PATH_TO_RETRO68)/include/SDL2
+	cp libSDL*.a $(PATH_TO_RETRO68)/lib
+
+%.o : %.c
+	@echo Compiling $<
+	@$(CC) -o $@ -c $< $(CPPFLAGS) $(CFLAGS)
+
+%.d : %.c
+	@echo Making dependencies for $<
+	@$(CC) -MM -MP -MT $(@:.d=.o) -o $@ $< $(CPPFLAGS) $(CFLAGS)
+
+ifneq ($(MAKECMDGOALS),clean)
+-include $(DEPS)
+endif

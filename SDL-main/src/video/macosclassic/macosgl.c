@@ -13,6 +13,7 @@
 #endif
 
 #include <SDL_render.h>
+#include "SDL_video.h"
 
 #ifdef SDL_MACOSCLASSIC_TINYGL
 #include "GL/ostinygl.h"
@@ -115,10 +116,14 @@ OSGLContext osglCreateContext(OSGLPixelFormat pix, OSGLContext share)
 #endif
 #ifdef SDL_MACOSCLASSIC_TINYGL
     fprintf(stderr,"osglCreateContext using TinyGL...\n"); fflush(stderr);
-    int tDepth=myDepth;
+    /* TinyGL still paints RGB565. Indexed/1-bit screens convert on swap. */
+    int tDepth=16;
     if(myDepth==32) {
       fprintf(stderr,"NOTE: Requested 32 bit, switching to 16!\n"); fflush(stderr);
-      tDepth=16;
+    } else if(myDepth<=8) {
+      fprintf(stderr,"NOTE: Indexed depth %d, TinyGL buffer stays 16-bit\n", myDepth); fflush(stderr);
+    } else {
+      tDepth=myDepth;
     }
   	osContext = ostgl_create_context(winSizeX,winSizeY,tDepth);
 	  ostgl_make_current(osContext);
@@ -150,20 +155,26 @@ OSGLContext osglCreateContext(OSGLPixelFormat pix, OSGLContext share)
       return NULL;
     }
     else { fprintf(stderr,"got osContext\n"); fflush(stderr); }
-//#ifdef USING_SDL2
-    renderer = SDL_CreateRenderer(theOnlyLonelyWindow, -1, SDL_RENDERER_PRESENTVSYNC);	
-    if(!renderer) {
-      fprintf(stderr,"SDL_CreateRenderer failed!\n"); fflush(stderr); osError=1;
-      return NULL;
-    }  
-    else { fprintf(stderr,"got renderer\n"); fflush(stderr); } 
-    texture = SDL_CreateTexture(renderer, SDL_GetWindowPixelFormat(theOnlyLonelyWindow), SDL_TEXTUREACCESS_STREAMING, winSizeX,winSizeY);
-    if(!texture) {
-      fprintf(stderr,"SDL_CreateTexture failed!\n"); fflush(stderr); osError=1;
-      return NULL;
-    }  
-    else { fprintf(stderr,"got texture\n"); fflush(stderr); } 
-//#endif
+    /* Indexed / 1-bit windows have no usable SDL_Renderer. Present via
+       GetWindowSurface instead. Truecolor keeps the texture path. */
+    renderer = NULL;
+    texture = NULL;
+    if (myDepth > 8) {
+      renderer = SDL_CreateRenderer(theOnlyLonelyWindow, -1, SDL_RENDERER_PRESENTVSYNC);
+      if(!renderer) {
+        fprintf(stderr,"SDL_CreateRenderer failed; using window surface\n"); fflush(stderr);
+      } else {
+        fprintf(stderr,"got renderer\n"); fflush(stderr);
+        texture = SDL_CreateTexture(renderer, SDL_GetWindowPixelFormat(theOnlyLonelyWindow), SDL_TEXTUREACCESS_STREAMING, winSizeX,winSizeY);
+        if(!texture) {
+          fprintf(stderr,"SDL_CreateTexture failed; using window surface\n"); fflush(stderr);
+          SDL_DestroyRenderer(renderer);
+          renderer = NULL;
+        } else {
+          fprintf(stderr,"got texture\n"); fflush(stderr);
+        }
+      }
+    }
     fprintf(stderr,"osglCreateContext done\n"); fflush(stderr);
     return (OSGLContext)osContext;
 }
@@ -171,45 +182,63 @@ OSGLContext osglCreateContext(OSGLPixelFormat pix, OSGLContext share)
 
 void osglSwapBuffers(OSGLContext ctx)
 {
-//#ifdef USING_SDL2
     SDL_Surface *src=NULL;
     SDL_Surface *dst=NULL;
     int tFormat=SDL_PIXELFORMAT_RGB565;
-    if(myDepth==32) tFormat=SDL_PIXELFORMAT_ARGB8888;
-//#endif
     int winSizeX=640,winSizeY=480;
-    int tDepth=myDepth;
+    int tDepth=16;
+    int pitch;
+
 #ifdef SDL_MACOSCLASSIC_TINYGL
-    // Note: If doesn't match actual win size, we're wrong for win, right for buffer...
     winSizeX=((ostgl_context_t *)ctx)->width;
     winSizeY=((ostgl_context_t *)ctx)->height;
-    // Same here...
     tDepth=((ostgl_context_t *)ctx)->depth;
-    if(((ostgl_context_t *)ctx)->depth!=myDepth) {
-      fprintf(stderr,"ostgl_context_t depth mismatch!\n"); fflush(stderr);
-    }
 #else
-    // Mesa only?
     SDL_GetWindowSize(theOnlyLonelyWindow,&winSizeX,&winSizeY);
+    tDepth = (myDepth == 32) ? 32 : 16;
 #endif
-//#ifdef USING_SDL2
-    // Would error checking here slow things down?
-  	src = SDL_CreateRGBSurfaceWithFormatFrom(osBuffer, winSizeX, winSizeY, tDepth, ((winSizeX * tDepth) / 8), tFormat);
-  	dst = SDL_CreateRGBSurfaceWithFormatFrom(NULL, winSizeX, winSizeY, 0, 0, SDL_GetWindowPixelFormat(theOnlyLonelyWindow));
-	  if (SDL_LockTexture(texture, NULL, &dst->pixels, &dst->pitch) == 0)
-	  {
-		  if (SDL_BlitSurface(src, NULL, dst, NULL) != 0)
-		  { SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "surface blit failed: %s", SDL_GetError()); }
-		  SDL_UnlockTexture(texture);
-	  }
-	  else
-	  { SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "texture lock failed: %s", SDL_GetError()); }
-	  if(dst) SDL_FreeSurface(dst);
-	  if(src) SDL_FreeSurface(src);
-	  SDL_RenderClear(renderer);
-	  SDL_RenderCopy(renderer, texture, NULL, NULL);
-	  SDL_RenderPresent(renderer);
-//#endif
+    if (tDepth >= 24)
+      tFormat = SDL_PIXELFORMAT_ARGB8888;
+    else if (tDepth == 16)
+      tFormat = SDL_PIXELFORMAT_RGB565;
+    else if (tDepth == 8)
+      tFormat = SDL_PIXELFORMAT_INDEX8;
+    else
+      tFormat = SDL_PIXELFORMAT_INDEX1MSB;
+
+    pitch = (tDepth < 8) ? ((winSizeX + 15) / 16) * 2
+                         : ((winSizeX * tDepth) / 8);
+    src = SDL_CreateRGBSurfaceWithFormatFrom(osBuffer, winSizeX, winSizeY,
+                                             tDepth, pitch, tFormat);
+    if (!src)
+      return;
+
+    if (!renderer || !texture || myDepth <= 8) {
+      dst = SDL_GetWindowSurface(theOnlyLonelyWindow);
+      if (dst) {
+        Mac_ApplyIndexedPalette(dst);
+        if (SDL_BlitSurface(src, NULL, dst, NULL) != 0)
+          SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "surface blit failed: %s", SDL_GetError());
+        SDL_UpdateWindowSurface(theOnlyLonelyWindow);
+      }
+      SDL_FreeSurface(src);
+      return;
+    }
+
+    dst = SDL_CreateRGBSurfaceWithFormatFrom(NULL, winSizeX, winSizeY, 0, 0,
+                                             SDL_GetWindowPixelFormat(theOnlyLonelyWindow));
+    if (dst && SDL_LockTexture(texture, NULL, &dst->pixels, &dst->pitch) == 0) {
+      if (SDL_BlitSurface(src, NULL, dst, NULL) != 0)
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "surface blit failed: %s", SDL_GetError());
+      SDL_UnlockTexture(texture);
+    } else {
+      SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "texture lock failed: %s", SDL_GetError());
+    }
+    if (dst) SDL_FreeSurface(dst);
+    SDL_FreeSurface(src);
+    SDL_RenderClear(renderer);
+    SDL_RenderCopy(renderer, texture, NULL, NULL);
+    SDL_RenderPresent(renderer);
 }
 
 
@@ -297,7 +326,7 @@ GLboolean osglDescribePixelFormat(OSGLPixelFormatRec *fmt,GLint what,GLint *valu
   // This is all fake, but plausible
   switch(what) {
     case AGL_RGBA:
-      *value=1;
+      *value = (myDepth > 8) ? 1 : 0;
       return true;
       break;
     case AGL_ACCELERATED:
@@ -574,7 +603,8 @@ theOnlyLonelyWindow=window;
     if (!gl_library_open && glLoadLibrary(_this, NULL) < 0) return NULL;
 
     device = GetMainDevice();
-    Mac_AddGLAttribute(attributes, &count, AGL_RGBA, -1);
+    if (myDepth > 8)
+      Mac_AddGLAttribute(attributes, &count, AGL_RGBA, -1);
     Mac_AddGLAttribute(attributes, &count, AGL_PIXEL_SIZE, myDepth);
     Mac_AddGLAttribute(attributes, &count, AGL_CLOSEST_POLICY, -1);
     if (_this->gl_config.double_buffer) {

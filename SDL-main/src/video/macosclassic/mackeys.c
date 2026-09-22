@@ -124,14 +124,31 @@ void Mac_ResetKeyboardState(void)
 
 void Mac_PollKeyboard(void)
 {
-    KeyMap key_map;
-    const Uint8 *key_bits = (const Uint8 *)key_map;
+    unsigned char km[16];
+    const unsigned char *src;
+    int i;
     int keycode;
 
-    GetKeys(key_map);
-    for (keycode = 0; keycode < SDL_arraysize(mac_key_state); ++keycode) {
+#ifdef SDL_MACOSCLASSIC_SYS6
+    /* Byte copies from $174. GetKeys is flaky on Snow / Plus. */
+    src = (const unsigned char *)0x0174L;
+#else
+    {
+        KeyMap key_map;
+        GetKeys(key_map);
+        src = (const unsigned char *)key_map;
+    }
+#endif
+    for (i = 0; i < 16; i++)
+        km[i] = src[i];
+
+    for (keycode = 0; keycode < (int)SDL_arraysize(mac_key_state); ++keycode) {
+        unsigned char b = km[keycode >> 3];
+        unsigned char bit = (unsigned char)(keycode & 7);
+        /* Dual bit-order: MSB-first BitTst and LSB-first both seen on Plus/Snow. */
         const Uint8 pressed =
-            (key_bits[keycode >> 3] & (1u << (keycode & 7))) != 0;
+            ((b & (unsigned char)(1u << bit)) != 0) ||
+            ((b & (unsigned char)(0x80u >> bit)) != 0);
         SDL_Scancode scancode;
 
         if (pressed == mac_key_state[keycode])
@@ -143,6 +160,15 @@ void Mac_PollKeyboard(void)
                                 scancode);
         }
     }
+#ifdef SDL_MACOSCLASSIC_SYS6
+    if ((mac_key_state[0x37] && (mac_key_state[0x0C] || mac_key_state[0x2F])) ||
+        mac_key_state[0x35]) {
+        SDL_Event quit_event;
+        SDL_zero(quit_event);
+        quit_event.type = SDL_QUIT;
+        SDL_PushEvent(&quit_event);
+    }
+#endif
 }
 
 /**
@@ -216,6 +242,7 @@ static int key_to_sdl[] = {
  * Translates the event such that it can be handled by SDL.
  * @param   event   Screen keyboard event
  */
+#ifndef SDL_MACOSCLASSIC_SYS6
 void handleKeyboardEvent(EventRecord *event, int what)
 {
     SDL_Event quit_event;
@@ -287,5 +314,6 @@ void handleKeyboardEvent(EventRecord *event, int what)
         }
     }
 }
+#endif /* !SDL_MACOSCLASSIC_SYS6 */
 
 #endif

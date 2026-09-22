@@ -12,9 +12,29 @@ This now includes a lot of work done by doctashay, which enabled the xash3d Half
 https://github.com/doctashay/sdl2macos9/tree/os9-fixes
 
 
+## System 6.0.8 / Mac Plus (68000, 1-bit)
+
+Color QuickDraw, DrawSprocket, InputSprocket, AGL, Thread Manager, and
+Sound Manager 3 stay the default `Makefile.r68` / `Makefile.r68ppc` path.
+
+For Mac Plus / System 6.0.8, build the 1-bit QuickDraw backend instead:
+
+```sh
+make -C SDL-main -f Makefile.r68sys6
+```
+
+That defines `SDL_MACOSCLASSIC_SYS6`: `NewWindow` + INDEX1MSB `BitMap`,
+`BlockMove` present with `ShieldCursor`, KeyMap at `$174` (dual bit-order),
+`TickCount` (no `Microseconds`), no threads. Games should use
+`SDL_GetWindowSurface` / `SDL_UpdateWindowSurface`; a 32-bpp software
+renderer does not fit in a Plus heap.
+
+A Plus sample game lives in the sibling `sdl2-sys6` tree (Crystal Plus).
+
 ## Remaining limitations:
 
-* OpenGL: Mac OS uses AGL and `OpenGLLibrary`; the Amiga backend is still unimplemented.
+* OpenGL: Mac OS uses AGL and `OpenGLLibrary`; the Amiga backend is still unimplemented. TinyGL/OSMesa (`SDL_MACOSCLASSIC_OSGL`) can present through the window surface on 8-bit and 1-bit displays (RGB565 convert on swap). Apple AGL still requires 16/32 bpp (`AGL_RGBA`).
+* Video: Color QD `macvideo.c` accepts 1-bit (`INDEX1MSB`), 8-bit indexed (`INDEX8`), 16-bit, and 32-bit. DrawSprocket fullscreen stays 16/32 (and 8 if the DSp headers define `kDSpDepthMask_8`).
 * Audio: Mac OS playback uses Sound Manager double buffers. Capture is not implemented.
 * Joystick: Non-functional skeleton driver for MacOS (disabled SDL 1.2 driver source is in tree ready to be ported). No support on Amiga.
 * Threads: Mac OS uses cooperative Thread Manager threads, so it cannot provide preemptive scheduling.

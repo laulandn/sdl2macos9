@@ -92,3 +92,14 @@ Base laulandn/master (TinyGL hooks already upstream). Add CONSOLIDATE.md
 provenance and Makefile.r68.sys6 (no sprockets/AGL; OSGL+TinyGL). Mac-local
 sdl2-sys6 / Downloads trees still need a follow-up merge when reachable.
 ```
+
+## Mac fold-in (2026-09-22 AEST)
+
+Merged dirty clone + Sys6 overlay onto this branch:
+
+- `SDL_MACOSCLASSIC_SYS6` path: `Makefile.r68sys6`, `macvideo_sys6.c`, `macevents_sys6.c`
+- Indexed/1-bit depth helpers (`Mac_SDLFormatForDepth`), timer/spin/fillrect/keys tweaks
+- Separate tree `~/Developer/bots/grok/sdl2-sys6` remains a **game/host wrapper** (Crystal Plus, LastMac) — not vendored here; build against this SDL overlay
+
+TinyGL still needs external `TINYGL_ROOT` / `$(HOME)/tinygl`.
+

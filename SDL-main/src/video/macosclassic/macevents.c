@@ -21,6 +21,7 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 #include "../../SDL_internal.h"
+#ifndef SDL_MACOSCLASSIC_SYS6
 #include "../SDL_sysvideo.h"
 #include "../../events/SDL_keyboard_c.h"
 #include "../../events/SDL_windowevents_c.h"
@@ -524,4 +525,5 @@ void SDL_Mac_pumpEvents(_THIS)
   }
 }
 
-#endif
+#endif /* SDL_VIDEO_DRIVER_MACOSCLASSIC */
+#endif /* !SDL_MACOSCLASSIC_SYS6 */
