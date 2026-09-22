@@ -43,3 +43,16 @@ The Classic backend follows Apple's published interfaces and lifecycle:
 * [PixMap](https://developer.apple.com/documentation/applicationservices/pixmap)
 * [DrawSprocket Programming Guide](https://leopard-adc.pepas.com/documentation/mac/Sprockets/GameSprockets-87.html)
 * [DrawSprocket legacy reference](https://leopard-adc.pepas.com/documentation/Carbon/Reference/Games_Sprockets_Legacy/gamesprock_legacy_ref.pdf)
+
+## Nil Object / System 6 TinyGL
+
+Long-term goal: **TinyGL / OpenGL on System 6 / 68k**, on top of this classic Mac OS SDL2 port.
+
+See **[CONSOLIDATE.md](CONSOLIDATE.md)** for provenance (laulandn vs doctashay vs local trees), TinyGL status, and the Sys6-oriented build:
+
+```sh
+export TINYGL_ROOT=${TINYGL_ROOT:-$HOME/tinygl}
+make -f Makefile.r68.sys6
+```
+
+Upstream already carries optional TinyGL OSGL hooks (`SDL_MACOSCLASSIC_TINYGL`); stock `Makefile.r68` still defaults to AGL + sprockets for System 7/8/9.

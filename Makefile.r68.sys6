@@ -1,0 +1,11 @@
+# Top-level Sys6 / TinyGL m68k build (see CONSOLIDATE.md)
+all:
+	$(MAKE) -C dummy_dir -f Makefile.r68 || true
+	$(MAKE) -C SDL-main -f Makefile.r68.sys6
+
+clean:
+	$(MAKE) -C SDL-main -f Makefile.r68.sys6 clean
+	rm -f */*.o */*.a
+
+install:
+	$(MAKE) -C SDL-main -f Makefile.r68.sys6 install
