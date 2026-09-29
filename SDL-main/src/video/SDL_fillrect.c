@@ -332,9 +332,52 @@ int SDL_FillRects(SDL_Surface *dst, const SDL_Rect *rects, int count,
     }
 
     /* This function doesn't usually work on surfaces < 8 bpp
-     * Except: support for 4bits, when filling full size.
+     * Except: 1-bit INDEX1MSB (Mac Plus BitMap) and 4-bit full-size fills.
      */
     if (dst->format->BitsPerPixel < 8) {
+        if (dst->format->BitsPerPixel == 1) {
+            //int i;
+            for (i = 0; i < count; ++i) {
+                const SDL_Rect *r = &rects[i];
+                int x, y, x1, y1, x2, y2;
+                x1 = r->x;
+                y1 = r->y;
+                x2 = r->x + r->w;
+                y2 = r->y + r->h;
+                if (x1 < 0) {
+                    x1 = 0;
+                }
+                if (y1 < 0) {
+                    y1 = 0;
+                }
+                if (x2 > dst->w) {
+                    x2 = dst->w;
+                }
+                if (y2 > dst->h) {
+                    y2 = dst->h;
+                }
+                if (x1 >= x2 || y1 >= y2) {
+                    continue;
+                }
+                if (x1 == 0 && y1 == 0 && x2 == dst->w && y2 == dst->h) {
+                    SDL_memset(dst->pixels, color ? 0xFF : 0x00,
+                               (size_t)dst->h * (size_t)dst->pitch);
+                    continue;
+                }
+                for (y = y1; y < y2; ++y) {
+                    Uint8 *row = (Uint8 *)dst->pixels + (size_t)y * (size_t)dst->pitch;
+                    for (x = x1; x < x2; ++x) {
+                        Uint8 mask = (Uint8)(0x80u >> (x & 7));
+                        if (color) {
+                            row[x >> 3] |= mask;
+                        } else {
+                            row[x >> 3] &= (Uint8)~mask;
+                        }
+                    }
+                }
+            }
+            return 0;
+        }
         if (count == 1) {
             const SDL_Rect *r = &rects[0];
             if (r->x == 0 && r->y == 0 && r->w == dst->w && r->h == dst->h) {

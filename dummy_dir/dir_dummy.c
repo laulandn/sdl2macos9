@@ -148,7 +148,7 @@ char *realpath(const char *n,char *rn)
   fprintf(stderr,"dummy realpath()...\n");  fflush(stderr);
   if(!n) { fprintf(stderr,"n was NULL!\n"); fflush(stderr); }
   if(!rn) { fprintf(stderr,"n was NULL!\n"); fflush(stderr); }
-  return (const char *)n;
+  return (char *)n;
 }
 
 

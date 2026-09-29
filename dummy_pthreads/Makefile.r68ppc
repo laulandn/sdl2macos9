@@ -1,15 +1,22 @@
-AR = powerpc-apple-macos-ar
-RANLIB = powerpc-apple-macos-ranlib
-CC = powerpc-apple-macos-gcc
+LIBNAME=pthreasds
 
-LIBNAME = libSDL_image.a
+#CC=m68k-apple-macos-gcc
+#CXX=m68k-apple-macos-g++
+#AR=m68k-apple-macos-ar
+#RANLIB=m68k-apple-macos-ranlib
+CC=powerpc-apple-macos-gcc
+CXX=powerpc-apple-macos-g++
+AR=powerpc-apple-macos-ar
+RANLIB=powerpc-apple-macos-ranlib
+
+CFLAGS=-D__MACOSCLASSIC__ -I../SDL-main/include -I.
+
+OBJS=$(subst .c,.o,$(wildcard *.c))
 
 
-all:
-	$(CC) -I../SDL2 -I. -c image_dummy.c 
-	rm -f *.a
-	$(AR) crv $(LIBNAME) *.o
-	$(RANLIB) $(LIBNAME)
+all: $(OBJS)
+	$(AR) rcv lib$(LIBNAME).a $(OBJS)
+	$(RANLIB) lib$(LIBNAME).a
 
 clean:
 	rm -f *.o *.a

@@ -21,6 +21,7 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 #include "../../SDL_internal.h"
+#ifndef SDL_MACOSCLASSIC_SYS6
 #include "../SDL_sysvideo.h"
 #include "../../events/SDL_windowevents_c.h"
 #include "SDL_hints.h"
@@ -181,6 +182,70 @@ static int Mac_ReplaceNativeWindow(SDL_Window *window, const Rect *bounds,
   return 0;
 }
 
+Uint32 Mac_SDLFormatForDepth(int tdepth)
+{
+  switch (tdepth) {
+    case 1:  return SDL_PIXELFORMAT_INDEX1MSB; break;
+    case 2:  return SDL_PIXELFORMAT_INDEX2MSB; break;
+    case 4:  return SDL_PIXELFORMAT_INDEX4MSB; break;
+    case 8:  return SDL_PIXELFORMAT_INDEX8; break;
+    case 16: return SDL_PIXELFORMAT_RGB555; break;
+    case 32: return SDL_PIXELFORMAT_RGB888; break;
+    default: return SDL_PIXELFORMAT_UNKNOWN; break;
+  }
+}
+
+void Mac_ApplyIndexedPalette(SDL_Surface *surface)
+{
+  CTabHandle ctab = NULL;
+  CTabPtr ct;
+  SDL_Color colors[256];
+  int i, n;
+
+  if (!surface || !surface->format || !surface->format->palette)
+    return;
+
+  if (thePM && thePM->pmTable)
+    ctab = thePM->pmTable;
+  else if (mac_display_device && (**mac_display_device).gdPMap)
+    ctab = (**(**mac_display_device).gdPMap).pmTable;
+
+  if (!ctab) {
+    if (surface->format->BitsPerPixel == 1) {
+      colors[0].r = colors[0].g = colors[0].b = 255;
+      colors[0].a = 255;
+      colors[1].r = colors[1].g = colors[1].b = 0;
+      colors[1].a = 255;
+      SDL_SetPaletteColors(surface->format->palette, colors, 0, 2);
+    }
+    return;
+  }
+
+  ct = *ctab;
+  n = ct->ctSize + 1;
+  if (n < 0)
+    n = 0;
+  if (n > 256)
+    n = 256;
+  if (n > surface->format->palette->ncolors)
+    n = surface->format->palette->ncolors;
+  for (i = 0; i < n; ++i) {
+    colors[i].r = (Uint8)(ct->ctTable[i].rgb.red >> 8);
+    colors[i].g = (Uint8)(ct->ctTable[i].rgb.green >> 8);
+    colors[i].b = (Uint8)(ct->ctTable[i].rgb.blue >> 8);
+    colors[i].a = 255;
+  }
+  SDL_SetPaletteColors(surface->format->palette, colors, 0, n);
+}
+
+static int Mac_FramebufferPitch(int width, int depth)
+{
+  if (depth < 8) {
+    return ((width + 15) / 16) * 2;
+  }
+  return (width * (depth / 8) + 3) & ~3;
+}
+
 static void Mac_UpdateDisplayMetrics(void)
 {
   PixMapHandle pixmap;
@@ -197,10 +262,33 @@ static void Mac_UpdateDisplayMetrics(void)
 }
 
 #ifdef SDL_MACOSCLASSIC_DRAWSPROCKET
+static OptionBits Mac_DSpDepthMask(int depth)
+{
+  switch (depth) {
+#ifdef kDSpDepthMask_8
+    case 8:  return kDSpDepthMask_8;
+#endif
+    case 16: return kDSpDepthMask_16;
+    case 32: return kDSpDepthMask_32;
+    default: return kDSpDepthMask_16;
+  }
+}
+
+static int Mac_DSpDepthSupported(int depth)
+{
+  if (depth == 16 || depth == 32)
+    return 1;
+#ifdef kDSpDepthMask_8
+  if (depth == 8)
+    return 1;
+#endif
+  return 0;
+}
+
 static void Mac_InitDSpAttributes(DSpContextAttributes *attributes,
                                   int width, int height, int depth)
 {
-  OptionBits depth_mask = depth == 16 ? kDSpDepthMask_16 : kDSpDepthMask_32;
+  OptionBits depth_mask = Mac_DSpDepthMask(depth);
 
   SDL_zero(*attributes);
   attributes->displayWidth = (UInt32)width;
@@ -482,6 +570,14 @@ static int videoInit(_THIS)
   /* SDL exposes the main display only.  Use its GDevice explicitly so the
      DrawSprocket display ID and the desktop mode always describe the same
      monitor, even if another device happened to be current. */
+  {
+    long qdvers = 0;
+    if (Gestalt(gestaltQuickdrawVersion, &qdvers) != noErr)
+      qdvers = 0;
+    if (qdvers < 0x0100) {
+      return SDL_SetError("Color QuickDraw required (System 7+ build)");
+    }
+  }
   gDev=GetMainDevice();
   if(!gDev)
     return SDL_SetError("Unable to get the main Classic display");
@@ -490,11 +586,15 @@ static int videoInit(_THIS)
     return SDL_SetError("The main Classic display has no pixel map");
 
   /* The display mode advertised to SDL must match the active QuickDraw
-     device rather than using a hard-coded pixel depth. */
+     device rather than using a hard-coded pixel depth. 1-bit and 8-bit
+     indexed are window-surface formats for TinyGL / 256-color Macs. */
   myDepth=(**gdpm).pixelSize;
-  /*if(myDepth!=16 && myDepth!=32) {
+  if (Mac_SDLFormatForDepth(myDepth) == SDL_PIXELFORMAT_UNKNOWN) {
     return SDL_SetError("Unsupported Classic display depth: %d",myDepth);
-  }*/
+  }
+  
+  if (myDepth <= 8)
+    SDL_SetHint(SDL_HINT_FRAMEBUFFER_ACCELERATION, "0");
 
   mac_display_device = gDev;
   myWidth = (**gDev).gdRect.right - (**gDev).gdRect.left;
@@ -563,8 +663,7 @@ static int videoInit(_THIS)
     m.w=myWidth;
     m.h=myHeight;
     m.refresh_rate=60;
-    if(myDepth==16) m.format=SDL_PIXELFORMAT_RGB555;
-    else m.format=SDL_PIXELFORMAT_RGB888;
+    m.format=Mac_SDLFormatForDepth(myDepth);
 
     SDL_AddDisplayMode(sdlvdisp,&m);
     SDL_SetCurrentDisplayMode(sdlvdisp,&m);
@@ -640,7 +739,7 @@ static int setDisplayMode(_THIS, SDL_VideoDisplay *display,
         requested_depth = 8;
     else
         requested_depth = 0;
-    if (!mac_dsp_started || !requested_depth ||
+    if (!mac_dsp_started || !Mac_DSpDepthSupported(requested_depth) ||
         !Mac_FindDSpMode(mode->w, mode->h, requested_depth, NULL)) {
         return SDL_SetError("Unsupported Classic fullscreen mode %dx%dx%d",
                             mode->w, mode->h,
@@ -913,7 +1012,7 @@ static int createWindowFramebuffer(_THIS, SDL_Window * window, Uint32 * format,
       return SDL_SetError("Invalid Classic framebuffer request");
     if (!macwindow && openTheWindow(window->w, window->h) < 0)
       return -1;
-    if (myDepth != 16 && myDepth != 32)
+    if (Mac_SDLFormatForDepth(myDepth) == SDL_PIXELFORMAT_UNKNOWN)
       return SDL_SetError("Unsupported Classic framebuffer depth: %d", myDepth);
 
     destroyWindowFramebuffer(_this, window);
@@ -942,22 +1041,20 @@ static int createWindowFramebuffer(_THIS, SDL_Window * window, Uint32 * format,
       }
       dsp_pixmap = *mac_dsp_back_pixmap;
       if (!dsp_pixmap ||
-          (dsp_pixmap->pixelSize != 16 && dsp_pixmap->pixelSize != 32)) {
+          Mac_SDLFormatForDepth(dsp_pixmap->pixelSize) == SDL_PIXELFORMAT_UNKNOWN) {
         Mac_ReleaseSoftwareBackBuffer();
         return SDL_SetError("DrawSprocket provided an unsupported back buffer");
       }
       mypixels = GetPixBaseAddr(mac_dsp_back_pixmap);
       *pixels = mypixels;
       *pitch = dsp_pixmap->rowBytes & 0x3fff;
-      *format = dsp_pixmap->pixelSize == 16
-                    ? SDL_PIXELFORMAT_RGB555
-                    : SDL_PIXELFORMAT_RGB888;
+      *format = Mac_SDLFormatForDepth(dsp_pixmap->pixelSize);
       mac_dsp_software_buffer = 1;
       return 0;
     }
 #endif
 
-    framebuffer_pitch = (myWidth * (myDepth / 8) + 3) & ~3;
+    framebuffer_pitch = Mac_FramebufferPitch(myWidth, myDepth);
     if (framebuffer_pitch <= 0 || framebuffer_pitch >= 0x4000)
       return SDL_SetError("Classic framebuffer row is too wide");
     if ((size_t)myHeight > ((size_t)-1) / (size_t)framebuffer_pitch)
@@ -983,17 +1080,35 @@ static int createWindowFramebuffer(_THIS, SDL_Window * window, Uint32 * format,
     thePM->baseAddr=(char *)mypixels;
     thePM->hRes=72L<<16;  thePM->vRes=72L<<16;
     thePM->pixelSize=myDepth;
-    /* Direct-color PixMaps always describe three RGB components. */
-    thePM->cmpCount=3;
-    thePM->cmpSize=(myDepth == 16) ? 5 : 8;
     thePM->pmVersion=0;
-    thePM->pixelType=RGBDirect;
     thePM->packType=0;  thePM->packSize=0;    
+    if (myDepth <= 8) {
+      thePM->cmpCount=1;
+      thePM->cmpSize=myDepth;
+      thePM->pixelType=0;
+    } else {
+      /* Direct-color PixMaps always describe three RGB components. */
+      thePM->cmpCount=3;
+      thePM->cmpSize=(myDepth == 16) ? 5 : 8;
+      thePM->pixelType=RGBDirect;
+    }
 #if TARGET_API_MAC_CARBON
-    thePM->pixelFormat = myDepth == 16
-                             ? k16BE555PixelFormat
-                             : k32ARGBPixelFormat;
+    if (myDepth == 16)
+      thePM->pixelFormat = k16BE555PixelFormat;
+    else if (myDepth == 32)
+      thePM->pixelFormat = k32ARGBPixelFormat;
+#ifdef k8IndexedPixelFormat
+    else if (myDepth == 8)
+      thePM->pixelFormat = k8IndexedPixelFormat;
+#endif
+    else
+      thePM->pixelFormat = 0;
     thePM->pmTable=NULL; 
+    if (myDepth <= 8 && macport) {
+      PixMapHandle wpm = GetPortPixMap(macport);
+      if (wpm && *wpm)
+        thePM->pmTable = (*wpm)->pmTable;
+    }
     thePM->pmExt=NULL;
 #else
     thePM->planeBytes=0;
@@ -1010,8 +1125,7 @@ static int createWindowFramebuffer(_THIS, SDL_Window * window, Uint32 * format,
 
     *pixels=mypixels;
     *pitch=framebuffer_pitch;
-    if(myDepth==16) *format = SDL_PIXELFORMAT_RGB555;
-    if(myDepth==32) *format = SDL_PIXELFORMAT_RGB888;
+    *format=Mac_SDLFormatForDepth(myDepth);
     return 0;
 }
 
@@ -1077,6 +1191,9 @@ static int updateWindowFramebuffer(_THIS, SDL_Window *window, const SDL_Rect *re
 
     if (!thePM)
       return SDL_SetError("Classic framebuffer is not initialized");
+
+    if (window->surface && myDepth <= 8)
+      Mac_ApplyIndexedPalette(window->surface);
 
     SetPort((GrafPtr)macport);
     src_bits = (const BitMap *)thePM;
@@ -1357,3 +1474,4 @@ VideoBootStrap Mac_bootstrap = {
 };
 
 #endif /* SDL_VIDEO_DRIVER_MACOSCLASSIC */
+#endif /* !SDL_MACOSCLASSIC_SYS6 */

@@ -166,6 +166,13 @@ SDL_bool SDL_AtomicTryLock(SDL_SpinLock *lock)
 #elif defined(__MACOSCLASSIC__)
 #ifdef __MACH__
     return OSAtomicCompareAndSwap32Barrier(0, 1, lock);
+#elif defined(SDL_MACOSCLASSIC_SYS6)
+    /* 68000 has no CAS. Cooperative single-task swap. */
+    {
+        int old = *lock;
+        *lock = 1;
+        return old == 0;
+    }
 #else
     extern int _SDL_xchg_macosclassic(SDL_SpinLock *lock,int v);
     return _SDL_xchg_macosclassic(lock, 1) == 0;

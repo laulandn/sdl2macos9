@@ -20,6 +20,7 @@
 */
 
 #include "../../SDL_internal.h"
+#ifndef SDL_MACOSCLASSIC_SYS6
 #include "sdl_mac.h"
 #include "SDL_events.h"
 
@@ -715,4 +716,5 @@ void Mac_QuitMouse(void)
     Mac_ForceShowCursor();
 }
 
-#endif
+#endif /* SDL_VIDEO_DRIVER_MACOSCLASSIC */
+#endif /* !SDL_MACOSCLASSIC_SYS6 */

@@ -24,10 +24,13 @@ all: $(OBJS)
 	$(RANLIB) libFakeInputSprocketLib.a
 	$(AR) rcv libFakeDrawSprocketLib.a MyDrawSprocket.o
 	$(RANLIB) libFakeDrawSprocketLib.a
+	$(AR) rcv libFakeContextualMenu.a MyContextualMenu.o
+	$(RANLIB) libFakeContextualMenu.a
 
 install:
 	cp libFakeDrawSprocketLib.a $(HOME)/Retro68-build/toolchain/powerpc-apple-macos/lib
 	cp libFakeInputSprocketLib.a $(HOME)/Retro68-build/toolchain/powerpc-apple-macos/lib
+	cp libFakeContextualMenu.a $(HOME)/Retro68-build/toolchain/powerpc-apple-macos/lib
 	
 clean:
 	rm -f *.o *.a

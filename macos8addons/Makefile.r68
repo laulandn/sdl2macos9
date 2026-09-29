@@ -24,10 +24,13 @@ all: $(OBJS)
 	$(RANLIB) libInputSprocketLib.a
 	$(AR) rcv libDrawSprocketLib.a MyDrawSprocket.o
 	$(RANLIB) libDrawSprocketLib.a
+	$(AR) rcv libFakeContextualMenu.a MyContextualMenu.o
+	$(RANLIB) libFakeContextualMenu.a
 
 install:
 	cp libDrawSprocketLib.a $(HOME)/Retro68-build/toolchain/m68k-apple-macos/lib
 	cp libInputSprocketLib.a $(HOME)/Retro68-build/toolchain/m68k-apple-macos/lib
+	cp libFakeContextualMenu.a $(HOME)/Retro68-build/toolchain/m68k-apple-macos/lib
 	
 clean:
 	rm -f *.o *.a

@@ -30,7 +30,11 @@
 
 #include "../../events/SDL_mouse_c.h"
 
-#if TARGET_API_MAC_CARBON
+#if defined(SDL_MACOSCLASSIC_SYS6)
+#include <Quickdraw.h>
+#include <Windows.h>
+#include <Events.h>
+#elif TARGET_API_MAC_CARBON
 #if TARGET_RT_MAC_MACHO
 #include <Carbon/Carbon.h>
 #else
@@ -70,7 +74,11 @@
 /* State shared by the video, event, mouse, and OpenGL modules. */
 extern int macmoddown;
 extern WindowPtr macwindow;
+#ifdef SDL_MACOSCLASSIC_SYS6
+extern GrafPtr macport;
+#else
 extern CGrafPtr macport;
+#endif
 extern int myDepth;
 extern SDL_Window *sdlw;
 extern int mac_window_active;
@@ -79,6 +87,11 @@ extern QDGlobals *theQD;
 #endif
 
 
+extern void SDL_Mac_pumpEvents(_THIS);
+#ifndef SDL_MACOSCLASSIC_SYS6
+extern Uint32 Mac_SDLFormatForDepth(int depth);
+extern void Mac_ApplyIndexedPalette(SDL_Surface *surface);
+#endif
 extern void handleKeyboardEvent(EventRecord *event,int what);
 extern void Mac_PollKeyboard(void);
 extern void Mac_ResetKeyboardState(void);

@@ -60,14 +60,19 @@ SDL_TimerCallback SDL_alarm_callback;
 /* Note: This is only a step above the original 1/60s implementation.
  *       For a good implementation, see FastTimes.[ch], by Matt Slot.
  */
+#if !defined(SDL_MACOSCLASSIC_SYS6) && !defined(SDL_MACOSCLASSIC_COLORQD)
 #define USE_MICROSECONDS
+#endif
 
+#ifdef USE_MICROSECONDS
 static Uint64 Mac_WideToUint64(const UnsignedWide *value)
 {
 	return ((Uint64)value->hi << 32) | (Uint64)value->lo;
 }
 
 UInt64 start;
+#endif
+static unsigned long start_ticks;
 
 static SDL_bool ticks_started = SDL_FALSE;
 
@@ -82,7 +87,7 @@ void SDL_TicksInit(void)
 	Microseconds(&now);
 	start = Mac_WideToUint64(&now);
 #else
-	/* FIXME: Should we implement a wrapping algorithm, like Win32? */
+	start_ticks = TickCount();
 #endif
     ticks_started = SDL_TRUE;
 }
@@ -114,7 +119,10 @@ Uint64 SDL_GetTicks64(void)
 	Microseconds(&now);
 	return ((Mac_WideToUint64(&now)-start)/1000);
 #else
-	return(LMGetTicks()*MS_PER_TICK);
+	if (!ticks_started) {
+		SDL_TicksInit();
+	}
+	return (Uint64)(TickCount() - start_ticks) * (Uint64)MS_PER_TICK;
 #endif
 }
 
@@ -145,6 +153,7 @@ void SDL_Delay(Uint32 ms)
 }
 
 
+#ifdef USE_MICROSECONDS
 /* Data to handle a single periodic alarm */
 typedef struct _ExtendedTimerRec
 {
@@ -153,7 +162,7 @@ typedef struct _ExtendedTimerRec
 } ExtendedTimerRec, *ExtendedTimerPtr;
 
 static ExtendedTimerRec gExtendedTimerRec;
-
+#endif
 
 int SDL_SYS_TimerInit(void)
 {
@@ -167,6 +176,7 @@ void SDL_SYS_TimerQuit(void)
 	return;
 }
 
+#ifdef USE_MICROSECONDS
 /* Our Stub routine to set up and then call the real routine. */
 pascal void TimerCallbackProc(TMTaskPtr tmTaskPtr)
 {
@@ -209,6 +219,7 @@ void SDL_SYS_StopTimer(void)
 {
 	RmvTime((QElemPtr)&gExtendedTimerRec.tmTask);
 }
+#endif
 
 Uint64 SDL_GetPerformanceCounter(void)
 {
@@ -217,7 +228,7 @@ Uint64 SDL_GetPerformanceCounter(void)
     Microseconds(&now);
     return Mac_WideToUint64(&now);
 #else
-    return (Uint64)LMGetTicks();
+    return (Uint64)TickCount();
 #endif
 }
 

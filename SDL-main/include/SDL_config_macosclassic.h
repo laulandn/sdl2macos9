@@ -211,4 +211,71 @@ typedef unsigned int uintptr_t;
 /*#define SDL_FILESYSTEM_DUMMY  1*/
 #define SDL_FILESYSTEM_MACOSCLASSIC 1
 
+/*
+ * System 6.0.8 / Mac Plus overlay. Color QD, DrawSprocket, AGL, Thread
+ * Manager, and Sound Manager 3 are compile-time OS 7/8/9 paths. Define
+ * SDL_MACOSCLASSIC_SYS6 (see Makefile.r68sys6) for 1-bit 68000.
+ */
+#ifdef SDL_MACOSCLASSIC_SYS6
+#undef HAVE_GCC_SYNC_LOCK_TEST_AND_SET
+#undef HAVE_GCC_ATOMICS
+#undef HAVE_DLOPEN
+#undef SDL_AUDIO_DRIVER_MACOSCLASSIC
+#undef SDL_AUDIO_DRIVER_DISK
+#undef SDL_JOYSTICK_MACOSCLASSIC
+#undef SDL_JOYSTICK_VIRTUAL
+#undef SDL_LOADSO_MACOSCLASSIC
+#undef SDL_THREAD_MACOSCLASSIC
+#undef SDL_VIDEO_OPENGL
+#undef SDL_VIDEO_RENDER_OGL
+#undef SDL_FILESYSTEM_MACOSCLASSIC
+#define SDL_AUDIO_DRIVER_DUMMY 1
+#define SDL_JOYSTICK_DISABLED 1
+#define SDL_LOADSO_DISABLED 1
+#define SDL_THREADS_DISABLED 1
+#define SDL_FILESYSTEM_DUMMY 1
+#define SDL_RENDER_DISABLED 1
+#define SDL_VIDEO_RENDER_SW 0
+#define SDL_HAVE_YUV 0
+#define SDL_HAVE_RLE 0
+#define SDL_HAVE_BLIT_AUTO 0
+#define SDL_HAVE_BLIT_A 0
+#define SDL_HAVE_BLIT_N 0
+#define SDL_HAVE_BLIT_0 1
+#define SDL_HAVE_BLIT_1 1
+#endif
+
+/*
+ * System 7+ Color QD video, without Sprockets/AGL/threads — for A/B
+ * testing against SDL_MACOSCLASSIC_SYS6. Mutually exclusive with SYS6.
+ */
+#if defined(SDL_MACOSCLASSIC_COLORQD) && !defined(SDL_MACOSCLASSIC_SYS6)
+#undef HAVE_GCC_SYNC_LOCK_TEST_AND_SET
+#undef HAVE_GCC_ATOMICS
+#undef HAVE_DLOPEN
+#undef SDL_AUDIO_DRIVER_MACOSCLASSIC
+#undef SDL_AUDIO_DRIVER_DISK
+#undef SDL_JOYSTICK_MACOSCLASSIC
+#undef SDL_JOYSTICK_VIRTUAL
+#undef SDL_LOADSO_MACOSCLASSIC
+#undef SDL_THREAD_MACOSCLASSIC
+#undef SDL_VIDEO_OPENGL
+#undef SDL_VIDEO_RENDER_OGL
+#undef SDL_FILESYSTEM_MACOSCLASSIC
+#define SDL_AUDIO_DRIVER_DUMMY 1
+#define SDL_JOYSTICK_DISABLED 1
+#define SDL_LOADSO_DISABLED 1
+#define SDL_THREADS_DISABLED 1
+#define SDL_FILESYSTEM_DUMMY 1
+#define SDL_RENDER_DISABLED 1
+#define SDL_VIDEO_RENDER_SW 0
+#define SDL_HAVE_YUV 0
+#define SDL_HAVE_RLE 0
+#define SDL_HAVE_BLIT_AUTO 0
+#define SDL_HAVE_BLIT_A 0
+#define SDL_HAVE_BLIT_N 0
+#define SDL_HAVE_BLIT_0 1
+#define SDL_HAVE_BLIT_1 1
+#endif
+
 #endif /* SDL_config_macosclassic_h_ */

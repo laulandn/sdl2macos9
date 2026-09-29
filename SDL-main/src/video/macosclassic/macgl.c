@@ -317,7 +317,8 @@ theOnlyLonelyWindow=window;
     if (!gl_library_open && glLoadLibrary(_this, NULL) < 0) return NULL;
 
     device = GetMainDevice();
-    Mac_AddGLAttribute(attributes, &count, AGL_RGBA, -1);
+    if (myDepth > 8)
+      Mac_AddGLAttribute(attributes, &count, AGL_RGBA, -1);
     Mac_AddGLAttribute(attributes, &count, AGL_PIXEL_SIZE, myDepth);
     Mac_AddGLAttribute(attributes, &count, AGL_CLOSEST_POLICY, -1);
     if (_this->gl_config.double_buffer) {

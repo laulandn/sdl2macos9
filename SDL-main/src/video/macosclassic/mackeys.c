@@ -143,6 +143,15 @@ void Mac_PollKeyboard(void)
                                 scancode);
         }
     }
+#ifdef SDL_MACOSCLASSIC_SYS6
+    if ((mac_key_state[0x37] && (mac_key_state[0x0C] || mac_key_state[0x2F])) ||
+        mac_key_state[0x35]) {
+        SDL_Event quit_event;
+        SDL_zero(quit_event);
+        quit_event.type = SDL_QUIT;
+        SDL_PushEvent(&quit_event);
+}
+#endif
 }
 
 /**
@@ -216,6 +225,7 @@ static int key_to_sdl[] = {
  * Translates the event such that it can be handled by SDL.
  * @param   event   Screen keyboard event
  */
+#ifndef SDL_MACOSCLASSIC_SYS6
 void handleKeyboardEvent(EventRecord *event, int what)
 {
     SDL_Event quit_event;
@@ -287,5 +297,6 @@ void handleKeyboardEvent(EventRecord *event, int what)
         }
     }
 }
+#endif /* !SDL_MACOSCLASSIC_SYS6 */
 
 #endif
