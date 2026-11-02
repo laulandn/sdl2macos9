@@ -1,0 +1,131 @@
+# Makefile to build the classic MacOS SDL library for PPC
+# (Based on AmigaOS4 Makefile)
+
+PATH_TO_RETRO68=$(HOME)/Retro68-build/toolchain/powerpc-apple-macos
+
+AR = ar
+RANLIB = ranlib
+CC = gcc -DTARGET_API_MAC_CARBON=1 -DTARGET_CARBON=1 -DTARGET_OS_OSX=1
+CXX = g++ -DTARGET_API_MAC_CARBON=1 -DTARGET_CARBON=1 -DTARGET_OS_OSX=1
+STRIP = strip
+#CRT ?= newlib
+INSTALL_PATH ?=
+CATCOMP = catcomp # TODO: is there a cross-compiler version?
+
+#MACDATE = $(shell date +"%-d.%m.%Y")
+
+#CFLAGS  = -mcrt=$(CRT) -gstabs -O3 -Wall -Werror -Wshadow -fPIC -fcommon -I./include -D__MACDATE__=\"$(MACDATE)\"
+RETRO68_ROOT ?= $(abspath $(dir $(shell command -v $(CC)))/..)
+ifeq ($(RETRO68_ROOT),)
+RETRO68_ROOT = $(PATH_TO_RETRO68)/..
+endif
+CURSOR_DEVICES_GLUE =
+CFLAGS ?= -g -Wall
+#CFLAGS ?= -g -Wall -Wshadow
+#CPPFLAGS += -I./include -D__MACOSCLASSIC__ -DSDL_MACOSCLASSIC_INPUTSPROCKET=1 -DSDL_MACOSCLASSIC_DRAWSPROCKET=1 -DSDL_MACOSCLASSIC_AGL=1
+#CPPFLAGS += -I./include -D__MACOSCLASSIC__ -DMAC_DEBUG=1
+CPPFLAGS += -I./include -D__MACOSCLASSIC__ -DMAC_DEBUG=1
+
+
+TARGET_STATIC  = libSDL2.a
+#TARGET_SHARED  = libSDL2-2.31.so
+TESTLIB_STATIC = libSDL2_test.a
+#PREFS_PROGRAM = SDL2
+
+SOURCES = \
+	./src/*.c \
+	./src/atomic/*.c \
+	./src/audio/*.c \
+	./src/audio/macosclassic/*.c \
+	./src/audio/disk/*.c \
+	./src/audio/dummy/*.c \
+	./src/cpuinfo/*.c \
+	./src/events/*.c \
+	./src/file/*.c \
+	./src/filesystem/macosclassic/*.c \
+	./src/haptic/*.c \
+	./src/haptic/dummy/*.c \
+	./src/joystick/*.c \
+	./src/joystick/virtual/*.c \
+	./src/joystick/macosclassic/*.c \
+	./src/libm/*.c \
+	./src/loadso/macosclassic/*.c \
+	./src/locale/*.c \
+	./src/locale/dummy/*.c \
+	./src/main/macosclassic/*.c \
+	./src/misc/*.c \
+	./src/misc/dummy/*.c \
+	./src/power/*.c \
+	./src/render/*.c \
+	./src/render/opengl/*.c \
+	./src/render/opengles2/*.c \
+	./src/render/software/*.c \
+	./src/sensor/*.c \
+	./src/sensor/dummy/*.c \
+	./src/stdlib/*.c \
+	./src/thread/*.c \
+	./src/thread/pthread/*.c \
+	./src/timer/*.c \
+	./src/timer/macosclassic/*.c \
+	./src/video/*.c \
+	./src/video/offscreen/*.c \
+	./src/video/macosclassic/*.c \
+	./src/video/yuv2rgb/*.c \
+
+TESTLIB_SOURCES =./src/test/*.c
+
+OBJECTS = $(shell echo $(SOURCES) | sed -e 's,\.c,\.o,g')
+TESTLIB_OBJECTS = $(shell echo $(TESTLIB_SOURCES) | sed -e 's,\.c,\.o,g')
+MAIN_OBJECT = src/main/macosclassic/SDL_main.o
+ALL_OBJECTS = $(OBJECTS) $(TESTLIB_OBJECTS) $(MAIN_OBJECT) $(PREFS_OBJECT)
+DEPS = $(ALL_OBJECTS:.o=.d)
+
+
+all: info $(TARGET_STATIC) $(TARGET_SHARED) $(TESTLIB_STATIC) $(PREFS_PROGRAM)
+	@echo All done
+
+info:
+	@echo Compiler flags: $(CFLAGS)
+
+debug: CFLAGS += -DDEBUG
+
+debug: all
+
+$(TESTLIB_STATIC): $(TESTLIB_OBJECTS)
+	@echo Creating $@
+	@$(AR) crv $@ $^
+	@$(RANLIB) $@
+
+$(TARGET_STATIC): $(OBJECTS) $(CURSOR_DEVICES_GLUE)
+	@echo Creating $@
+	@$(AR) crv $@ $^
+	@$(RANLIB) $@
+	@$(AR) crv libSDL2main.a $(MAIN_OBJECT) 
+	@$(RANLIB) libSDL2main.a
+
+$(TARGET_SHARED): $(OBJECTS) $(MAIN_OBJECT)
+	@echo Linking $@
+	@$(CC) -mcrt=$(CRT) -shared -Wl,-soname,$(TARGET_SHARED) -o $(TARGET_SHARED) $(OBJECTS) $(MAIN_OBJECT)
+
+clean:
+	@echo Cleaning
+	@rm -f $(TARGET_STATIC) $(TARGET_SHARED) $(TESTLIB_STATIC) $(ALL_OBJECTS) $(PREFS_PROGRAM) $(DEPS) libSDL2main.a
+	make -C test -fMakefile.carbon clean
+
+install:
+#	mkdir -p $(PATH_TO_RETRO68)/include/SDL2
+#	cp include/* $(PATH_TO_RETRO68)/include/SDL2
+#	cp libSDL*.a $(PATH_TO_RETRO68)/lib
+
+%.o : %.c
+	@echo Compiling $<
+	@$(CC) -o $@ -c $< $(CPPFLAGS) $(CFLAGS)
+
+%.d : %.c
+	@echo Making dependencies for $<
+	@$(CC) -MM -MP -MT $(@:.d=.o) -o $@ $< $(CPPFLAGS) $(CFLAGS)
+
+# Load .d files
+ifneq ($(MAKECMDGOALS),clean)
+-include $(DEPS)
+endif

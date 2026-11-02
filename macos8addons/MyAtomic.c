@@ -1,7 +1,7 @@
 #include <stdio.h>
 
 
-#include "SDL_stdinc.h"
+//#include "SDL_stdinc.h"
 #include "SDL_atomic.h"
 
 

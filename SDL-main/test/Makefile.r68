@@ -17,7 +17,7 @@ LIBS+=-lInputSprocketLib -lDrawSprocketLib ../../macos8addons/libmacos8addons.a
 #LIBS+=-lOpenGLLibrary
 #LIBS+=$(HOME)/Mesa-3.2.1/libmesa.a $(HOME)/MacGLide-master/MacGLide/OpenGLide/libOpenGlide.a $(HOME)/MacGLide-master/MacGLide/Mac/libMac.a
 #LIBS+=-lThreadsLib 
-LIBS+=-L$(HOME)/gfx/tinygl -lTinyOpenGLLibrary
+LIBS+=-L$(HOME)/gfx/tinygl -lTinyOpenGLLibrarySDL2
 
 
 LIBPATH = -L..
