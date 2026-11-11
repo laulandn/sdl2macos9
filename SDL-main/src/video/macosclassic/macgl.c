@@ -24,8 +24,8 @@
 #endif
 
 
-// TODO: This is a TEMPORARY hack!
-// NOTE: Must NOT be static
+/* TODO: This is a TEMPORARY hack! */
+/* NOTE: Must NOT be static */
 SDL_Window *theOnlyLonelyWindow;
 
 
@@ -225,10 +225,10 @@ void *glGetProcAddress(_THIS, const char *proc)
     if(!strcmp("glVertex3fv",proc)) symbol=(void *)glVertex3fv;
     if(!strcmp("glVertexPointer",proc)) symbol=(void *)glVertexPointer;
     if(!strcmp("glViewport",proc)) symbol=(void *)glViewport;
-    //
+    /**/
     if(!strcmp("glBlendFuncSeparate",proc)) symbol=(void *)glBlendFuncSeparate;
     if(!strcmp("glBlendEquation",proc)) symbol=(void *)glBlendEquation;
-    //
+    /**/
     if(!strcmp("glOrtho",proc)) symbol=(void *)glOrtho;
     if(!strcmp("glTexEnvf",proc)) symbol=(void *)glTexEnvf;
     if(!strcmp("glDepthFunc",proc)) symbol=(void *)glDepthFunc;
@@ -240,7 +240,7 @@ void *glGetProcAddress(_THIS, const char *proc)
     if(!strcmp("glRasterPos2i",proc)) symbol=(void *)glRasterPos2i;
     if(!strcmp("glPixelStorei",proc)) symbol=(void *)glPixelStorei;
     if(!strcmp("glColor4ub",proc)) symbol=(void *)glColor4ub;
-    //
+    /**/
     if(!symbol) {
     /*
 #ifdef MAC_DEBUG
@@ -284,7 +284,7 @@ SDL_GLContext glCreateContext(_THIS, SDL_Window *window)
     GLint stencil_size = 0;
     GLint double_buffer = 0;
 
-// TODO: This is a TEMPORARY hack!
+/* TODO: This is a TEMPORARY hack! */
 theOnlyLonelyWindow=window;
 
 #ifdef MAC_DEBUG

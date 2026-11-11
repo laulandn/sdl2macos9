@@ -55,7 +55,7 @@ SDL_sem *SDL_CreateSemaphore(Uint32 initial_value)
 
 	SDL_memset(sem,0,sizeof(*sem));
 
-	//InitSemaphore(&sem->Sem);
+	/*InitSemaphore(&sem->Sem); */
 	SemaphoreInit(&sem->Sem,initial_value);
 
 	return(sem);
@@ -68,7 +68,7 @@ void SDL_DestroySemaphore(SDL_sem *sem)
 #endif
 
 	if ( sem ) {
-// Condizioni per liberare i task in attesa?
+/* Condizioni per liberare i task in attesa? */
 		SDL_free(sem);
 	}
 }
@@ -125,9 +125,9 @@ int SDL_SemWait(SDL_sem *sem)
 #ifdef MYDEBUG
 	fprintf(stderr,"macosclassic SemWait semaphore...%lx\n",(long)sem);
 #endif
-	//ObtainSemaphore(&sem->Sem);
+	/*ObtainSemaphore(&sem->Sem); */
 	SemaphoreAcquire(&sem->Sem);
-	// TODO: Yield here or does SemaphoreAcquire do that for me?
+	/* TODO: Yield here or does SemaphoreAcquire do that for me? */
 	return 0;
 }
 
@@ -137,12 +137,12 @@ Uint32 SDL_SemValue(SDL_sem *sem)
 
 	value = 0;
 	if ( sem ) {
-		//#ifdef STORMC4_WOS
-		//value = sem->Sem.ssppc_SS.ss_NestCount;
-		//#else
-		//value = sem->Sem.ss_NestCount;
+		/*#ifdef STORMC4_WOS */
+		/*value = sem->Sem.ssppc_SS.ss_NestCount; */
+		/*#else */
+		/*value = sem->Sem.ss_NestCount; */
 		value = sem->Sem.value;
-		//#endif
+		/*#endif */
 	}
 	return value;
 }
@@ -157,7 +157,7 @@ int SDL_SemPost(SDL_sem *sem)
 	fprintf(stderr,"macosclassic SemPost semaphore...%lx\n",(long)sem);
 #endif
 
-	//ReleaseSemaphore(&sem->Sem);
+	/*ReleaseSemaphore(&sem->Sem); */
 	SemaphoreRelease(&sem->Sem);
 	return 0;
 }

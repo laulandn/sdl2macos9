@@ -2174,7 +2174,7 @@ static void SDL_UnlockTextureNative(SDL_Texture *texture)
 
 void SDL_UnlockTexture(SDL_Texture *texture)
 {
-    CHECK_TEXTURE_MAGIC(texture, );
+    CHECK_TEXTURE_MAGIC(texture, SDL_NOTHING);
 
     if (texture->access != SDL_TEXTUREACCESS_STREAMING) {
         return;
@@ -2429,7 +2429,7 @@ int SDL_RenderSetLogicalSize(SDL_Renderer *renderer, int w, int h)
 
 void SDL_RenderGetLogicalSize(SDL_Renderer *renderer, int *w, int *h)
 {
-    CHECK_RENDERER_MAGIC(renderer, );
+    CHECK_RENDERER_MAGIC(renderer, SDL_NOTHING);
 
     if (w) {
         *w = renderer->logical_w;
@@ -2483,7 +2483,7 @@ int SDL_RenderSetViewport(SDL_Renderer *renderer, const SDL_Rect *rect)
 
 void SDL_RenderGetViewport(SDL_Renderer *renderer, SDL_Rect *rect)
 {
-    CHECK_RENDERER_MAGIC(renderer, );
+    CHECK_RENDERER_MAGIC(renderer, SDL_NOTHING);
 
     if (rect) {
         rect->x = (int)SDL_floor(renderer->viewport.x / renderer->scale.x);
@@ -2523,7 +2523,7 @@ int SDL_RenderSetClipRect(SDL_Renderer *renderer, const SDL_Rect *rect)
 
 void SDL_RenderGetClipRect(SDL_Renderer *renderer, SDL_Rect *rect)
 {
-    CHECK_RENDERER_MAGIC(renderer, )
+    CHECK_RENDERER_MAGIC(renderer, SDL_NOTHING)
 
     if (rect) {
         rect->x = (int)SDL_floor(renderer->clip_rect.x / renderer->scale.x);
@@ -2550,7 +2550,7 @@ int SDL_RenderSetScale(SDL_Renderer *renderer, float scaleX, float scaleY)
 
 void SDL_RenderGetScale(SDL_Renderer *renderer, float *scaleX, float *scaleY)
 {
-    CHECK_RENDERER_MAGIC(renderer, );
+    CHECK_RENDERER_MAGIC(renderer, SDL_NOTHING);
 
     if (scaleX) {
         *scaleX = renderer->scale.x;
@@ -2564,7 +2564,7 @@ void SDL_RenderWindowToLogical(SDL_Renderer *renderer, int windowX, int windowY,
 {
     float window_physical_x, window_physical_y;
 
-    CHECK_RENDERER_MAGIC(renderer, );
+    CHECK_RENDERER_MAGIC(renderer, SDL_NOTHING);
 
     window_physical_x = ((float)windowX) / renderer->dpi_scale.x;
     window_physical_y = ((float)windowY) / renderer->dpi_scale.y;
@@ -2581,7 +2581,7 @@ void SDL_RenderLogicalToWindow(SDL_Renderer *renderer, float logicalX, float log
 {
     float window_physical_x, window_physical_y;
 
-    CHECK_RENDERER_MAGIC(renderer, );
+    CHECK_RENDERER_MAGIC(renderer, SDL_NOTHING);
 
     window_physical_x = (float)((logicalX * renderer->scale.x) + renderer->viewport.x);
     window_physical_y = (float)((logicalY * renderer->scale.y) + renderer->viewport.y);
@@ -4267,7 +4267,7 @@ void SDL_RenderPresent(SDL_Renderer *renderer)
 {
     SDL_bool presented = SDL_TRUE;
 
-    CHECK_RENDERER_MAGIC(renderer, );
+    CHECK_RENDERER_MAGIC(renderer, SDL_NOTHING);
 
     FlushRenderCommands(renderer); /* time to send everything to the GPU! */
 
@@ -4291,7 +4291,7 @@ void SDL_DestroyTexture(SDL_Texture *texture)
 {
     SDL_Renderer *renderer;
 
-    CHECK_TEXTURE_MAGIC(texture, );
+    CHECK_TEXTURE_MAGIC(texture, SDL_NOTHING);
 
     renderer = texture->renderer;
     if (texture == renderer->target) {
@@ -4333,7 +4333,7 @@ void SDL_DestroyRenderer(SDL_Renderer *renderer)
 {
     SDL_RenderCommand *cmd;
 
-    CHECK_RENDERER_MAGIC(renderer, );
+    CHECK_RENDERER_MAGIC(renderer, SDL_NOTHING);
 
     SDL_DelEventWatch(SDL_RendererEventWatch, renderer);
 

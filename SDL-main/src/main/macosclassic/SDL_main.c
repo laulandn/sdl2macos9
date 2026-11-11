@@ -118,8 +118,8 @@ extern void SDL_InitQuickDraw(struct QDGlobals *the_qd);
 /* ////////////////////////////////////////////////// */
 /* ////////////////////////////////////////////////// */
 
-// NOTE: All this is unused and just pulled over from SDL 1.2 where it was never tested.
-// This is probably redundant since there's new AppleEvent handling in the event part of the video driver
+/* NOTE: All this is unused and just pulled over from SDL 1.2 where it was never tested. */
+/* This is probably redundant since there's new AppleEvent handling in the event part of the video driver */
 
 #define PASCAL
 
@@ -178,33 +178,33 @@ void amac_handleAEDescList(AEDescList docList)
       fprintf(stderr,"AEGetNthPtr error...\n"); fflush(stderr);
       return;
     }
-    //
+    /**/
     fullPathBuf[0]=0;
 #if TARGET_CARBON
 #if !__LP64__
-    // work with the fss
+    /* work with the fss */
 #ifdef DEBUG_APPLEEVENTS
     fprintf(stderr,"Calling FSpMakeFSRef...\n"); fflush(stderr);
 #endif
     myErr=FSpMakeFSRef(&myFSS,&newRef);
-    // TODO: Check for error!
+    /* TODO: Check for error! */
     myErr=FSRefMakePath(&newRef,(UInt8 *)fullPathBuf,1023);
-    // TODO: Check for error!
+    /* TODO: Check for error! */
 #endif
 #else
-    // NOTE: This is just the filename, not the full path to the file :(
+    /* NOTE: This is just the filename, not the full path to the file :( */
     for(t=0;t<myFSS.name[0];t++) fullPathBuf[t]=myFSS.name[t+1];
     fullPathBuf[t]=0;
-#endif // TARGET_CARBON
+#endif /* TARGET_CARBON */
 #ifdef DEBUG_APPLEEVENTS
     fprintf(stderr,"fullPathBuf is '%s'\n",fullPathBuf); fflush(stderr);
 #endif
-    //
-    //  Attempts to change app's current directory...
-    //  ...this doesn't work, as it doesn't affect fopen, etc...
-    //
+    /**/
+    /*  Attempts to change app's current directory... */
+    /*  ...this doesn't work, as it doesn't affect fopen, etc... */
+    /**/
 #if TARGET_CARBON
-    // FIXME: This is deprecated in 10.4, what should I use?
+    /* FIXME: This is deprecated in 10.4, what should I use? */
 #ifdef DEBUG_APPLEEVENTS
     fprintf(stderr,"Going to HSetVol...\n"); fflush(stderr);
 #endif
@@ -230,8 +230,8 @@ void amac_handleAEDescList(AEDescList docList)
 #endif
       CloseWD(wdref);
     }
-#endif // TARGET_CARBON
-    //
+#endif /* TARGET_CARBON */
+    /**/
 #ifdef TARGET_CARBON
 #ifdef DEBUG_APPLEEVENTS
     fprintf(stderr,"Getting fname from fullPathBuf...\n"); fflush(stderr);
@@ -251,7 +251,7 @@ void amac_handleAEDescList(AEDescList docList)
       if(fname[t]==' ') hasSpaces=true;
     }
     fname[myFSS.name[0]]=0;
-#endif // TARGET_CARBON
+#endif /* TARGET_CARBON */
 #ifdef DEBUG_APPLEEVENTS
     fprintf(stderr,"%d : '%s'\n",i,fname); fflush(stderr);
     fprintf(stderr,"vRefNum=%d parID=%d\n",myFSS.vRefNum,myFSS.parID); fflush(stderr);
@@ -284,7 +284,7 @@ OSErr PASCAL amac_AEOpenDocHandler(const AppleEvent *messagein, AppleEvent *repl
 #endif
   myErr=AEGetParamDesc(messagein,keyDirectObject,typeAEList,&docList);
   if(myErr!=noErr) { fprintf(stderr,"AEGetParamDesc error...\n"); return myErr; }
-  // Inside mac says to check for required params here...
+  /* Inside mac says to check for required params here... */
 #ifdef DEBUG_APPLEEVENTS
   fprintf(stderr,"Calling amac_handleAEDescList to handle parameters...\n"); fflush(stderr);
 #endif
@@ -313,8 +313,8 @@ OSErr PASCAL amac_AEQuitHandler(const AppleEvent *messagein, AppleEvent *reply,
 #ifdef DEBUG_APPLEEVENTS
   fprintf(stderr,"Received AppleEvent: QuitApp!\n"); fflush(stderr);
 #endif
-  //if(alib_curEvent) alib_curEvent->type=A_EVENT_DESTROY;
-  //aThisApp->quitASAP=true;
+  /*if(alib_curEvent) alib_curEvent->type=A_EVENT_DESTROY; */
+  /*aThisApp->quitASAP=true; */
   exit(EXIT_SUCCESS);
   return(noErr);
 }
@@ -323,22 +323,22 @@ OSErr PASCAL amac_AEQuitHandler(const AppleEvent *messagein, AppleEvent *reply,
 #ifndef MAC_NO_HIGHLEVEL
 void amac_waitForHighLevel()
 {
-  // Wait until we get a high-level event
-  // which should be our openDoc or openApp from the Finder (or whomever)
-  // NOTE: we can't use AEvent, because we don't have a window at this point
+  /* Wait until we get a high-level event */
+  /* which should be our openDoc or openApp from the Finder (or whomever) */
+  /* NOTE: we can't use AEvent, because we don't have a window at this point */
   EventRecord event;
   int working=1;
 #ifdef DEBUG_APPLEEVENTS
   fprintf(stderr,"amac_waitForHighLevel()...\n"); fflush(stderr);
 #endif
-  // Idle until window manager says there's an event for our process
+  /* Idle until window manager says there's an event for our process */
   while(working) {
     GetNextEvent(everyEvent,&event);
 #ifdef DEBUG_APPLEEVENTS
     fprintf(stderr,"amac_waitForHighLevel native event type %d\n",(int)event.what); fflush(stderr);
 #endif
     if(event.what==kHighLevelEvent) { working=false; amac_handleHighLevel(&event); }
-    //else working=false;
+    /*else working=false; */
   }
 #ifdef DEBUG_APPLEEVENTS
   fprintf(stderr,"amac_waitForHighLevel() done.\n"); fflush(stderr);
@@ -349,7 +349,7 @@ void amac_waitForHighLevel()
 
 void amac_initAppleEvents()
 {
-  // Init apple events
+  /* Init apple events */
   OSErr aeErrCode;
   long aeThere;
   AEEventHandlerUPP amac_openAppHandler;
@@ -488,7 +488,7 @@ static void cleanup_output(void)
 	}
 }
 
-#endif //!(defined(__APPLE__) && defined(__MACH__))
+#endif /*!(defined(__APPLE__) && defined(__MACH__)) */
 
 static int getCurrentAppName (StrFileName name) {
 	
@@ -548,7 +548,7 @@ static int getPrefsFile (FSSpec *prefs_fsp, int create) {
             prefs_fsp->parID   = directory_id;
             prefs_fsp->vRefNum = volume_ref_number;
                 
-            FSpCreateResFile (prefs_fsp, 0x3f3f3f3f, 'pref', 0); // '????' parsed as trigraph
+            FSpCreateResFile (prefs_fsp, 0x3f3f3f3f, 'pref', 0); /* '????' parsed as trigraph */
             
             if ( noErr != ResError () )
                 return 0;
@@ -715,7 +715,7 @@ static int writePreferences (PrefsRecord *prefs) {
 int main(int argc, char *argv[])
 {
 #if !(defined(__APPLE__) && defined(__MACH__))
-//#pragma unused(argc, argv)
+/*#pragma unused(argc, argv) */
 #endif
 	
 #define DEFAULT_ARGS "\p"                /* pascal string for default args */
@@ -725,10 +725,8 @@ int main(int argc, char *argv[])
 #define VIDEO_ID_DRAWSPROCKET 1          /* these correspond to popup menu choices */
 #define VIDEO_ID_TOOLBOX      2
 
-    // TODODODODODOD: There is something very wrong in the next line
+    /* TODODODODODOD: There is something very wrong in the next line */
     PrefsRecord prefs = { { 0 }, { 0 }, DEFAULT_OUTPUT_TO_FILE };
-    memcpy(prefs.command_line, DEFAULT_ARGS, sizeof(DEFAULT_ARGS));
-    memcpy(prefs.video_driver_name, DEFAULT_VIDEO_DRIVER, sizeof(DEFAULT_VIDEO_DRIVER));
 	
 #if !(defined(__APPLE__) && defined(__MACH__))
 	int     nargs;
@@ -755,6 +753,9 @@ int main(int argc, char *argv[])
     /* /////////// */
 
 #endif
+
+    memcpy(prefs.command_line, DEFAULT_ARGS, sizeof(DEFAULT_ARGS));
+    memcpy(prefs.video_driver_name, DEFAULT_VIDEO_DRIVER, sizeof(DEFAULT_VIDEO_DRIVER));
 
 	/* Grow the application heap and allocate master-pointer blocks before
 	   initializing Toolbox managers, in the documented Classic startup
@@ -832,7 +833,6 @@ int main(int argc, char *argv[])
 	 }
 	 	
 	if ( CommandKeyIsDown() ) {
-        fprintf(stderr,"main cmd was down...\n"); fflush(stderr);
 
 #define kCL_OK		1
 #define kCL_Cancel	2
@@ -848,6 +848,7 @@ int main(int argc, char *argv[])
    #if TARGET_API_MAC_CARBON
         ControlRef control;
    #endif
+        fprintf(stderr,"main cmd was down...\n"); fflush(stderr);
         
         /* Assume that they will change settings, rather than do exhaustive check */
         settingsChanged = 1;
@@ -1078,7 +1079,7 @@ int main(int argc, char *argv[])
    
    	/* Remove useless stdout.txt and stderr.txt */
    	cleanup_output ();
-#else // defined(__APPLE__) && defined(__MACH__)
+#else /* defined(__APPLE__) && defined(__MACH__) */
         SDL_SetMainReady();
         argc=1;
         argv[1]="";

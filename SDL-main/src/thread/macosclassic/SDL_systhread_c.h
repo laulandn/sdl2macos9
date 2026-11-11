@@ -25,7 +25,7 @@
 #include "./MacThreads.h"
 
 /* Stub until we implement threads on this platform */
-//typedef int SYS_ThreadHandle;
+/*typedef int SYS_ThreadHandle; */
 #define SYS_ThreadHandle ThreadID
 
 #endif

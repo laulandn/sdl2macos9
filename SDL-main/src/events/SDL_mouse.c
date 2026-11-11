@@ -29,7 +29,7 @@
 #include "../SDL_hints_c.h"
 #include "../video/SDL_sysvideo.h"
 #if defined(__WIN32__) || defined(__GDK__)
-#include "../core/windows/SDL_windows.h" // For GetDoubleClickTime()
+#include "../core/windows/SDL_windows.h" /* For GetDoubleClickTime() */
 #endif
 #if defined(__OS2__)
 #define INCL_WIN

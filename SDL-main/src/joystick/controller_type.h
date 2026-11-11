@@ -61,7 +61,7 @@ typedef enum
 
 	/* Keyboards and Mice*/
 	k_eControllertype_GenericKeyboard = 400,
-	k_eControllertype_GenericMouse = 800,
+	k_eControllertype_GenericMouse = 800
 } EControllerType;
 
 typedef struct

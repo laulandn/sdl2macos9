@@ -1396,7 +1396,7 @@ void SDL_JoystickSetPlayerIndex(SDL_Joystick *joystick, int player_index)
 {
     SDL_LockJoysticks();
     {
-        CHECK_JOYSTICK_MAGIC(joystick, );
+        CHECK_JOYSTICK_MAGIC(joystick, SDL_NOTHING);
 
         SDL_SetJoystickIDForPlayerIndex(player_index, joystick->instance_id);
     }
@@ -1583,7 +1583,7 @@ void SDL_JoystickClose(SDL_Joystick *joystick)
 
     SDL_LockJoysticks();
     {
-        CHECK_JOYSTICK_MAGIC(joystick, );
+        CHECK_JOYSTICK_MAGIC(joystick, SDL_NOTHING);
 
         /* First decrement ref count */
         if (--joystick->ref_count > 0) {

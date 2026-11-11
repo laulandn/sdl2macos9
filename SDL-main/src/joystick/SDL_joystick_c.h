@@ -194,7 +194,7 @@ typedef enum
     EMappingKind_None,
     EMappingKind_Button,
     EMappingKind_Axis,
-    EMappingKind_Hat,
+    EMappingKind_Hat
 } EMappingKind;
 
 typedef struct _SDL_InputMapping

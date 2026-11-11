@@ -162,7 +162,7 @@ typedef unsigned int uintptr_t;
 
 /* Enable the stub joystick driver (src/joystick/dummy/\*.c) */
 /*#define SDL_JOYSTICK_DISABLED   1*/
-//#define SDL_JOYSTICK_DUMMY   1
+/*#define SDL_JOYSTICK_DUMMY   1 */
 #define SDL_JOYSTICK_VIRTUAL   1
 #define SDL_JOYSTICK_MACOSCLASSIC   1
 
@@ -184,7 +184,7 @@ typedef unsigned int uintptr_t;
 #define SDL_LOADSO_MACOSCLASSIC 1
 
 /* Enable the stub thread support (src/thread/generic/\*.c) */
-//#define SDL_THREADS_DISABLED    1
+/*#define SDL_THREADS_DISABLED    1 */
 #if TARGET_RT_MAC_MACHO
 #define SDL_THREAD_PTHREAD  1
 #define SDL_THREAD_PTHREAD_RECURSIVE_MUTEX  1
@@ -202,9 +202,9 @@ typedef unsigned int uintptr_t;
 #define SDL_VIDEO_DRIVER_MACOSCLASSIC  1
 
 /* Enable OpenGL support */
-//#ifdef __POWERPC__
+/*#ifdef __POWERPC__ */
 #define SDL_VIDEO_OPENGL 1
-//#endif
+/*#endif */
 #define SDL_VIDEO_RENDER_OGL 1
 
 /* Enable the dummy filesystem driver (src/filesystem/dummy/\*.c) */

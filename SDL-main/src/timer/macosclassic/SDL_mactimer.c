@@ -78,12 +78,14 @@ static SDL_bool ticks_started = SDL_FALSE;
 
 void SDL_TicksInit(void)
 {
+#ifdef USE_MICROSECONDS
+	UnsignedWide now;
+#endif
+
     if (ticks_started) {
         return;
     }
 #ifdef USE_MICROSECONDS
-	UnsignedWide now;
-	
 	Microseconds(&now);
 	start = Mac_WideToUint64(&now);
 #else

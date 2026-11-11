@@ -1435,7 +1435,7 @@ void SDL_InitQuickDraw(struct QDGlobals *the_qd)
 #endif
 }
 
-// This may be called too many times...
+/* This may be called too many times... */
 static void cleanupMac(void)
 {   
 #ifdef MAC_DEBUG

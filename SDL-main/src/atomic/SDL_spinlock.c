@@ -151,14 +151,14 @@ SDL_bool SDL_AtomicTryLock(SDL_SpinLock *lock)
 #elif defined(PS2)
     uint32_t oldintr;
     SDL_bool res = SDL_FALSE;
-    // disable interuption
+    /* disable interuption */
     oldintr = DIntr();
 
     if (*lock == 0) {
         *lock = 1;
         res = SDL_TRUE;
     }
-    // enable interuption
+    /* enable interuption */
     if (oldintr) {
         EIntr();
     }
