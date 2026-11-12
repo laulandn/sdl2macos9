@@ -1,1 +1,1 @@
-#define __MACOSCLASSIC__/*#define BUILDING_FOR_CARBON 1*//* m68k is never carbon, obviously... */#if !__POWERPC__#ifdef BUILDING_FOR_CARBON#undef BUILDING_FOR_CARBON#endif#endif
+#define __MACOSCLASSIC__#define SDL_MACOSCLASSIC_INPUTSPROCKET 1#define SDL_MACOSCLASSIC_DRAWSPROCKET 1#define SDL_MACOSCLASSIC_AGL 1/*#define BUILDING_FOR_CARBON 1*//* m68k is never carbon, obviously... */#if !__POWERPC__#ifdef BUILDING_FOR_CARBON#undef BUILDING_FOR_CARBON#endif#endif
