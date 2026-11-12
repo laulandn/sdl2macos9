@@ -178,6 +178,9 @@ typedef unsigned int uintptr_t;
 /*#define SDL_SENSOR_DISABLED 1*/
 #define SDL_SENSOR_DUMMY 1
 
+/* No power management API */
+#define SDL_POWER_DISABLED 1
+
 /* Enable the stub shared object loader (src/loadso/dummy/\*.c) */
 /*#define SDL_LOADSO_DISABLED 1*/
 /*#define SDL_LOADSO_DUMMY 1*/

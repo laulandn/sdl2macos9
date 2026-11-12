@@ -969,7 +969,7 @@ static int createWindow(_THIS, SDL_Window *window)
         return -1;
     }
 
-    SizeWindow(macwindow,window->w,window->h,TRUE);
+    SizeWindow(macwindow,window->w,window->h,true);
 
     drawWidth=window->w; drawHeight=window->h;
     myWidth=window->w; myHeight=window->h;
@@ -1257,7 +1257,7 @@ static void setWindowSize(_THIS, SDL_Window *window)
 #endif
 
     if (!macwindow) return;
-    SizeWindow(macwindow,window->w,window->h,TRUE);
+    SizeWindow(macwindow,window->w,window->h,true);
 
     drawWidth=window->w; drawHeight=window->h;
     myWidth=window->w; myHeight=window->h;

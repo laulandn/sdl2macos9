@@ -28,11 +28,10 @@
 #ifdef __WIN32__
 #include "../core/windows/SDL_windows.h"
 #else
-#ifdef __MWERKS__
-#else
+#ifndef __MWERKS__
 #include <sys/types.h>
-#endif
 #include <sys/stat.h>
+#endif
 #endif
 
 #define SDL_HINT_STEAM_VIRTUAL_GAMEPAD_INFO_FILE    "SteamVirtualGamepadInfo"
@@ -63,7 +62,7 @@ static Uint64 GetFileModificationTime(const char *file)
         }
         SDL_free(wFile);
     }
-#else
+#elif !defined(__MWERKS__)
     struct stat sb;
 
     if (stat(file, &sb) == 0) {

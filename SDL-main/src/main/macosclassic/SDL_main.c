@@ -932,17 +932,17 @@ int main(int argc, char *argv[])
     /* Set pseudo-environment variables for video driver, update prefs */
 	switch ( videodriver ) {
 	   case VIDEO_ID_DRAWSPROCKET: 
-	      putenv("SDL_VIDEODRIVER=DSp");
+	      SDL_setenv("SDL_VIDEODRIVER", "DSp", 1);
 	      SDL_memcpy(prefs.video_driver_name, "\pDSp", 4);
 	      break;
 	   case VIDEO_ID_TOOLBOX:
-	      putenv("SDL_VIDEODRIVER=toolbox");
+	      SDL_setenv("SDL_VIDEODRIVER", "toolbox", 1);
 	      SDL_memcpy(prefs.video_driver_name, "\ptoolbox", 8);
 	      break;
 	}
 
 #if !(defined(__APPLE__) && defined(__MACH__))
-	prefs.output_to_file=TRUE;
+	prefs.output_to_file=true;
     /* Redirect standard I/O to files */
 	if ( prefs.output_to_file ) {
 		freopen (STDOUT_FILE, "w", stdout);
