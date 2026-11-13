@@ -932,11 +932,11 @@ int main(int argc, char *argv[])
     /* Set pseudo-environment variables for video driver, update prefs */
 	switch ( videodriver ) {
 	   case VIDEO_ID_DRAWSPROCKET: 
-	      SDL_setenv("SDL_VIDEODRIVER", "DSp", 1);
+	      SDL_setenv("SDL_VIDEODRIVER", "macosclassic", 1);
 	      SDL_memcpy(prefs.video_driver_name, "\pDSp", 4);
 	      break;
 	   case VIDEO_ID_TOOLBOX:
-	      SDL_setenv("SDL_VIDEODRIVER", "toolbox", 1);
+	      SDL_setenv("SDL_VIDEODRIVER", "macosclassic", 1);
 	      SDL_memcpy(prefs.video_driver_name, "\ptoolbox", 8);
 	      break;
 	}
