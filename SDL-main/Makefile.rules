@@ -1,0 +1,611 @@
+
+# Build rules for objects
+-include $(OBJECTS:.lo=.d)
+
+# Special dependency for SDL.c, since it depends on SDL_revision.h
+/Users/nick/gfx/sdl2macos9/SDL-main/src/SDL.c: update-revision
+
+$(objects)/SDL.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/SDL.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_assert.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/SDL_assert.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_dataqueue.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/SDL_dataqueue.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_error.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/SDL_error.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_guid.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/SDL_guid.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_hints.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/SDL_hints.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_list.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/SDL_list.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_log.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/SDL_log.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_utils.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/SDL_utils.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_atomic.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/atomic/SDL_atomic.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_spinlock.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/atomic/SDL_spinlock.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_audio.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/audio/SDL_audio.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_audiocvt.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/audio/SDL_audiocvt.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_audiodev.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/audio/SDL_audiodev.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_audiotypecvt.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/audio/SDL_audiotypecvt.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_mixer.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/audio/SDL_mixer.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_wave.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/audio/SDL_wave.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_cpuinfo.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/cpuinfo/SDL_cpuinfo.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_dynapi.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/dynapi/SDL_dynapi.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_clipboardevents.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/events/SDL_clipboardevents.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_displayevents.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/events/SDL_displayevents.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_dropevents.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/events/SDL_dropevents.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_events.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/events/SDL_events.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_gesture.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/events/SDL_gesture.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_keyboard.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/events/SDL_keyboard.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_keysym_to_scancode.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/events/SDL_keysym_to_scancode.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_mouse.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/events/SDL_mouse.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_quit.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/events/SDL_quit.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_scancode_tables.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/events/SDL_scancode_tables.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_touch.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/events/SDL_touch.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_windowevents.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/events/SDL_windowevents.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/imKStoUCS.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/events/imKStoUCS.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_rwops.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/file/SDL_rwops.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_haptic.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/haptic/SDL_haptic.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_hidapi.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/hidapi/SDL_hidapi.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_gamecontroller.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/joystick/SDL_gamecontroller.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_joystick.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/joystick/SDL_joystick.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_steam_virtual_gamepad.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/joystick/SDL_steam_virtual_gamepad.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/controller_type.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/joystick/controller_type.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/e_atan2.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/libm/e_atan2.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/e_exp.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/libm/e_exp.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/e_fmod.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/libm/e_fmod.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/e_log.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/libm/e_log.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/e_log10.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/libm/e_log10.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/e_pow.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/libm/e_pow.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/e_rem_pio2.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/libm/e_rem_pio2.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/e_sqrt.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/libm/e_sqrt.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/k_cos.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/libm/k_cos.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/k_rem_pio2.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/libm/k_rem_pio2.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/k_sin.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/libm/k_sin.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/k_tan.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/libm/k_tan.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/s_atan.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/libm/s_atan.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/s_copysign.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/libm/s_copysign.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/s_cos.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/libm/s_cos.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/s_fabs.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/libm/s_fabs.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/s_floor.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/libm/s_floor.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/s_scalbn.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/libm/s_scalbn.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/s_sin.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/libm/s_sin.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/s_tan.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/libm/s_tan.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_url.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/misc/SDL_url.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_power.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/power/SDL_power.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_d3dmath.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/render/SDL_d3dmath.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_render.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/render/SDL_render.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_yuv_sw.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/render/SDL_yuv_sw.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_rc_draw.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/render/amigaos4/SDL_rc_draw.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_rc_texture.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/render/amigaos4/SDL_rc_texture.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_render_compositing.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/render/amigaos4/SDL_render_compositing.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_render_d3d.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/render/direct3d/SDL_render_d3d.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_shaders_d3d.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/render/direct3d/SDL_shaders_d3d.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_render_d3d11.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/render/direct3d11/SDL_render_d3d11.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_shaders_d3d11.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/render/direct3d11/SDL_shaders_d3d11.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_render_d3d12.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/render/direct3d12/SDL_render_d3d12.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_shaders_d3d12.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/render/direct3d12/SDL_shaders_d3d12.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_render_gl.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/render/opengl/SDL_render_gl.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_shaders_gl.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/render/opengl/SDL_shaders_gl.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_render_gles.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/render/opengles/SDL_render_gles.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_render_gles2.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/render/opengles2/SDL_render_gles2.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_shaders_gles2.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/render/opengles2/SDL_shaders_gles2.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_render_ps2.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/render/ps2/SDL_render_ps2.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_render_psp.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/render/psp/SDL_render_psp.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_blendfillrect.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/render/software/SDL_blendfillrect.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_blendline.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/render/software/SDL_blendline.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_blendpoint.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/render/software/SDL_blendpoint.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_drawline.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/render/software/SDL_drawline.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_drawpoint.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/render/software/SDL_drawpoint.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_render_sw.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/render/software/SDL_render_sw.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_rotate.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/render/software/SDL_rotate.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_triangle.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/render/software/SDL_triangle.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_render_vita_gxm.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/render/vitagxm/SDL_render_vita_gxm.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_render_vita_gxm_memory.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/render/vitagxm/SDL_render_vita_gxm_memory.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_render_vita_gxm_tools.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/render/vitagxm/SDL_render_vita_gxm_tools.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_sensor.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/sensor/SDL_sensor.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_crc16.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/stdlib/SDL_crc16.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_crc32.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/stdlib/SDL_crc32.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_getenv.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/stdlib/SDL_getenv.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_iconv.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/stdlib/SDL_iconv.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_malloc.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/stdlib/SDL_malloc.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_mslibc.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/stdlib/SDL_mslibc.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_qsort.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/stdlib/SDL_qsort.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_stdlib.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/stdlib/SDL_stdlib.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_string.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/stdlib/SDL_string.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_strtokr.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/stdlib/SDL_strtokr.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_thread.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/thread/SDL_thread.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_timer.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/timer/SDL_timer.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_RLEaccel.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/video/SDL_RLEaccel.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_blit.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/video/SDL_blit.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_blit_0.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/video/SDL_blit_0.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_blit_1.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/video/SDL_blit_1.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_blit_A.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/video/SDL_blit_A.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_blit_N.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/video/SDL_blit_N.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_blit_auto.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/video/SDL_blit_auto.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_blit_copy.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/video/SDL_blit_copy.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_blit_slow.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/video/SDL_blit_slow.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_bmp.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/video/SDL_bmp.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_clipboard.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/video/SDL_clipboard.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_egl.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/video/SDL_egl.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_fillrect.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/video/SDL_fillrect.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_pixels.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/video/SDL_pixels.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_rect.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/video/SDL_rect.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_shape.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/video/SDL_shape.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_stretch.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/video/SDL_stretch.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_surface.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/video/SDL_surface.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_video.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/video/SDL_video.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_vulkan_utils.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/video/SDL_vulkan_utils.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_yuv.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/video/SDL_yuv.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/yuv_rgb_lsx.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/video/yuv2rgb/yuv_rgb_lsx.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/yuv_rgb_sse.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/video/yuv2rgb/yuv_rgb_sse.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/yuv_rgb_std.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/video/yuv2rgb/yuv_rgb_std.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_locale.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/locale/SDL_locale.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_nullevents.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/video/dummy/SDL_nullevents.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_nullframebuffer.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/video/dummy/SDL_nullframebuffer.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_nullvideo.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/video/dummy/SDL_nullvideo.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_offscreenevents.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/video/offscreen/SDL_offscreenevents.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_offscreenframebuffer.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/video/offscreen/SDL_offscreenframebuffer.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_offscreenopengles.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/video/offscreen/SDL_offscreenopengles.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_offscreenvideo.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/video/offscreen/SDL_offscreenvideo.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_offscreenwindow.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/video/offscreen/SDL_offscreenwindow.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_diskaudio.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/audio/disk/SDL_diskaudio.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_dummyaudio.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/audio/dummy/SDL_dummyaudio.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_sysloadso.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/loadso/dlopen/SDL_sysloadso.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_cocoaclipboard.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/video/cocoa/SDL_cocoaclipboard.m $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_cocoaevents.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/video/cocoa/SDL_cocoaevents.m $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_cocoakeyboard.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/video/cocoa/SDL_cocoakeyboard.m $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_cocoamessagebox.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/video/cocoa/SDL_cocoamessagebox.m $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_cocoametalview.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/video/cocoa/SDL_cocoametalview.m $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_cocoamodes.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/video/cocoa/SDL_cocoamodes.m $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_cocoamouse.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/video/cocoa/SDL_cocoamouse.m $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_cocoaopengl.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/video/cocoa/SDL_cocoaopengl.m $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_cocoaopengles.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/video/cocoa/SDL_cocoaopengles.m $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_cocoashape.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/video/cocoa/SDL_cocoashape.m $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_cocoavideo.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/video/cocoa/SDL_cocoavideo.m $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_cocoavulkan.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/video/cocoa/SDL_cocoavulkan.m $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_cocoawindow.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/video/cocoa/SDL_cocoawindow.m $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_render_metal.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/render/metal/SDL_render_metal.m $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_systhread.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/thread/pthread/SDL_systhread.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_syssem.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/thread/pthread/SDL_syssem.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_sysmutex.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/thread/pthread/SDL_sysmutex.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_syscond.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/thread/pthread/SDL_syscond.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_systls.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/thread/pthread/SDL_systls.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_hidapi_combined.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/joystick/hidapi/SDL_hidapi_combined.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_hidapi_gamecube.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/joystick/hidapi/SDL_hidapi_gamecube.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_hidapi_luna.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/joystick/hidapi/SDL_hidapi_luna.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_hidapi_ps3.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/joystick/hidapi/SDL_hidapi_ps3.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_hidapi_ps4.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/joystick/hidapi/SDL_hidapi_ps4.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_hidapi_ps5.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/joystick/hidapi/SDL_hidapi_ps5.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_hidapi_rumble.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/joystick/hidapi/SDL_hidapi_rumble.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_hidapi_shield.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/joystick/hidapi/SDL_hidapi_shield.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_hidapi_stadia.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/joystick/hidapi/SDL_hidapi_stadia.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_hidapi_steam.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/joystick/hidapi/SDL_hidapi_steam.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_hidapi_steamdeck.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/joystick/hidapi/SDL_hidapi_steamdeck.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_hidapi_switch.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/joystick/hidapi/SDL_hidapi_switch.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_hidapi_wii.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/joystick/hidapi/SDL_hidapi_wii.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_hidapi_xbox360.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/joystick/hidapi/SDL_hidapi_xbox360.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_hidapi_xbox360w.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/joystick/hidapi/SDL_hidapi_xbox360w.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_hidapi_xboxone.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/joystick/hidapi/SDL_hidapi_xboxone.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_hidapijoystick.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/joystick/hidapi/SDL_hidapijoystick.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_sysurl.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/misc/macosx/SDL_sysurl.m $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_syslocale.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/locale/macosx/SDL_syslocale.m $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_coreaudio.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/audio/coreaudio/SDL_coreaudio.m $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/*.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/joystick/darwin/*.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_mfijoystick.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/joystick/iphoneos/SDL_mfijoystick.m $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_syshaptic.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/haptic/darwin/SDL_syshaptic.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_syspower.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/power/macosx/SDL_syspower.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_sysfilesystem.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/filesystem/cocoa/SDL_sysfilesystem.m $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_systimer.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/timer/unix/SDL_systimer.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_rwopsbundlesupport.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/file/cocoa/SDL_rwopsbundlesupport.m $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_poll.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/core/unix/SDL_poll.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_virtualjoystick.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/joystick/virtual/SDL_virtualjoystick.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_dummysensor.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/sensor/dummy/SDL_dummysensor.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+
+$(objects)/SDL_dummy_main.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/main/dummy/SDL_dummy_main.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+
+$(objects)/SDL_test_assert.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/test/SDL_test_assert.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@ 
+$(objects)/SDL_test_common.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/test/SDL_test_common.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@ 
+$(objects)/SDL_test_compare.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/test/SDL_test_compare.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@ 
+$(objects)/SDL_test_crc32.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/test/SDL_test_crc32.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@ 
+$(objects)/SDL_test_font.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/test/SDL_test_font.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@ 
+$(objects)/SDL_test_fuzzer.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/test/SDL_test_fuzzer.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@ 
+$(objects)/SDL_test_harness.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/test/SDL_test_harness.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@ 
+$(objects)/SDL_test_imageBlit.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/test/SDL_test_imageBlit.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@ 
+$(objects)/SDL_test_imageBlitBlend.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/test/SDL_test_imageBlitBlend.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@ 
+$(objects)/SDL_test_imageFace.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/test/SDL_test_imageFace.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@ 
+$(objects)/SDL_test_imagePrimitives.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/test/SDL_test_imagePrimitives.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@ 
+$(objects)/SDL_test_imagePrimitivesBlend.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/test/SDL_test_imagePrimitivesBlend.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@ 
+$(objects)/SDL_test_log.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/test/SDL_test_log.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@ 
+$(objects)/SDL_test_md5.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/test/SDL_test_md5.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@ 
+$(objects)/SDL_test_memory.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/test/SDL_test_memory.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@ 
+$(objects)/SDL_test_random.lo: /Users/nick/gfx/sdl2macos9/SDL-main/src/test/SDL_test_random.c $(objects)/.created
+	$(RUN_CMD_CC)$(LIBTOOL) --tag=CC --mode=compile $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -MMD -MT $@ -c $< -o $@
+

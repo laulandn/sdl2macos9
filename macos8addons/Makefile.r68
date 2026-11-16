@@ -13,6 +13,7 @@ CFLAGS=-D__MACOSCLASSIC__ -I../SDL-main/include -I.
 
 OBJS=$(subst .c,.o,$(wildcard *.c))
 
+
 .c.o:
 	$(CC) $(CFLAGS) -c -o $@ $<
 
@@ -24,13 +25,13 @@ all: $(OBJS)
 	$(RANLIB) libInputSprocketLib.a
 	$(AR) rcv libDrawSprocketLib.a MyDrawSprocket.o
 	$(RANLIB) libDrawSprocketLib.a
-	$(AR) rcv libFakeContextualMenu.a MyContextualMenu.o
-	$(RANLIB) libFakeContextualMenu.a
+	$(AR) rcv libContextualMenu.a MyContextualMenu.o
+	$(RANLIB) libContextualMenu.a
 
 install:
 	cp libDrawSprocketLib.a $(HOME)/Retro68-build/toolchain/m68k-apple-macos/lib
 	cp libInputSprocketLib.a $(HOME)/Retro68-build/toolchain/m68k-apple-macos/lib
-	cp libFakeContextualMenu.a $(HOME)/Retro68-build/toolchain/m68k-apple-macos/lib
+	cp libContextualMenu.a $(HOME)/Retro68-build/toolchain/m68k-apple-macos/lib
 	
 clean:
 	rm -f *.o *.a

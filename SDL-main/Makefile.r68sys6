@@ -86,6 +86,8 @@ $(TARGET_STATIC): $(OBJECTS)
 clean:
 	@echo Cleaning
 	@rm -f $(TARGET_STATIC) $(TESTLIB_STATIC) $(ALL_OBJECTS) $(DEPS) libSDL2main.a
+	make -C test -fMakefile.r68sys6 clean
+	rm -rf build
 
 install:
 	mkdir -p $(PATH_TO_RETRO68)/include/SDL2

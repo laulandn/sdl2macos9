@@ -169,7 +169,7 @@ static const char GLES2_VertexSrc_Default_[] = " \
     attribute vec2 a_center; \
     varying vec2 v_texCoord; \
     \
-    void main() \
+    int main() \
     { \
         float s = a_angle[0]; \
         float c = a_angle[1] + 1.0; \
@@ -187,7 +187,7 @@ static const char GLES2_FragmentSrc_TextureABGRSrc_[] = " \
     uniform vec4 u_color; \
     varying vec2 v_texCoord; \
     \
-    void main() \
+    int main() \
     { \
         gl_FragColor = texture2D(u_texture, v_texCoord); \
         gl_FragColor *= u_color; \
@@ -203,7 +203,7 @@ static const char GLES2_FragmentSrc_TextureABGRSrc_SDF[] = " \
     uniform vec4 u_color; \
     varying vec2 v_texCoord; \
     \
-    void main() \
+    int main() \
     { \
         vec4 abgr = texture2D(u_texture, v_texCoord); \
 \
@@ -227,7 +227,7 @@ static const char *GLES2_FragmentSrc_TextureABGRSrc_SDF_dbg = " \
     uniform vec4 u_color; \
     varying vec2 v_texCoord; \
     \
-    void main() \
+    int main() \
     { \
         vec4 abgr = texture2D(u_texture, v_texCoord); \
 \

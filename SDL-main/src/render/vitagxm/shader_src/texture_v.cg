@@ -1,4 +1,4 @@
-void main(
+int main(
     float2 aPosition,
     float2 aTexcoord,
     float4 aColor,

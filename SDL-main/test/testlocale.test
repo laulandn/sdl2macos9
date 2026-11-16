@@ -1,0 +1,3 @@
+[Test]
+Type=session
+Exec=/usr/local/libexec/installed-tests/SDL2/testlocale

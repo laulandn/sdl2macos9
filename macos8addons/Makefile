@@ -1,0 +1,37 @@
+LIBNAME=macos8addons
+
+#CC=m68k-apple-macos-gcc
+#CXX=m68k-apple-macos-g++
+#AR=m68k-apple-macos-ar
+#RANLIB=m68k-apple-macos-ranlib
+#CC=powerpc-apple-macos-gcc
+#CXX=powerpc-apple-macos-g++
+#AR=powerpc-apple-macos-ar
+RANLIB=ranlib
+
+CFLAGS=-D__MACOSCLASSIC__ -I../SDL-main/include -I.
+
+OBJS=$(subst .c,.o,$(wildcard *.c))
+
+
+.c.o:
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+
+all: $(OBJS)
+	$(AR) rcv lib$(LIBNAME).a $(OBJS)
+	$(RANLIB) lib$(LIBNAME).a
+	$(AR) rcv libInputSprocketLib.a MyInputSprocket.o
+	$(RANLIB) libInputSprocketLib.a
+	$(AR) rcv libDrawSprocketLib.a MyDrawSprocket.o
+	$(RANLIB) libDrawSprocketLib.a
+	$(AR) rcv libContextualMenu.a MyContextualMenu.o
+	$(RANLIB) libContextualMenu.a
+
+install:
+#	cp libDrawSprocketLib.a $(HOME)/Retro68-build/toolchain/m68k-apple-macos/lib
+#	cp libInputSprocketLib.a $(HOME)/Retro68-build/toolchain/m68k-apple-macos/lib
+#	cp libContextualMenu.a $(HOME)/Retro68-build/toolchain/m68k-apple-macos/lib
+	
+clean:
+	rm -f *.o *.a

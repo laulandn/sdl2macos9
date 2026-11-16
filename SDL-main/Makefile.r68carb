@@ -109,6 +109,7 @@ clean:
 	@echo Cleaning
 	@rm -f $(TARGET_STATIC) $(TARGET_SHARED) $(TESTLIB_STATIC) $(ALL_OBJECTS) $(PREFS_PROGRAM) $(DEPS) libSDL2main.a
 	make -C test -fMakefile.r68ppc clean
+	rm -rf build
 
 install:
 	mkdir -p $(PATH_TO_RETRO68)/include/SDL2

@@ -7952,7 +7952,7 @@ _LT_TAGVAR(objext, $1)=$objext
 lt_simple_compile_test_code="class foo {}"
 
 # Code to be used in simple link tests
-lt_simple_link_test_code='public class conftest { public static void main(String[[]] argv) {}; }'
+lt_simple_link_test_code='public class conftest { public static int main(String[[]] argv) {}; }'
 
 # ltmain only uses $CC for tagged configurations so make sure $CC is set.
 _LT_TAG_COMPILER

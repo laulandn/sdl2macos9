@@ -13,6 +13,7 @@ CFLAGS=-D__MACOSCLASSIC__ -I../SDL-main/include -I.
 
 OBJS=$(subst .c,.o,$(wildcard *.c))
 
+
 .c.o:
 	$(CC) $(CFLAGS) -c -o $@ $<
 

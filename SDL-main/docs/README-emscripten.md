@@ -56,7 +56,7 @@ Somewhere in your program, you probably have something that looks like a more
 complicated version of this:
 
 ```c
-void main(void)
+int main(void)
 {
     initialize_the_game();
     while (game_is_still_running) {
@@ -89,7 +89,7 @@ static void mainloop(void)   /* this will run often, possibly at the monitor's r
     draw_the_next_frame();
 }
 
-void main(void)
+int main(void)
 {
     initialize_the_game();
     #ifdef __EMSCRIPTEN__
