@@ -336,7 +336,7 @@ int SDL_FillRects(SDL_Surface *dst, const SDL_Rect *rects, int count,
      */
     if (dst->format->BitsPerPixel < 8) {
         if (dst->format->BitsPerPixel == 1) {
-            //int i;
+            /*int i; */
             for (i = 0; i < count; ++i) {
                 const SDL_Rect *r = &rects[i];
                 int x, y, x1, y1, x2, y2;

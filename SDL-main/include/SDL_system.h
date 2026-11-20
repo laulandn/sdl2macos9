@@ -508,7 +508,7 @@ typedef enum
     SDL_WINRT_DEVICEFAMILY_MOBILE,
 
     /** \brief XBox family */
-    SDL_WINRT_DEVICEFAMILY_XBOX,
+    SDL_WINRT_DEVICEFAMILY_XBOX
 } SDL_WinRT_DeviceFamily;
 
 

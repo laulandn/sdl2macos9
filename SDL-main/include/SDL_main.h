@@ -118,9 +118,9 @@
 #define SDL_MAIN_AVAILABLE
 
 #elif defined(__MACOSCLASSIC__)
-//#if !__POWERPC__
+/*#if !__POWERPC__ */
 #define SDL_MAIN_NEEDED
-//#endif
+/*#endif */
 #endif
 #endif /* SDL_MAIN_HANDLED */
 

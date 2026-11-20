@@ -24,7 +24,7 @@
 /* This supports both real Apple dynamic OpenGL, and static Mesa */
 
 #ifdef __POWERPC__
-//#define OPENGL_IS_DYNAMIC 1
+/*#define OPENGL_IS_DYNAMIC 1 */
 #endif
 
 #ifdef OPENGL_IS_DYNAMIC
@@ -32,8 +32,8 @@
 #endif
 
 
-// TODO: This is a TEMPORARY hack!
-// NOTE: Should be static
+/* TODO: This is a TEMPORARY hack! */
+/* NOTE: Should be static */
 SDL_Window *theOnlyLonelyWindow;
 
 
@@ -92,7 +92,7 @@ static OSGLPixelFormat osPixelFormatPtr=(OSGLPixelFormat)&osPixelFormat;
 static SDL_Texture *texture = NULL;
 static SDL_Renderer *renderer = NULL;
 
-// TODO: This is a TEMPORARY hack!
+/* TODO: This is a TEMPORARY hack! */
 SDL_Window *theOnlyLonelyWindow;
 
 static int osError=0;
@@ -102,8 +102,8 @@ OSGLContext osContext=NULL;
 
 OSGLContext osglCreateContext(OSGLPixelFormat pix, OSGLContext share)
 {
-    //fprintf(stderr,"aglCreateContext....\n"); fflush(stderr); aglTheError=1;
-    //fprintf(stderr,"aglTheScreenDepth is %d\n",aglTheScreenDepth); fflush(stderr);
+    /*fprintf(stderr,"aglCreateContext....\n"); fflush(stderr); aglTheError=1; */
+    /*fprintf(stderr,"aglTheScreenDepth is %d\n",aglTheScreenDepth); fflush(stderr); */
     int winSizeX,winSizeY;
     SDL_GetWindowSize(theOnlyLonelyWindow,&winSizeX,&winSizeY);
 #ifdef USING_SDL2
@@ -126,11 +126,11 @@ OSGLContext osglCreateContext(OSGLPixelFormat pix, OSGLContext share)
 #else
     fprintf(stderr,"osglCreateContext using Mesa...\n"); fflush(stderr);
     int format=OSMESA_RGB;
-    if(myDepth==32) format=OSMESA_ARGB;  // Not sure this is right...
+    if(myDepth==32) format=OSMESA_ARGB;  /* Not sure this is right... */
     int factor=2;
     if(myDepth==32) factor=4;
     fprintf(stderr,"myDepth is %d\n",myDepth); fflush(stderr);
-    // TODO: The context is obviously not QUITE right...
+    /* TODO: The context is obviously not QUITE right... */
   	osContext=OSMesaCreateContext(format,NULL);
   	osBuffer=(char *)malloc(winSizeX*winSizeY*factor);
     if(!osBuffer) {
@@ -150,7 +150,7 @@ OSGLContext osglCreateContext(OSGLPixelFormat pix, OSGLContext share)
       return NULL;
     }
     else { fprintf(stderr,"got osContext\n"); fflush(stderr); }
-//#ifdef USING_SDL2
+/*#ifdef USING_SDL2 */
     renderer = SDL_CreateRenderer(theOnlyLonelyWindow, -1, SDL_RENDERER_PRESENTVSYNC);	
     if(!renderer) {
       fprintf(stderr,"SDL_CreateRenderer failed!\n"); fflush(stderr); osError=1;
@@ -163,7 +163,7 @@ OSGLContext osglCreateContext(OSGLPixelFormat pix, OSGLContext share)
       return NULL;
     }  
     else { fprintf(stderr,"got texture\n"); fflush(stderr); } 
-//#endif
+/*#endif */
     fprintf(stderr,"osglCreateContext done\n"); fflush(stderr);
     return (OSGLContext)osContext;
 }
@@ -171,29 +171,29 @@ OSGLContext osglCreateContext(OSGLPixelFormat pix, OSGLContext share)
 
 void osglSwapBuffers(OSGLContext ctx)
 {
-//#ifdef USING_SDL2
+/*#ifdef USING_SDL2 */
     SDL_Surface *src=NULL;
     SDL_Surface *dst=NULL;
     int tFormat=SDL_PIXELFORMAT_RGB565;
     if(myDepth==32) tFormat=SDL_PIXELFORMAT_ARGB8888;
-//#endif
+/*#endif */
     int winSizeX=640,winSizeY=480;
     int tDepth=myDepth;
 #ifdef SDL_MACOSCLASSIC_TINYGL
-    // Note: If doesn't match actual win size, we're wrong for win, right for buffer...
+    /* Note: If doesn't match actual win size, we're wrong for win, right for buffer... */
     winSizeX=((ostgl_context_t *)ctx)->width;
     winSizeY=((ostgl_context_t *)ctx)->height;
-    // Same here...
+    /* Same here... */
     tDepth=((ostgl_context_t *)ctx)->depth;
     if(((ostgl_context_t *)ctx)->depth!=myDepth) {
       fprintf(stderr,"ostgl_context_t depth mismatch!\n"); fflush(stderr);
     }
 #else
-    // Mesa only?
+    /* Mesa only? */
     SDL_GetWindowSize(theOnlyLonelyWindow,&winSizeX,&winSizeY);
 #endif
-//#ifdef USING_SDL2
-    // Would error checking here slow things down?
+/*#ifdef USING_SDL2 */
+    /* Would error checking here slow things down? */
   	src = SDL_CreateRGBSurfaceWithFormatFrom(osBuffer, winSizeX, winSizeY, tDepth, ((winSizeX * tDepth) / 8), tFormat);
   	dst = SDL_CreateRGBSurfaceWithFormatFrom(NULL, winSizeX, winSizeY, 0, 0, SDL_GetWindowPixelFormat(theOnlyLonelyWindow));
 	  if (SDL_LockTexture(texture, NULL, &dst->pixels, &dst->pitch) == 0)
@@ -209,7 +209,7 @@ void osglSwapBuffers(OSGLContext ctx)
 	  SDL_RenderClear(renderer);
 	  SDL_RenderCopy(renderer, texture, NULL, NULL);
 	  SDL_RenderPresent(renderer);
-//#endif
+/*#endif */
 }
 
 
@@ -221,27 +221,27 @@ GLenum osglGetError()
 
 struct OSGLpixelfmtRec *osglChoosePixelFormat(void *gdevs, GLint ndev,  GLint *v)
 {
-  // We don't choose anything, there's only a single static one
+  /* We don't choose anything, there's only a single static one */
   return (struct OSGLpixelfmtRec *)osPixelFormatPtr;
 }
 
 
 void osglDestroyPixelFormat(OSGLPixelFormat pix)
 {
-  // We don't destroy anything, there's only a single static one
+  /* We don't destroy anything, there's only a single static one */
 }
 
 
 GLboolean osglSetDrawable(OSGLContext ctx, AGLDrawable draw)
 {
-  //fprintf(stderr,"fake osglSetDrawable!\n"); fflush(stderr);
+  /*fprintf(stderr,"fake osglSetDrawable!\n"); fflush(stderr); */
   return true;
 }
 
 
 GLboolean osglSetCurrentContext(OSGLContext ctx)
 {
-  //fprintf(stderr,"fake osglSetCurrentContext!\n"); fflush(stderr);
+  /*fprintf(stderr,"fake osglSetCurrentContext!\n"); fflush(stderr); */
   return true;
 }
 
@@ -264,7 +264,7 @@ OSGLContext osglGetCurrentContext(void)
 
 GLboolean osglUpdateContext(OSGLContext ctx)
 {
-  //fprintf(stderr,"fake osglUpdateContext!\n"); fflush(stderr);
+  /*fprintf(stderr,"fake osglUpdateContext!\n"); fflush(stderr); */
   return true;
 }
 
@@ -294,7 +294,7 @@ const GLubyte * osglErrorString(GLenum code)
 
 GLboolean osglDescribePixelFormat(OSGLPixelFormatRec *fmt,GLint what,GLint *value)
 {
-  // This is all fake, but plausible
+  /* This is all fake, but plausible */
   switch(what) {
     case AGL_RGBA:
       *value=1;
@@ -309,11 +309,11 @@ GLboolean osglDescribePixelFormat(OSGLPixelFormatRec *fmt,GLint what,GLint *valu
       return true;
       break;
     case AGL_DEPTH_SIZE:
-      *value=20;  // Random
+      *value=20;  /* Random */
       return true;
       break;
     case AGL_STENCIL_SIZE:
-      *value=20;  // Random
+      *value=20;  /* Random */
       return true;
       break;
     case AGL_DOUBLEBUFFER:
@@ -492,10 +492,10 @@ void *glGetProcAddress(_THIS, const char *proc)
     if(!strcmp("glVertex3fv",proc)) symbol=(void *)glVertex3fv;
     if(!strcmp("glVertexPointer",proc)) symbol=(void *)glVertexPointer;
     if(!strcmp("glViewport",proc)) symbol=(void *)glViewport;
-    //
+    /**/
     if(!strcmp("glBlendFuncSeparate",proc)) symbol=(void *)glBlendFuncSeparate;
     if(!strcmp("glBlendEquation",proc)) symbol=(void *)glBlendEquation;
-    //
+    /**/
     if(!strcmp("glOrtho",proc)) symbol=(void *)glOrtho;
     if(!strcmp("glTexEnvf",proc)) symbol=(void *)glTexEnvf;
     if(!strcmp("glDepthFunc",proc)) symbol=(void *)glDepthFunc;
@@ -507,7 +507,7 @@ void *glGetProcAddress(_THIS, const char *proc)
     if(!strcmp("glRasterPos2i",proc)) symbol=(void *)glRasterPos2i;
     if(!strcmp("glPixelStorei",proc)) symbol=(void *)glPixelStorei;
     if(!strcmp("glColor4ub",proc)) symbol=(void *)glColor4ub;
-    //
+    /**/
     if(!symbol) {
     /*
 #ifdef MAC_DEBUG
@@ -551,7 +551,7 @@ SDL_GLContext glCreateContext(_THIS, SDL_Window *window)
     GLint stencil_size = 0;
     GLint double_buffer = 0;
 
-// TODO: This is a TEMPORARY hack!
+/* TODO: This is a TEMPORARY hack! */
 theOnlyLonelyWindow=window;
 
 #ifdef MAC_DEBUG

@@ -25,9 +25,9 @@
 #include "SDL_thread.h"
 #include "SDL_systhread_c.h"
 
-//#define MYDEBUG 1
+/*#define MYDEBUG 1 */
 
-//#define FAKE 1
+/*#define FAKE 1 */
 
 struct SDL_mutex
 {
@@ -88,14 +88,14 @@ void SDL_DestroyMutex(SDL_mutex *mutex)
 #endif
 	SDL_free(mutex);
     }
-    //fprintf(stderr,"generic destory mut done!\n"); fflush(stderr);
+    /*fprintf(stderr,"generic destory mut done!\n"); fflush(stderr); */
 }
 
 /* Lock the mutex */
 int SDL_LockMutex(SDL_mutex *mutex) SDL_NO_THREAD_SAFETY_ANALYSIS /* clang doesn't know about NULL mutexes */
 {
 #ifdef SDL_THREADS_DISABLED
-//#error foo
+/*#error foo */
     return 0;
 #else
     SDL_threadID this_thread;
@@ -122,7 +122,7 @@ int SDL_LockMutex(SDL_mutex *mutex) SDL_NO_THREAD_SAFETY_ANALYSIS /* clang doesn
         mutex->recursive = 0;
     }
 
-    //fprintf(stderr,"generic lock mut done!\n"); fflush(stderr);
+    /*fprintf(stderr,"generic lock mut done!\n"); fflush(stderr); */
     return 0;
 #endif /* SDL_THREADS_DISABLED */
 }
@@ -131,7 +131,7 @@ int SDL_LockMutex(SDL_mutex *mutex) SDL_NO_THREAD_SAFETY_ANALYSIS /* clang doesn
 int SDL_TryLockMutex(SDL_mutex *mutex)
 {
 #ifdef SDL_THREADS_DISABLED
-//#error foo
+/*#error foo */
     return 0;
 #else
     int retval = 0;
@@ -161,7 +161,7 @@ int SDL_TryLockMutex(SDL_mutex *mutex)
 #endif
     }
 
-    //fprintf(stderr,"generic trylock mut done!\n"); fflush(stderr);
+    /*fprintf(stderr,"generic trylock mut done!\n"); fflush(stderr); */
     return retval;
 #endif /* SDL_THREADS_DISABLED */
 }
@@ -197,7 +197,7 @@ int SDL_UnlockMutex(SDL_mutex *mutex) SDL_NO_THREAD_SAFETY_ANALYSIS /* clang doe
         SDL_SemPost(mutex->sem);
 #endif
     }
-    //fprintf(stderr,"generic unlock mut done!\n"); fflush(stderr);
+    /*fprintf(stderr,"generic unlock mut done!\n"); fflush(stderr); */
     return 0;
 #endif /* SDL_THREADS_DISABLED */
 }

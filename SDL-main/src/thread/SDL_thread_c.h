@@ -67,7 +67,7 @@ typedef enum SDL_ThreadState
     SDL_THREAD_STATE_ALIVE,
     SDL_THREAD_STATE_DETACHED,
     SDL_THREAD_STATE_ZOMBIE,
-    SDL_THREAD_STATE_CLEANED,
+    SDL_THREAD_STATE_CLEANED
 } SDL_ThreadState;
 
 /* This is the system-independent thread info structure */

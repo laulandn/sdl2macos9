@@ -1,15 +1,15 @@
-// ThreadSynch.c
-// 
-// Copyright (C) 6th March 1994  Stuart Cheshire <cheshire@cs.stanford.edu>
-//
-// See ThreadSynch.h for usage instructions.
+/* ThreadSynch.c */
+/**/
+/* Copyright (C) 6th March 1994  Stuart Cheshire <cheshire@cs.stanford.edu> */
+/**/
+/* See ThreadSynch.h for usage instructions. */
 
 #include "ThreadSynch.h"
 struct SemaphoreWaiter { SemaphoreWaiter *next; ThreadID ID; };
 struct ConditionWaiter { ConditionWaiter *next; Semaphore sem; };
 
-// *****************************************************************
-// Semaphore. Operations: Init, Proben (test), Verhogen (increment)
+/* ***************************************************************** */
+/* Semaphore. Operations: Init, Proben (test), Verhogen (increment) */
 
 void SemaphoreInit(Semaphore *s, long initialvalue)
 	{
@@ -21,12 +21,12 @@ void SemaphoreInit(Semaphore *s, long initialvalue)
 void SemaphoreP(Semaphore *s)
 	{
 	ThreadBeginCritical();
-	if (s->value > 0)		// If resource available, consume and continue
+	if (s->value > 0)		/* If resource available, consume and continue */
 		{
 		s->value--;
 		ThreadEndCritical();
 		}
-	else					// else queue up and sleep
+	else					/* else queue up and sleep */
 		{
 		SemaphoreWaiter me;
 		me.next = NULL;
@@ -53,12 +53,12 @@ int SemaphoreTryP(Semaphore *s)
 void SemaphoreV(Semaphore *s)
 	{
 	ThreadBeginCritical();
-	if (!s->head)			// If no waiters, increment resource count
+	if (!s->head)			/* If no waiters, increment resource count */
 		{
 		s->value++;
 		ThreadEndCritical();
 		}
-	else					// else wake up one of the waiters
+	else					/* else wake up one of the waiters */
 		{
 		SemaphoreWaiter *w = s->head;
 		s->head = s->head->next;
@@ -68,8 +68,8 @@ void SemaphoreV(Semaphore *s)
 	}
 
 
-// *****************************************************************
-// MutexLock. Operations: Init, Acquire, Release
+/* ***************************************************************** */
+/* MutexLock. Operations: Init, Acquire, Release */
 
 void MutexLockInit(MutexLock *m)
 	{
@@ -98,8 +98,8 @@ void MutexLockRelease(MutexLock *m)
 	}
 
 
-// *****************************************************************
-// ConditionVar. Operations: Init, Wait, Signal, Broadcast
+/* ***************************************************************** */
+/* ConditionVar. Operations: Init, Wait, Signal, Broadcast */
 
 void ConditionVarInit(ConditionVar *c, MutexLock *lock)
 	{
@@ -131,10 +131,10 @@ void ConditionVarSignal(ConditionVar *c)
 	GetCurrentThread(&currentThread);
 	if (c->lock->lockholder != currentThread)
 		DebugStr((ConstStr255Param)"\pError: Thread signalling condition variable does not hold correct lock");
-	if (c->head)					// If there is someone waiting
+	if (c->head)					/* If there is someone waiting */
 		{
-		SemaphoreV(&c->head->sem);	// Wake them up
-		c->head = c->head->next;	// And remove them from the list
+		SemaphoreV(&c->head->sem);	/* Wake them up */
+		c->head = c->head->next;	/* And remove them from the list */
 		if (!c->head) c->tail = &c->head;
 		}
 	}
@@ -145,14 +145,14 @@ void ConditionVarBroadcast(ConditionVar *c)
 	GetCurrentThread(&currentThread);
 	if (c->lock->lockholder != currentThread)
 		DebugStr((ConstStr255Param)"\pError: Thread signalling condition variable does not hold correct lock");
-	while (c->head)					// For every waiter in list
+	while (c->head)					/* For every waiter in list */
 		{
-		SemaphoreV(&c->head->sem);	// Wake them up
-		c->head = c->head->next;	// And remove them from the list
+		SemaphoreV(&c->head->sem);	/* Wake them up */
+		c->head = c->head->next;	/* And remove them from the list */
 		}
 	c->tail = &c->head;
 	}
 
-// Note: We do not have to worry here about new waiters joining the end
-// of the queue while we are processing it because they can't join unless
-// they hold the correct lock -- and they can't because we have it.
+/* Note: We do not have to worry here about new waiters joining the end */
+/* of the queue while we are processing it because they can't join unless */
+/* they hold the correct lock -- and they can't because we have it. */

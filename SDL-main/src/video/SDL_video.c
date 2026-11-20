@@ -905,7 +905,7 @@ void SDL_ResetDisplayModes(int displayIndex)
     SDL_VideoDisplay *display;
     int i;
 
-    CHECK_DISPLAY_INDEX(displayIndex, );
+    CHECK_DISPLAY_INDEX(displayIndex, SDL_NOTHING);
 
     display = &_this->displays[displayIndex];
     for (i = display->num_display_modes; i--;) {
@@ -2093,7 +2093,7 @@ Uint32 SDL_GetWindowFlags(SDL_Window *window)
 
 void SDL_SetWindowTitle(SDL_Window *window, const char *title)
 {
-    CHECK_WINDOW_MAGIC(window, );
+    CHECK_WINDOW_MAGIC(window, SDL_NOTHING);
 
     if (title == window->title) {
         return;
@@ -2116,7 +2116,7 @@ const char *SDL_GetWindowTitle(SDL_Window *window)
 
 void SDL_SetWindowIcon(SDL_Window *window, SDL_Surface *icon)
 {
-    CHECK_WINDOW_MAGIC(window, );
+    CHECK_WINDOW_MAGIC(window, SDL_NOTHING);
 
     if (!icon) {
         return;
@@ -2203,7 +2203,7 @@ void *SDL_GetWindowData(SDL_Window *window, const char *name)
 
 void SDL_SetWindowPosition(SDL_Window *window, int x, int y)
 {
-    CHECK_WINDOW_MAGIC(window, );
+    CHECK_WINDOW_MAGIC(window, SDL_NOTHING);
 
     if (SDL_WINDOWPOS_ISCENTERED(x) || SDL_WINDOWPOS_ISCENTERED(y)) {
         int displayIndex = (x & 0xFFFF);
@@ -2246,7 +2246,7 @@ void SDL_SetWindowPosition(SDL_Window *window, int x, int y)
 
 void SDL_GetWindowPosition(SDL_Window *window, int *x, int *y)
 {
-    CHECK_WINDOW_MAGIC(window, );
+    CHECK_WINDOW_MAGIC(window, SDL_NOTHING);
 
     /* Fullscreen windows are always at their display's origin */
     if (window->flags & SDL_WINDOW_FULLSCREEN) {
@@ -2287,7 +2287,7 @@ void SDL_GetWindowPosition(SDL_Window *window, int *x, int *y)
 
 void SDL_SetWindowBordered(SDL_Window *window, SDL_bool bordered)
 {
-    CHECK_WINDOW_MAGIC(window, );
+    CHECK_WINDOW_MAGIC(window, SDL_NOTHING);
     if (!(window->flags & SDL_WINDOW_FULLSCREEN)) {
         const int want = (bordered != SDL_FALSE); /* normalize the flag. */
         const int have = !(window->flags & SDL_WINDOW_BORDERLESS);
@@ -2304,7 +2304,7 @@ void SDL_SetWindowBordered(SDL_Window *window, SDL_bool bordered)
 
 void SDL_SetWindowResizable(SDL_Window *window, SDL_bool resizable)
 {
-    CHECK_WINDOW_MAGIC(window, );
+    CHECK_WINDOW_MAGIC(window, SDL_NOTHING);
     if (!(window->flags & SDL_WINDOW_FULLSCREEN)) {
         const int want = (resizable != SDL_FALSE); /* normalize the flag. */
         const int have = ((window->flags & SDL_WINDOW_RESIZABLE) != 0);
@@ -2321,7 +2321,7 @@ void SDL_SetWindowResizable(SDL_Window *window, SDL_bool resizable)
 
 void SDL_SetWindowAlwaysOnTop(SDL_Window *window, SDL_bool on_top)
 {
-    CHECK_WINDOW_MAGIC(window, );
+    CHECK_WINDOW_MAGIC(window, SDL_NOTHING);
     if (!(window->flags & SDL_WINDOW_FULLSCREEN)) {
         const int want = (on_top != SDL_FALSE); /* normalize the flag. */
         const int have = ((window->flags & SDL_WINDOW_ALWAYS_ON_TOP) != 0);
@@ -2339,7 +2339,7 @@ void SDL_SetWindowAlwaysOnTop(SDL_Window *window, SDL_bool on_top)
 
 void SDL_SetWindowSize(SDL_Window *window, int w, int h)
 {
-    CHECK_WINDOW_MAGIC(window, );
+    CHECK_WINDOW_MAGIC(window, SDL_NOTHING);
     if (w <= 0) {
         SDL_InvalidParamError("w");
         return;
@@ -2388,7 +2388,7 @@ void SDL_SetWindowSize(SDL_Window *window, int w, int h)
 
 void SDL_GetWindowSize(SDL_Window *window, int *w, int *h)
 {
-    CHECK_WINDOW_MAGIC(window, );
+    CHECK_WINDOW_MAGIC(window, SDL_NOTHING);
     if (w) {
         *w = window->w;
     }
@@ -2430,7 +2430,7 @@ void SDL_GetWindowSizeInPixels(SDL_Window *window, int *w, int *h)
 {
     int filter;
 
-    CHECK_WINDOW_MAGIC(window, );
+    CHECK_WINDOW_MAGIC(window, SDL_NOTHING);
 
     if (!w) {
         w = &filter;
@@ -2449,7 +2449,7 @@ void SDL_GetWindowSizeInPixels(SDL_Window *window, int *w, int *h)
 
 void SDL_SetWindowMinimumSize(SDL_Window *window, int min_w, int min_h)
 {
-    CHECK_WINDOW_MAGIC(window, );
+    CHECK_WINDOW_MAGIC(window, SDL_NOTHING);
     if (min_w <= 0) {
         SDL_InvalidParamError("min_w");
         return;
@@ -2479,7 +2479,7 @@ void SDL_SetWindowMinimumSize(SDL_Window *window, int min_w, int min_h)
 
 void SDL_GetWindowMinimumSize(SDL_Window *window, int *min_w, int *min_h)
 {
-    CHECK_WINDOW_MAGIC(window, );
+    CHECK_WINDOW_MAGIC(window, SDL_NOTHING);
     if (min_w) {
         *min_w = window->min_w;
     }
@@ -2490,7 +2490,7 @@ void SDL_GetWindowMinimumSize(SDL_Window *window, int *min_w, int *min_h)
 
 void SDL_SetWindowMaximumSize(SDL_Window *window, int max_w, int max_h)
 {
-    CHECK_WINDOW_MAGIC(window, );
+    CHECK_WINDOW_MAGIC(window, SDL_NOTHING);
     if (max_w <= 0) {
         SDL_InvalidParamError("max_w");
         return;
@@ -2519,7 +2519,7 @@ void SDL_SetWindowMaximumSize(SDL_Window *window, int max_w, int max_h)
 
 void SDL_GetWindowMaximumSize(SDL_Window *window, int *max_w, int *max_h)
 {
-    CHECK_WINDOW_MAGIC(window, );
+    CHECK_WINDOW_MAGIC(window, SDL_NOTHING);
     if (max_w) {
         *max_w = window->max_w;
     }
@@ -2530,7 +2530,7 @@ void SDL_GetWindowMaximumSize(SDL_Window *window, int *max_w, int *max_h)
 
 void SDL_ShowWindow(SDL_Window *window)
 {
-    CHECK_WINDOW_MAGIC(window, );
+    CHECK_WINDOW_MAGIC(window, SDL_NOTHING);
 
     if (window->flags & SDL_WINDOW_SHOWN) {
         return;
@@ -2547,7 +2547,7 @@ void SDL_ShowWindow(SDL_Window *window)
 
 void SDL_HideWindow(SDL_Window *window)
 {
-    CHECK_WINDOW_MAGIC(window, );
+    CHECK_WINDOW_MAGIC(window, SDL_NOTHING);
 
     if (!(window->flags & SDL_WINDOW_SHOWN)) {
         return;
@@ -2568,7 +2568,7 @@ void SDL_HideWindow(SDL_Window *window)
 
 void SDL_RaiseWindow(SDL_Window *window)
 {
-    CHECK_WINDOW_MAGIC(window, );
+    CHECK_WINDOW_MAGIC(window, SDL_NOTHING);
 
     if (!(window->flags & SDL_WINDOW_SHOWN)) {
         return;
@@ -2580,7 +2580,7 @@ void SDL_RaiseWindow(SDL_Window *window)
 
 void SDL_MaximizeWindow(SDL_Window *window)
 {
-    CHECK_WINDOW_MAGIC(window, );
+    CHECK_WINDOW_MAGIC(window, SDL_NOTHING);
 
     if (window->flags & SDL_WINDOW_MAXIMIZED) {
         return;
@@ -2603,7 +2603,7 @@ static SDL_bool CanMinimizeWindow(SDL_Window *window)
 
 void SDL_MinimizeWindow(SDL_Window *window)
 {
-    CHECK_WINDOW_MAGIC(window, );
+    CHECK_WINDOW_MAGIC(window, SDL_NOTHING);
 
     if (window->flags & SDL_WINDOW_MINIMIZED) {
         return;
@@ -2624,7 +2624,7 @@ void SDL_MinimizeWindow(SDL_Window *window)
 
 void SDL_RestoreWindow(SDL_Window *window)
 {
-    CHECK_WINDOW_MAGIC(window, );
+    CHECK_WINDOW_MAGIC(window, SDL_NOTHING);
 
     if (!(window->flags & (SDL_WINDOW_MAXIMIZED | SDL_WINDOW_MINIMIZED))) {
         return;
@@ -3038,7 +3038,7 @@ void SDL_UpdateWindowGrab(SDL_Window * window)
 
 void SDL_SetWindowGrab(SDL_Window *window, SDL_bool grabbed)
 {
-    CHECK_WINDOW_MAGIC(window, );
+    CHECK_WINDOW_MAGIC(window, SDL_NOTHING);
 
     SDL_SetWindowMouseGrab(window, grabbed);
 
@@ -3049,7 +3049,7 @@ void SDL_SetWindowGrab(SDL_Window *window, SDL_bool grabbed)
 
 void SDL_SetWindowKeyboardGrab(SDL_Window *window, SDL_bool grabbed)
 {
-    CHECK_WINDOW_MAGIC(window, );
+    CHECK_WINDOW_MAGIC(window, SDL_NOTHING);
 
     if (!!grabbed == !!(window->flags & SDL_WINDOW_KEYBOARD_GRABBED)) {
         return;
@@ -3064,7 +3064,7 @@ void SDL_SetWindowKeyboardGrab(SDL_Window *window, SDL_bool grabbed)
 
 void SDL_SetWindowMouseGrab(SDL_Window *window, SDL_bool grabbed)
 {
-    CHECK_WINDOW_MAGIC(window, );
+    CHECK_WINDOW_MAGIC(window, SDL_NOTHING);
 
     if (!!grabbed == !!(window->flags & SDL_WINDOW_MOUSE_GRABBED)) {
         return;
@@ -3306,7 +3306,7 @@ void SDL_DestroyWindow(SDL_Window *window)
 {
     SDL_VideoDisplay *display;
 
-    CHECK_WINDOW_MAGIC(window, );
+    CHECK_WINDOW_MAGIC(window, SDL_NOTHING);
 
     window->is_destroying = SDL_TRUE;
 
@@ -4171,7 +4171,7 @@ SDL_GLContext SDL_GL_GetCurrentContext(void)
 
 void SDL_GL_GetDrawableSize(SDL_Window * window, int *w, int *h)
 {
-    CHECK_WINDOW_MAGIC(window, );
+    CHECK_WINDOW_MAGIC(window, SDL_NOTHING);
 
     if (_this->GL_GetDrawableSize) {
         _this->GL_GetDrawableSize(_this, window, w, h);
@@ -4775,7 +4775,7 @@ SDL_bool SDL_Vulkan_CreateSurface(SDL_Window *window,
 
 void SDL_Vulkan_GetDrawableSize(SDL_Window *window, int *w, int *h)
 {
-    CHECK_WINDOW_MAGIC(window, );
+    CHECK_WINDOW_MAGIC(window, SDL_NOTHING);
 
     if (_this->Vulkan_GetDrawableSize) {
         _this->Vulkan_GetDrawableSize(_this, window, w, h);
@@ -4828,7 +4828,7 @@ void *SDL_Metal_GetLayer(SDL_MetalView view)
 
 void SDL_Metal_GetDrawableSize(SDL_Window *window, int *w, int *h)
 {
-    CHECK_WINDOW_MAGIC(window, );
+    CHECK_WINDOW_MAGIC(window, SDL_NOTHING);
 
     if (_this->Metal_GetDrawableSize) {
         _this->Metal_GetDrawableSize(_this, window, w, h);

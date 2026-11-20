@@ -137,7 +137,7 @@ typedef enum
 {
     SDL_RENDERLINEMETHOD_POINTS,
     SDL_RENDERLINEMETHOD_LINES,
-    SDL_RENDERLINEMETHOD_GEOMETRY,
+    SDL_RENDERLINEMETHOD_GEOMETRY
 } SDL_RenderLineMethod;
 
 /* Define the SDL renderer structure */

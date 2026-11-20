@@ -62,10 +62,10 @@ int SDL_SYS_CreateThread(SDL_Thread *thread,
 int SDL_SYS_CreateThread(SDL_Thread *thread)
 #endif /* SDL_PASSED_BEGINTHREAD_ENDTHREAD */
 {
-    //fprintf(stderr,"macosclassic create thread %08lx\n",(long)thread); fflush(stderr);
-    //fprintf(stderr,"macosclassic create thread name=%s\n",thread->name); fflush(stderr);
-    // style entry param stack opts &result &id
-    // NOTE: We don't handle return code
+    /*fprintf(stderr,"macosclassic create thread %08lx\n",(long)thread); fflush(stderr); */
+    /*fprintf(stderr,"macosclassic create thread name=%s\n",thread->name); fflush(stderr); */
+    /* style entry param stack opts &result &id */
+    /* NOTE: We don't handle return code */
 #if defined(TARGET_API_MAC_CARBON) && TARGET_API_MAC_CARBON
     if (!run_thread_upp)
       run_thread_upp = NewThreadEntryUPP(RunThread);
@@ -87,7 +87,7 @@ void SDL_SYS_SetupThread(const char *name)
 #ifdef MYDEBUG
     fprintf(stderr,"macosclassic setup thread name=%s\n",name); fflush(stderr);
 #endif
-    // Safe to ignore?
+    /* Safe to ignore? */
     return;
 }
 
@@ -95,7 +95,7 @@ SDL_threadID SDL_ThreadID(void)
 {
     SDL_threadID ret=0;
     ThreadID id;
-    //fprintf(stderr,"macosclassic id thread\n"); fflush(stderr);
+    /*fprintf(stderr,"macosclassic id thread\n"); fflush(stderr); */
     /*Mac*/GetCurrentThread(&id);
     ret=id;
 #ifdef MYDEBUG
@@ -115,7 +115,7 @@ int SDL_SYS_SetThreadPriority(SDL_ThreadPriority priority)
 void SDL_SYS_WaitThread(SDL_Thread *thread)
 {
     ThreadState tstate = kStoppedThreadState;
-    //fprintf(stderr,"macosclassic wait thread=%08lx\n",(long)thread); fflush(stderr);
+    /*fprintf(stderr,"macosclassic wait thread=%08lx\n",(long)thread); fflush(stderr); */
 #ifdef MYDEBUG
     fprintf(stderr,"macosclassic wait thread %08lx handle=%08lx\n",(long)thread,(long)thread->handle); fflush(stderr);
 #endif
